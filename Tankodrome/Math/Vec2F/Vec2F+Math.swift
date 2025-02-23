@@ -8,15 +8,15 @@
 import Foundation
 
 extension Vec2F {
-    public func squaredDistance(to other: Self) -> CGFloat {
+    func squaredDistance(to other: Self) -> CGFloat {
         (self - other).squaredDistance()
     }
     
-    public func squaredDistance() -> CGFloat {
+    func squaredDistance() -> CGFloat {
         self.first.sqr() + self.second.sqr()
     }
     
-    public func atan2() -> CGFloat {
+    func atan2() -> CGFloat {
         Darwin.atan2(second, first)
     }
 }

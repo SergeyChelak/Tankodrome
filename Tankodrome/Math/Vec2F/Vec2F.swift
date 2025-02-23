@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol Vec2F {
+protocol Vec2F {
     var first: CGFloat { get set }
     var second: CGFloat { get set }
     static func new(_ first: CGFloat, _ second: CGFloat) -> Self
