@@ -22,3 +22,5 @@ extension CGPoint: Vec2F {
         Self(x: first, y: second)
     }
 }
+
+extension CGPoint: Rotation2F { }

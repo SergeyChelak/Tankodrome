@@ -26,3 +26,5 @@ extension CGVector: Vec2F {
         Self(dx: first, dy: second)
     }
 }
+
+extension CGVector: Rotation2F { }

@@ -8,10 +8,14 @@
 import Foundation
 
 protocol System {
-    func update(context: SceneContext)
+    func onUpdate(context: GameSceneContext)
+    
+    func onContact(context: GameSceneContext, collision: Collision)
+    
+    func onPhysicsSimulated(context: GameSceneContext)
 }
 
-protocol SceneContext {
-    var deltaTime: TimeInterval { get }
-    var sprites: [Sprite] { get }
+struct Collision {
+    let firstBody: Sprite
+    let secondBody: Sprite
 }
