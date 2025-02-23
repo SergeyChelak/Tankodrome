@@ -10,3 +10,9 @@ import Foundation
 class GameViewModel: ObservableObject {
     
 }
+
+extension GameViewModel: ControlHandler {
+    func handle(_ event: ControlEvent) {
+        //
+    }
+}

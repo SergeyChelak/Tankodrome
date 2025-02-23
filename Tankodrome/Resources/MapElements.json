@@ -161,7 +161,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -173,7 +173,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -185,7 +185,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -198,7 +198,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -211,7 +211,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -224,7 +224,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -236,7 +236,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -248,7 +248,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -260,7 +260,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -274,8 +274,8 @@
             "body": {
                 "shape": "rectangle",
                 "pole": "center",
-                "width": "16",
-                "height": "64"
+                "width": 16,
+                "height": 64
             }
         },
         {
@@ -289,8 +289,8 @@
             "body": {
                 "shape": "rectangle",
                 "pole": "center",
-                "width": "16",
-                "height": "64"
+                "width": 16,
+                "height": 64
             }
         },
         {
@@ -304,8 +304,8 @@
             "body": {
                 "shape": "rectangle",
                 "pole": "center",
-                "width": "16",
-                "height": "64"
+                "width": 16,
+                "height": 64
             }
         },
         {
@@ -318,7 +318,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -331,7 +331,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -344,7 +344,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -357,7 +357,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -370,7 +370,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -383,7 +383,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -396,7 +396,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -409,7 +409,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -422,7 +422,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         },
         {
@@ -436,8 +436,8 @@
             "body": {
                 "shape": "rectangle",
                 "pole": "center",
-                "width": "128",
-                "height": "32"
+                "width": 128,
+                "height": 32
             }
         },
         {
@@ -450,7 +450,7 @@
             "body": {
                 "shape": "circle",
                 "pole": "center",
-                "radius": "32"
+                "radius": 32
             }
         }
     ]

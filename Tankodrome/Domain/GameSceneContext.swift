@@ -10,6 +10,5 @@ import Foundation
 protocol GameSceneContext {
     var deltaTime: TimeInterval { get }
     var sprites: [Sprite] { get }
-    
     func rayCast(from start: CGPoint, rayLength: CGFloat, angle: CGFloat) -> [Sprite]
 }

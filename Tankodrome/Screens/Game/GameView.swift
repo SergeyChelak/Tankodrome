@@ -40,14 +40,14 @@ struct GameView: View {
                 controller.disconnect()
             }
 #endif
-            Text("Here could be your game")
-                .foregroundStyle(.red)
         }
     }
 }
 
 fileprivate func makeScene(_ size: CGSize) -> SKScene {
-    SKScene(size: size)
+    let scene = GameScene()
+    scene.size = size
+    return scene
 }
 
 #Preview {
