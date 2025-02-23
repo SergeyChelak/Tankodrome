@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Ground_Tile_01_C.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

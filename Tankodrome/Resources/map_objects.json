@@ -1,0 +1,457 @@
+{
+    "landscape": [
+        {
+            "name": "Decor_Tile_B_01",
+            "group": "cement",
+            "connectors": {
+                "up": "6,7,8",
+                "right": "1",
+                "down": "2",
+                "left": "6,7,8"
+            }
+        },
+        {
+            "name": "Decor_Tile_B_02",
+            "group": "cement",
+            "connectors": {
+                "up": "6,7,8",
+                "right": "1",
+                "down": "3",
+                "left": "1"
+            }
+        },
+        {
+            "name": "Decor_Tile_B_03",
+            "group": "cement",
+            "connectors": {
+                "up": "6,7,8",
+                "right": "6,7,8",
+                "down": "5",
+                "left": "1"
+            }
+        },
+        {
+            "name": "Decor_Tile_B_04",
+            "group": "cement",
+            "connectors": {
+                "up": "2",
+                "right": "3",
+                "down": "2",
+                "left": "6,7,8"
+            }
+        },
+        {
+            "name": "Decor_Tile_B_05",
+            "group": "cement",
+            "connectors": {
+                "up": "3",
+                "right": "3",
+                "down": "3",
+                "left": "3"
+            }
+        },
+        {
+            "name": "Decor_Tile_B_06",
+            "group": "cement",
+            "connectors": {
+                "up": "5",
+                "right": "6,7,8",
+                "down": "5",
+                "left": "3"
+            }
+        },
+        {
+            "name": "Decor_Tile_B_07",
+            "group": "cement",
+            "connectors": {
+                "up": "2",
+                "right": "4",
+                "down": "6,7,8",
+                "left": "6,7,8"
+            }
+        },
+        {
+            "name": "Decor_Tile_B_08",
+            "group": "cement",
+            "connectors": {
+                "up": "3",
+                "right": "4",
+                "down": "6,7,8",
+                "left": "4"
+            }
+        },
+        {
+            "name": "Decor_Tile_B_09",
+            "group": "cement",
+            "connectors": {
+                "up": "5",
+                "right": "6,7,8",
+                "down": "6,7,8",
+                "left": "4"
+            }
+        },
+        {
+            "name": "Ground_Tile_01_A",
+            "group": "swamp",
+            "connectors": {
+                "up": "6",
+                "right": "6",
+                "down": "6",
+                "left": "6"
+            }
+        },
+        {
+            "name": "Ground_Tile_02_A",
+            "group": "swamp",
+            "connectors": {
+                "up": "6",
+                "right": "6",
+                "down": "6",
+                "left": "6"
+            }
+        },
+        {
+            "name": "Ground_Tile_01_B",
+            "group": "grass",
+            "connectors": {
+                "up": "7",
+                "right": "7",
+                "down": "7",
+                "left": "7"
+            }
+        },
+        {
+            "name": "Ground_Tile_02_B",
+            "group": "grass",
+            "connectors": {
+                "up": "7",
+                "right": "7",
+                "down": "7",
+                "left": "7"
+            }
+        },
+        {
+            "name": "Ground_Tile_01_C",
+            "group": "swamp",
+            "connectors": {
+                "up": "8",
+                "right": "8",
+                "down": "8",
+                "left": "8"
+            }
+        },
+        {
+            "name": "Ground_Tile_02_C",
+            "group": "swamp",
+            "connectors": {
+                "up": "8",
+                "right": "8",
+                "down": "8",
+                "left": "8"
+            }
+        }
+    ],
+    "objects": [
+        {
+            "name": "Barrel_01",
+            "landscape": [
+                "cement"
+            ],
+            "rotate": "free",
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Barrel_02",
+            "rotate": "free",
+            "landscape": [
+                "cement"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Barrel_03",
+            "rotate": "free",
+            "landscape": [
+                "cement"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Cactus_01",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Cactus_02",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Cactus_03",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Rock_01",
+            "rotate": "free",
+            "landscape": [
+                "cement"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Rock_02",
+            "rotate": "free",
+            "landscape": [
+                "cement"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Rock_03",
+            "rotate": "free",
+            "landscape": [
+                "cement"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tire_01",
+            "rotate": "free",
+            "landscape": [
+                "cement",
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "rectangle",
+                "pole": "center",
+                "width": "16",
+                "height": "64"
+            }
+        },
+        {
+            "name": "Tire_02",
+            "rotate": "free",
+            "landscape": [
+                "cement",
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "rectangle",
+                "pole": "center",
+                "width": "16",
+                "height": "64"
+            }
+        },
+        {
+            "name": "Tire_03",
+            "rotate": "free",
+            "landscape": [
+                "cement",
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "rectangle",
+                "pole": "center",
+                "width": "16",
+                "height": "64"
+            }
+        },
+        {
+            "name": "Tree_01",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tree_02",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tree_03",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tree_04",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tree_05",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tree_06",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tree_07",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tree_08",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Tree_09",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        },
+        {
+            "name": "Log",
+            "rotate": "free",
+            "landscape": [
+                "cement",
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "rectangle",
+                "pole": "center",
+                "width": "128",
+                "height": "32"
+            }
+        },
+        {
+            "name": "Stump",
+            "rotate": "free",
+            "landscape": [
+                "grass",
+                "swamp"
+            ],
+            "body": {
+                "shape": "circle",
+                "pole": "center",
+                "radius": "32"
+            }
+        }
+    ]
+}
