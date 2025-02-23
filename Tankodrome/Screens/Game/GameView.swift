@@ -10,7 +10,7 @@ import SpriteKit
 
 struct GameView: View {
 #if os(iOS)
-    private let controller = makeVirtualController()
+    private let controller = makeVirtualController(nil)
 #endif
     var body: some View {
         GeometryReader { proxy in
