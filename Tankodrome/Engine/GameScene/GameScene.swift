@@ -15,24 +15,40 @@ class GameScene: SKScene, GameSceneContext {
     public private(set) var deltaTime: TimeInterval = 0.0
     public private(set) var sprites: [Sprite] = []
     
+    // TODO: make private
+    var levelRect: CGRect = .zero
+    
     func register(_ system: System) {
         systems.append(system)
     }
     
     override func didMove(to view: SKView) {
         super.didMove(to: view)
-//        setupCamera()
+        setupCamera()
         physicsWorld.contactDelegate = self
     }
     
     private func setupCamera() {
         self.camera = viewportCamera
-//        viewportCamera.setScale(5)
+        viewportCamera.setScale(mapScaleFactor)
         alignCameraPosition()
     }
     
+    private var mapScaleFactor: CGFloat = 3
     private func alignCameraPosition() {
-        //
+//        guard let position = entities(with: PlayerMarker.self).first.position else {
+//            return
+//        }
+        let position = CGPoint(x: 0, y: 0)
+        var x = position.x
+        x = max(x, mapScaleFactor * size.width * 0.5)
+        x = min(x, levelRect.width - mapScaleFactor * size.width * 0.5)
+        
+        var y = position.y
+        y = max(y, mapScaleFactor * size.height * 0.5)
+        y = min(y, levelRect.height - mapScaleFactor * size.height * 0.5)
+        let cameraPosition = CGPoint(x: x, y: y)
+        camera?.position = cameraPosition
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -43,6 +59,21 @@ class GameScene: SKScene, GameSceneContext {
             $0.onUpdate(context: self)
         }
         previousTime = currentTime
+    }
+    
+    public override func didSimulatePhysics() {
+        super.didSimulatePhysics()
+        alignCameraPosition()
+//        for system in self.systems[.physicsSimulated] ?? [] {
+//            system.update(sceneContext: self)
+//        }
+//        
+//        addChildren(entitiesToSpawn)
+//        entitiesToSpawn.removeAll()
+//        
+//        entitiesToKill.forEach { $0.removeFromParent() }
+//        entitiesToKill.removeAll()
+
     }
     
     private func nodes<T>() -> [T] {

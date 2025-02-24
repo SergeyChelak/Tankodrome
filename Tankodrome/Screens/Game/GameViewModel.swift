@@ -30,7 +30,8 @@ class GameViewModel: ObservableObject {
         do {
             try generator.load()
             let level = try generator.generateLevel()
-            scene.addChild(level.landscape)            
+            scene.addChild(level.landscape)
+            scene.levelRect = CGRect(origin: .zero, size: level.size)
         } catch {
             print(error)
         }

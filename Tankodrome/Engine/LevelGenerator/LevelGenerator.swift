@@ -29,15 +29,18 @@ class LevelGenerator {
     
     func generateLevel() throws -> Level {
         // TODO: apply random size
-        let rows = 7
-        let cols = 13
+        let rows = 50
+        let cols = 50
         
-        let landscape = try generateLandscape(rows: rows, cols: cols)
+        let (size, landscape) = try generateLandscape(rows: rows, cols: cols)
         
-        return Level(landscape: landscape)
+        return Level(
+            size: size,
+            landscape: landscape
+        )
     }
     
-    private func generateLandscape(rows: Int, cols: Int) throws -> SKTileMapNode {
+    private func generateLandscape(rows: Int, cols: Int) throws -> (CGSize, SKTileMapNode) {
         waveFunctionCollapse.setSize(rows: rows, cols: cols)
         try waveFunctionCollapse.start()
         // not efficient to get these values each time
@@ -61,8 +64,8 @@ class LevelGenerator {
                 tileMap.setTileGroup(group, forColumn: col, row: row)
             }
         }
-        
-        return tileMap
+        let size = CGSize(width: rows, height: cols) * tileSet.defaultTileSize
+        return (size, tileMap)
     }
 }
 

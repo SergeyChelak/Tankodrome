@@ -9,6 +9,7 @@ import Foundation
 import SpriteKit
 
 struct Level {
+    let size: CGSize
     let landscape: SKTileMapNode
 //    let npc: [Sprite]
 //    let player: Sprite
