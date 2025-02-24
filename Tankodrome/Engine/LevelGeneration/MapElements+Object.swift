@@ -36,7 +36,7 @@ extension MapElements {
                 let radius = try container.decode(Int.self, forKey: .radius)
                 self = .circle(pole: pole, radius: radius)
             default:
-                throw MapElementsParseError.unknownBodyType(shape)
+                throw LoadError.unknownBodyType(shape)
             }
         }
     }
