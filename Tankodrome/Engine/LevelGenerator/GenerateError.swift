@@ -13,4 +13,5 @@ enum GenerateError: Error {
     case invalidConnectorValue(String)
     case invalidState
     case unableCollapse
+    case wrongTileSet(String)
 }

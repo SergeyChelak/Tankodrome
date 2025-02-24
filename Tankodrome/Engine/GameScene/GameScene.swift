@@ -21,13 +21,13 @@ class GameScene: SKScene, GameSceneContext {
     
     override func didMove(to view: SKView) {
         super.didMove(to: view)
-        setupCamera()
+//        setupCamera()
         physicsWorld.contactDelegate = self
     }
     
     private func setupCamera() {
         self.camera = viewportCamera
-//        cameraNode.setScale(mapScaleFactor)
+//        viewportCamera.setScale(5)
         alignCameraPosition()
     }
     

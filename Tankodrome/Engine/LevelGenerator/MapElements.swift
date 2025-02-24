@@ -57,3 +57,8 @@ struct MapElements: Decodable {
         }
     }
 }
+
+
+extension MapElements {
+    static let empty = MapElements(landscape: [], objects: [])
+}

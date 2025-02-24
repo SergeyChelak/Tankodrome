@@ -8,6 +8,8 @@
 import Foundation
 
 extension WaveFunctionCollapse {
+    typealias Grid = [Cell]
+    
     struct Cell {
         var options: Set<TileId>
         

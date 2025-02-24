@@ -12,6 +12,10 @@ struct GameView: View {
 #if os(iOS)
     private let controller = makeVirtualController(nil)
 #endif
+    // TODO: inverse dependency
+    @StateObject
+    var viewModel = GameViewModel()
+    
     var body: some View {
         GeometryReader { proxy in
             contentView(proxy.size)
@@ -21,14 +25,17 @@ struct GameView: View {
     private func contentView(_ size: CGSize) -> some View {
         ZStack {
             SpriteView(
-                scene: makeScene(size),
+                scene: viewModel.scene(with: size),
                 options: [.ignoresSiblingOrder],
                 debugOptions: [.showsFPS, .showsPhysics, .showsNodeCount]
             )
             .ignoresSafeArea()
+            .task {
+                viewModel.load()
+            }
 #if os(OSX)
             .onKeyPress(phases: .all) { press in
-                // TODO: viewModel.onKeyPress(press)
+                viewModel.onKeyPress(press)
                 return .handled
             }
 #endif
@@ -42,12 +49,6 @@ struct GameView: View {
 #endif
         }
     }
-}
-
-fileprivate func makeScene(_ size: CGSize) -> SKScene {
-    let scene = GameScene()
-    scene.size = size
-    return scene
 }
 
 #Preview {

@@ -8,8 +8,6 @@
 import Foundation
 
 extension WaveFunctionCollapse {
-    typealias Grid = [Cell]
-    
     struct State {
         let grid: Grid
         let fittestCellIndices: Set<Int>

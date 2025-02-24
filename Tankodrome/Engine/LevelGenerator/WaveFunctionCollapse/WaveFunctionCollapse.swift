@@ -8,17 +8,17 @@
 import Foundation
 import DequeModule
 
-final class WaveFunctionCollapse {
-    typealias TileId = String
+final class WaveFunctionCollapse {    
     typealias TileIdSet = Set<TileId>
     
     private var size: Size = .zero
-    private(set) var grid: Grid = []
-    private(set) var tileMap: [TileId: Tile] = [:]
+    private var grid: Grid = []
+    private var tileMap: [TileId: Tile] = [:]
     
     // MARK: setup
     func setSize(rows: Int, cols: Int) {
         self.size = Size(rows: rows, cols: cols)
+        reset()
     }
     
     func set(dtoTiles: [MapElements.Tile]) throws {
@@ -199,5 +199,16 @@ final class WaveFunctionCollapse {
             .reduce(TileIdSet()) { acc, val in
                 acc.union(val)
             }
+    }
+}
+
+extension WaveFunctionCollapse: TileDataSource {
+    func tileId(row: Int, col: Int) -> TileId? {
+        let pos = Position(row: row, col: col)
+        guard pos.isInside(of: size) else {
+            return nil
+        }
+        let cell = grid[pos.index(in: size)]
+        return cell.isCollapsed ? cell.options.first : nil
     }
 }
