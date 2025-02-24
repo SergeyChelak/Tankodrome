@@ -1,5 +1,5 @@
 //
-//  MapElements+Object.swift
+//  MapElements.swift
 //  Tankodrome
 //
 //  Created by Sergey on 24.02.2025.
@@ -7,7 +7,10 @@
 
 import Foundation
 
-extension MapElements {
+struct MapElements: Decodable {
+    let landscape: [Tile]
+    let objects: [Object]
+
     struct Object: Decodable {
         let name: String
         let rotate: String
@@ -36,9 +39,21 @@ extension MapElements {
                 let radius = try container.decode(Int.self, forKey: .radius)
                 self = .circle(pole: pole, radius: radius)
             default:
-                throw LoadError.unknownBodyType(shape)
+                throw GenerateError.unknownBodyType(shape)
             }
         }
     }
+    
+    struct Tile: Decodable {
+        let name: String
+        let group: String
+        let connectors: Connectors
         
+        struct Connectors: Decodable {
+            let up: String
+            let right: String
+            let down: String
+            let left: String
+        }
+    }
 }
