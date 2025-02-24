@@ -16,9 +16,8 @@ struct Level {
 
 func generate() throws {
     let elements = try load(filename: "MapElements", type: "json")
-    let tiles = try prepareTiles(dtoTiles: elements.landscape)
     let wfc = WaveFunctionCollapse()
-    wfc.setup(tiles)
+    try wfc.set(dtoTiles: elements.landscape)
 }
 
 private func prepareTiles(dtoTiles: [MapElements.Tile]) throws -> [WaveFunctionCollapse.Tile] {
@@ -27,12 +26,30 @@ private func prepareTiles(dtoTiles: [MapElements.Tile]) throws -> [WaveFunctionC
         let tile = try WaveFunctionCollapse.Tile.from(dto: element)
         tiles.append(tile)
     }
-    updateConstrains(&tiles)
+    updateConstrains(&tiles )
     return tiles
 }
 
 private func updateConstrains(_ tiles: inout [WaveFunctionCollapse.Tile]) {
-    fatalError()
+    let isMatch = { (first: WaveFunctionCollapse.Tile.Options, second: WaveFunctionCollapse.Tile.Options) -> Bool in
+        !first.intersection(second).isEmpty
+    }
+    for tile in tiles {
+        for other in tiles {
+            if isMatch(tile.up, other.down) {
+                tile.upConstraints.insert(other.name)
+            }
+            if isMatch(tile.right, other.left) {
+                tile.rightConstraints.insert(other.name)
+            }
+            if isMatch(tile.down, other.up) {
+                tile.downConstraints.insert(other.name)
+            }
+            if isMatch(tile.left, other.right) {
+                tile.leftConstraints.insert(other.name)
+            }
+        }
+    }
 }
 
 private func load(filename: String, type: String) throws -> MapElements {

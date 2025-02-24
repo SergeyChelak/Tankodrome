@@ -10,16 +10,16 @@ import Foundation
 extension WaveFunctionCollapse {
     final class Tile {
         typealias Options = Set<Int>
-        let name: String
+        let name: TileId
         let up: Options
         let right: Options
         let down: Options
         let left: Options
         
-        var upConstraints: Set<Int> = []
-        var rightConstraints: Set<Int> = []
-        var downConstraints: Set<Int> = []
-        var leftConstraints: Set<Int> = []
+        var upConstraints: Set<TileId> = []
+        var rightConstraints: Set<TileId> = []
+        var downConstraints: Set<TileId> = []
+        var leftConstraints: Set<TileId> = []
         
         init(name: String, up: Options, right: Options, down: Options, left: Options) {
             self.name = name

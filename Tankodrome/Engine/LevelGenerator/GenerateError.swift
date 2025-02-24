@@ -11,4 +11,6 @@ enum GenerateError: Error {
     case badPath(String)
     case unknownBodyType(String)
     case invalidConnectorValue(String)
+    case invalidState
+    case unableCollapse
 }
