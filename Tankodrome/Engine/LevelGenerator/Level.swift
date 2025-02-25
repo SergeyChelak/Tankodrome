@@ -9,8 +9,19 @@ import Foundation
 import SpriteKit
 
 struct Level {
-    let size: CGSize
-    let landscape: SKTileMapNode
+    let landscape: Landscape
 //    let npc: [Sprite]
 //    let player: Sprite
+    
+    struct Landscape {
+        let tileMap: SKTileMapNode
+        let tileSize: CGSize
+        let rows: Int
+        let cols: Int
+        
+        var levelSize: CGSize {
+            CGSize(width: cols, height: rows) * tileSize
+        }
+    }
 }
+

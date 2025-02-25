@@ -31,7 +31,7 @@ struct GameView: View {
             )
             .ignoresSafeArea()
             .task {
-                viewModel.load()
+                await viewModel.load()
             }
 #if os(OSX)
             .onKeyPress(phases: .all) { press in

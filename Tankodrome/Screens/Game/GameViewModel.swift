@@ -26,15 +26,22 @@ class GameViewModel: ObservableObject {
     }
     
     // temporary...
-    func load() {
+    func load() async {
         do {
             try generator.load()
             let level = try generator.generateLevel()
-            scene.addChild(level.landscape)
-            scene.levelRect = CGRect(origin: .zero, size: level.size)
+            
+            let landscape = level.landscape
+            await update(landscape: landscape)
         } catch {
             print(error)
         }
+    }
+    
+    @MainActor
+    private func update(landscape: Level.Landscape) async {
+        scene.addChild(landscape.tileMap)
+        scene.levelRect = CGRect(origin: .zero, size: landscape.levelSize)
     }
 }
 

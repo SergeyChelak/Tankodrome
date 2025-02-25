@@ -32,15 +32,14 @@ class LevelGenerator {
         let rows = 50
         let cols = 50
         
-        let (size, landscape) = try generateLandscape(rows: rows, cols: cols)
+        let landscape = try generateLandscape(rows: rows, cols: cols)
         
         return Level(
-            size: size,
             landscape: landscape
         )
     }
     
-    private func generateLandscape(rows: Int, cols: Int) throws -> (CGSize, SKTileMapNode) {
+    private func generateLandscape(rows: Int, cols: Int) throws -> Level.Landscape {
         waveFunctionCollapse.setSize(rows: rows, cols: cols)
         while true {
             do {
@@ -73,8 +72,12 @@ class LevelGenerator {
                 tileMap.setTileGroup(group, forColumn: col, row: rows - row - 1)
             }
         }
-        let size = CGSize(width: cols, height: rows) * tileSize
-        return (size, tileMap)
+        return Level.Landscape(
+            tileMap: tileMap,
+            tileSize: tileSize,
+            rows: rows,
+            cols: cols
+        )
     }
 }
 
