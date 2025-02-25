@@ -28,7 +28,7 @@ class GameViewModel: ObservableObject {
             keyEquivalent: keyPress.key
         )
         let event: ControlEvent = .key(data)
-        // TODO: pass event to scene
+        handleControlEvent(event)
     }
     
     // temporary...
@@ -42,6 +42,12 @@ class GameViewModel: ObservableObject {
         } catch {
             print(error)
         }
+    }
+}
+
+extension GameViewModel: ControlHandler {
+    func handleControlEvent(_ event: ControlEvent) {
+        scene.pushControlEvent(event)
     }
 }
 

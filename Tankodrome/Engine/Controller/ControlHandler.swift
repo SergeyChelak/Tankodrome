@@ -8,5 +8,5 @@
 import Foundation
 
 protocol ControlHandler {
-    func handle(_ event: ControlEvent)
+    func handleControlEvent(_ event: ControlEvent)
 }

@@ -10,7 +10,7 @@ import SpriteKit
 
 struct GameView: View {
 #if os(iOS)
-    private let controller = makeVirtualController(nil)
+    private let controller = VirtualController()
 #endif
     // TODO: inverse dependency
     @StateObject
@@ -41,7 +41,7 @@ struct GameView: View {
 #endif
 #if os(iOS)
             .onAppear {
-                controller.connect()
+                controller.connect(to: viewModel)
             }
             .onDisappear {
                 controller.disconnect()
