@@ -20,6 +20,11 @@ class GameScene: SKScene {
     
     private var spawnList: [Sprite] = []
     private var killList: [Sprite] = []
+    
+    private let _controllerState = AggregatedControllerState()
+    var controllerState: ControllerState {
+        _controllerState
+    }
 
     func register(_ system: System) {
         systems.append(system)
@@ -32,6 +37,10 @@ class GameScene: SKScene {
         addChild(landscape.tileMap)        
         addChildren(level.sprites)
         alignCameraPosition()
+    }
+    
+    func pushControlEvent(_ event: ControlEvent) {
+        _controllerState.update(event)
     }
     
     override func didMove(to view: SKView) {

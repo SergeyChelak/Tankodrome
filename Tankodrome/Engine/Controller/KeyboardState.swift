@@ -8,11 +8,32 @@
 import Foundation
 
 final class KeyboardState {
-    var isUpArrowPressed = false
-    var isDownArrowPressed = false
-    var isLeftArrowPressed = false
-    var isRightArrowPressed = false
-    var isSpacePressed = false
-    var isMinusPressed = false
-    var isEqualsPressed = false
+    private(set) var isUpArrowPressed = false
+    private(set) var isDownArrowPressed = false
+    private(set) var isLeftArrowPressed = false
+    private(set) var isRightArrowPressed = false
+    private(set) var isSpacePressed = false
+    private(set) var isMinusPressed = false
+    private(set) var isEqualsPressed = false
+    
+    func update(_ data: ControlEvent.KeyData) {
+        switch data.keyEquivalent {
+        case .downArrow:
+            isDownArrowPressed = data.isPressed
+        case .upArrow:
+            isUpArrowPressed = data.isPressed
+        case .leftArrow:
+            isLeftArrowPressed = data.isPressed
+        case .rightArrow:
+            isRightArrowPressed = data.isPressed
+        case .space:
+            isSpacePressed = data.isPressed
+        case "-":
+            isMinusPressed = data.isPressed
+        case "+":
+            isEqualsPressed = data.isPressed
+        default:
+            break
+        }
+    }
 }

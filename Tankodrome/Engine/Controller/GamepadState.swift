@@ -8,10 +8,28 @@
 import Foundation
 
 final class GamepadState {
-    var xValue: Float = 0
-    var yValue: Float = 0
-    var isAPressed = false
-    var isBPressed = false
-    var isXPressed = false
-    var isYPressed = false
+    private(set) var xValue: Float = 0
+    private(set) var yValue: Float = 0
+    private(set) var isAPressed = false
+    private(set) var isBPressed = false
+    private(set) var isXPressed = false
+    private(set) var isYPressed = false
+    
+    func update(_ data: ControlEvent.GamepadDirectionData) {
+        xValue = data.xValue
+        yValue = data.yValue
+    }
+    
+    func update(_ data: ControlEvent.GamepadButtonState) {
+        switch data.button {
+        case .a:
+            isAPressed = data.isPressed
+        case .b:
+            isBPressed = data.isPressed
+        case .x:
+            isXPressed = data.isPressed
+        case .y:
+            isYPressed = data.isPressed
+        }
+    }
 }

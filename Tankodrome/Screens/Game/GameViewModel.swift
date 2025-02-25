@@ -22,7 +22,13 @@ class GameViewModel: ObservableObject {
     }
 
     func onKeyPress(_ keyPress: KeyPress) {
-//        let isPressed = keyPress.phase == .down || keyPress.phase == .repeat
+        let isPressed = keyPress.phase == .down || keyPress.phase == .repeat
+        let data = ControlEvent.KeyData(
+            isPressed: isPressed,
+            keyEquivalent: keyPress.key
+        )
+        let event: ControlEvent = .key(data)
+        // TODO: pass event to scene
     }
     
     // temporary...
