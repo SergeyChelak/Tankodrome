@@ -42,7 +42,14 @@ class LevelGenerator {
     
     private func generateLandscape(rows: Int, cols: Int) throws -> (CGSize, SKTileMapNode) {
         waveFunctionCollapse.setSize(rows: rows, cols: cols)
-        try waveFunctionCollapse.start()
+        while true {
+            do {
+                try waveFunctionCollapse.start(timeout: 1.5)
+                break
+            } catch GenerateError.timeout {
+                continue
+            }
+        }
         // not efficient to get these values each time
         // but it seems to be ok because this action occurs relatively rarely
         let (tileSet, tileGroups) = try tileSetGroups(with: configuration.tileSetName)

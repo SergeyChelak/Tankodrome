@@ -8,7 +8,7 @@
 import Foundation
 import DequeModule
 
-final class WaveFunctionCollapse {    
+final class WaveFunctionCollapse {
     typealias TileIdSet = Set<TileId>
     
     private var size: Size = .zero
@@ -18,7 +18,6 @@ final class WaveFunctionCollapse {
     // MARK: setup
     func setSize(rows: Int, cols: Int) {
         self.size = Size(rows: rows, cols: cols)
-        reset()
     }
     
     func set(dtoTiles: [MapElements.Tile]) throws {
@@ -34,7 +33,6 @@ final class WaveFunctionCollapse {
                 ($0.name, $0)
             }
         self.tileMap = Dictionary(uniqueKeysWithValues: sequence)
-        reset()
     }
     
     private func updateConstrains(_ tiles: inout [Tile]) {
@@ -59,20 +57,21 @@ final class WaveFunctionCollapse {
         }
     }
     
-    func reset() {
-        self.grid = [Cell].init(
-            repeating: defaultCell(),
-            count: size.count
-        )
-    }
-    
     private func defaultCell() -> Cell {
         let options = Set(tileMap.keys)
         return Cell(options: options)
     }
     
     // MARK: Wfc
-    func start() throws {
+    func start(timeout: TimeInterval) throws {
+        self.grid = [Cell].init(
+            repeating: defaultCell(),
+            count: size.count
+        )
+        let startTime = Date()
+        let duration = { () -> TimeInterval in
+            Date().timeIntervalSince(startTime)
+        }
         var states: [State] = []
         var mode: Mode = .normal
         while true {
@@ -109,6 +108,10 @@ final class WaveFunctionCollapse {
                 try updateAffectedCells(at: index)
             } catch {
                 mode = .backtrack
+            }
+            
+            if duration() > timeout {
+                throw GenerateError.timeout
             }
         }
     }

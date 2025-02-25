@@ -14,4 +14,5 @@ enum GenerateError: Error {
     case invalidState
     case unableCollapse
     case wrongTileSet(String)
+    case timeout
 }
