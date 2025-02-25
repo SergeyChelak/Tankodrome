@@ -20,3 +20,9 @@ extension Vec2F {
         Darwin.atan2(second, first)
     }
 }
+
+extension Vec2F {
+    func half() -> Self {
+        Self.new(0.5 * first, 0.5 * second)
+    }
+}

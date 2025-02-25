@@ -39,7 +39,11 @@ class GameScene: SKScene, GameSceneContext {
 //        guard let position = entities(with: PlayerMarker.self).first.position else {
 //            return
 //        }
-        let position = CGPoint(x: 0, y: 0)
+        let position = {
+            let size = levelRect.size.half()
+            return CGPoint(x: size.width, y: size.height)
+        }()
+        
         var x = position.x
         x = max(x, mapScaleFactor * size.width * 0.5)
         x = min(x, levelRect.width - mapScaleFactor * size.width * 0.5)
