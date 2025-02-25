@@ -14,7 +14,11 @@ class GameViewModel: ObservableObject {
         let config = levelGeneratorConfiguration()
         return LevelGenerator(configuration: config)
     }()
-    private let scene = GameScene()
+    private let scene = {
+        let scene = GameScene()
+        scene.register(ControllerSystem())
+        return scene
+    }()
     
     func scene(with size: CGSize) -> SKScene {
         scene.size = size

@@ -85,6 +85,7 @@ class LevelGenerator {
                .random()
                .color(.bronze)
                .addComponent(PlayerMarker())
+               .addComponent(ControllerComponent())
                .position(CGPoint(x: 1300, y: 1300))
                .build(),
            
