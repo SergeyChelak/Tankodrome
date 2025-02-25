@@ -10,20 +10,28 @@ import SpriteKit
 
 class GameScene: SKScene {
     private let viewportCamera = SKCameraNode()
-    private var systems: [System] = []
+    private var levelRect: CGRect = .zero
+    
     private var previousTime: TimeInterval?
     public private(set) var deltaTime: TimeInterval = 0.0
+    
+    private var systems: [System] = []
     public private(set) var sprites: [Sprite] = []
     
     private var spawnList: [Sprite] = []
     private var killList: [Sprite] = []
 
-    
-    // TODO: make private
-    var levelRect: CGRect = .zero
-    
     func register(_ system: System) {
         systems.append(system)
+    }
+    
+    func setLevel(_ level: Level) {
+        removeAllChildren()
+        let landscape = level.landscape
+        levelRect = CGRect(origin: .zero, size: landscape.levelSize)
+        addChild(landscape.tileMap)        
+        addChildren(level.sprites)
+        alignCameraPosition()
     }
     
     override func didMove(to view: SKView) {
@@ -45,6 +53,7 @@ class GameScene: SKScene {
     
     private var mapScaleFactor: CGFloat = 3
     private func alignCameraPosition() {
+        guard let camera else { return }
         let playerNode = nodes(with: PlayerMarker.self).first
         let position = playerNode?.position ?? defaultCameraPosition
         
@@ -56,7 +65,7 @@ class GameScene: SKScene {
         y = max(y, mapScaleFactor * size.height * 0.5)
         y = min(y, levelRect.height - mapScaleFactor * size.height * 0.5)
         let cameraPosition = CGPoint(x: x, y: y)
-        camera?.position = cameraPosition
+        camera.position = cameraPosition
     }
     
     override func update(_ currentTime: TimeInterval) {

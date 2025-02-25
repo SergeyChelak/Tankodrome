@@ -10,8 +10,7 @@ import SpriteKit
 
 struct Level {
     let landscape: Landscape
-//    let npc: [Sprite]
-//    let player: Sprite
+    let sprites: [Sprite]
     
     struct Landscape {
         let tileMap: SKTileMapNode

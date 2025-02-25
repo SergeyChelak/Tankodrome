@@ -30,25 +30,12 @@ class GameViewModel: ObservableObject {
         do {
             try generator.load()
             let level = try generator.generateLevel()
-            
-            let landscape = level.landscape
-            await update(landscape: landscape)
+            Task { @MainActor in
+                scene.setLevel(level)
+            }
         } catch {
             print(error)
         }
-    }
-    
-    @MainActor
-    private func update(landscape: Level.Landscape) async {
-        scene.addChild(landscape.tileMap)
-        scene.levelRect = CGRect(origin: .zero, size: landscape.levelSize)
-        
-        let tank = Tank.Builder
-            .random()
-            .addComponent(PlayerMarker())
-            .position(CGPoint(x: 1500, y: 1500))
-            .build()
-        scene.addChild(tank)
     }
 }
 

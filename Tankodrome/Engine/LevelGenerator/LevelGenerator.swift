@@ -31,11 +31,10 @@ class LevelGenerator {
         // TODO: apply random size
         let rows = 50
         let cols = 50
-        
         let landscape = try generateLandscape(rows: rows, cols: cols)
-        
         return Level(
-            landscape: landscape
+            landscape: landscape,
+            sprites: generateSprites()
         )
     }
     
@@ -78,6 +77,23 @@ class LevelGenerator {
             rows: rows,
             cols: cols
         )
+    }
+    
+    private func generateSprites() -> [Sprite] {
+        [
+           Tank.Builder
+               .random()
+               .color(.bronze)
+               .addComponent(PlayerMarker())
+               .position(CGPoint(x: 1300, y: 1300))
+               .build(),
+           
+           Tank.Builder
+               .random()
+               .color(.blue)
+               .position(CGPoint(x: 1500, y: 1500))
+               .build()
+       ]
     }
 }
 
