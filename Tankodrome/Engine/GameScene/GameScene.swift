@@ -8,12 +8,16 @@
 import Foundation
 import SpriteKit
 
-class GameScene: SKScene, GameSceneContext {
+class GameScene: SKScene {
     private let viewportCamera = SKCameraNode()
     private var systems: [System] = []
     private var previousTime: TimeInterval?
     public private(set) var deltaTime: TimeInterval = 0.0
     public private(set) var sprites: [Sprite] = []
+    
+    private var spawnList: [Sprite] = []
+    private var killList: [Sprite] = []
+
     
     // TODO: make private
     var levelRect: CGRect = .zero
@@ -34,15 +38,14 @@ class GameScene: SKScene, GameSceneContext {
         alignCameraPosition()
     }
     
+    private var defaultCameraPosition: CGPoint {
+        let size = levelRect.size.half()
+        return CGPoint(x: size.width, y: size.height)
+    }
+    
     private var mapScaleFactor: CGFloat = 3
     private func alignCameraPosition() {
-//        guard let position = entities(with: PlayerMarker.self).first.position else {
-//            return
-//        }
-        let position = {
-            let size = levelRect.size.half()
-            return CGPoint(x: size.width, y: size.height)
-        }()
+        let position = nodes(with: PlayerMarker.self).first?.position ?? defaultCameraPosition
         
         var x = position.x
         x = max(x, mapScaleFactor * size.width * 0.5)
@@ -68,16 +71,15 @@ class GameScene: SKScene, GameSceneContext {
     public override func didSimulatePhysics() {
         super.didSimulatePhysics()
         alignCameraPosition()
-//        for system in self.systems[.physicsSimulated] ?? [] {
-//            system.update(sceneContext: self)
-//        }
-//        
-//        addChildren(entitiesToSpawn)
-//        entitiesToSpawn.removeAll()
-//        
-//        entitiesToKill.forEach { $0.removeFromParent() }
-//        entitiesToKill.removeAll()
+        for system in systems  {
+            system.onPhysicsSimulated(context: self)
+        }
+        
+        addChildren(spawnList)
+        spawnList.removeAll()
 
+        killList.forEach { $0.removeFromParent() }
+        killList.removeAll()
     }
     
     private func nodes<T>() -> [T] {
@@ -86,17 +88,12 @@ class GameScene: SKScene, GameSceneContext {
                 $0 as? T
             }
     }
-    
-    func rayCast(from start: CGPoint, rayLength: CGFloat, angle: CGFloat) -> [Sprite] {
-        let end = start + .rotated(radians: angle) * rayLength
-        var nodes: [Sprite] = []
-        physicsWorld.enumerateBodies(alongRayStart: start, end: end) { body, _, _, _ in
-            guard let node = body.node as? Sprite else {
-                return
+        
+    private func nodes<T: Component>(with type: T.Type) -> [Sprite] {
+        nodes()
+            .filter {
+                $0.hasComponent(of: type)
             }
-            nodes.append(node)
-        }
-        return nodes
     }
 }
 
@@ -113,5 +110,27 @@ extension GameScene: SKPhysicsContactDelegate {
         systems.forEach {
             $0.onContact(context: self, collision: collision)
         }
+    }
+}
+
+extension GameScene: GameSceneContext {
+    func rayCast(from start: CGPoint, rayLength: CGFloat, angle: CGFloat) -> [Sprite] {
+        let end = start + .rotated(radians: angle) * rayLength
+        var nodes: [Sprite] = []
+        physicsWorld.enumerateBodies(alongRayStart: start, end: end) { body, _, _, _ in
+            guard let node = body.node as? Sprite else {
+                return
+            }
+            nodes.append(node)
+        }
+        return nodes
+    }
+    
+    func spawn(_ sprite: Sprite) {
+        spawnList.append(sprite)
+    }
+    
+    func kill(_ sprite: Sprite) {
+        killList.append(sprite)
     }
 }
