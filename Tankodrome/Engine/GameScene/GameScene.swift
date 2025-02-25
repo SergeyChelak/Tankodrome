@@ -45,7 +45,8 @@ class GameScene: SKScene {
     
     private var mapScaleFactor: CGFloat = 3
     private func alignCameraPosition() {
-        let position = nodes(with: PlayerMarker.self).first?.position ?? defaultCameraPosition
+        let playerNode = nodes(with: PlayerMarker.self).first
+        let position = playerNode?.position ?? defaultCameraPosition
         
         var x = position.x
         x = max(x, mapScaleFactor * size.width * 0.5)

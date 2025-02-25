@@ -42,6 +42,13 @@ class GameViewModel: ObservableObject {
     private func update(landscape: Level.Landscape) async {
         scene.addChild(landscape.tileMap)
         scene.levelRect = CGRect(origin: .zero, size: landscape.levelSize)
+        
+        let tank = TankBuilder
+            .random()
+            .addComponent(PlayerMarker())
+            .position(CGPoint(x: 1500, y: 1500))
+            .build()
+        scene.addChild(tank)
     }
 }
 
