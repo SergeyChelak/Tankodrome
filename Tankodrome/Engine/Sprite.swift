@@ -8,5 +8,5 @@
 import Foundation
 import SpriteKit
 
-typealias Sprite = SKSpriteNode & ComponentContainable
+typealias Sprite = SKSpriteNode
 typealias Node = SKNode & ComponentContainable

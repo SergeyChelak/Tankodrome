@@ -9,12 +9,6 @@ import Foundation
 import SpriteKit
 
 extension SKNode: ComponentContainable {
-    var lazyUserData: NSMutableDictionary {
-        let data = userData ?? [:]
-        userData = data
-        return data
-    }
-    
     func addComponents(_ items: Component...) {
         items.forEach {
             addComponent($0)
