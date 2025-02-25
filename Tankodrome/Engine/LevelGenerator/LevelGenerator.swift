@@ -46,11 +46,12 @@ class LevelGenerator {
         // not efficient to get these values each time
         // but it seems to be ok because this action occurs relatively rarely
         let (tileSet, tileGroups) = try tileSetGroups(with: configuration.tileSetName)
+        let tileSize = tileSet.defaultTileSize
         let tileMap = SKTileMapNode(
             tileSet: tileSet,
             columns: cols,
             rows: rows,
-            tileSize: tileSet.defaultTileSize
+            tileSize: tileSize
         )
         tileMap.anchorPoint = .zero
         tileMap.name = "Landscape"
@@ -61,10 +62,11 @@ class LevelGenerator {
                       let group = tileGroups[tileId] else {
                     continue
                 }
-                tileMap.setTileGroup(group, forColumn: col, row: row)
+                // Important: SpriteKit zero is a bottom left corner & moves up and right
+                tileMap.setTileGroup(group, forColumn: col, row: rows - row - 1)
             }
         }
-        let size = CGSize(width: rows, height: cols) * tileSet.defaultTileSize
+        let size = CGSize(width: cols, height: rows) * tileSize
         return (size, tileMap)
     }
 }
