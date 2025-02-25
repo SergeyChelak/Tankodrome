@@ -43,7 +43,7 @@ class GameViewModel: ObservableObject {
         scene.addChild(landscape.tileMap)
         scene.levelRect = CGRect(origin: .zero, size: landscape.levelSize)
         
-        let tank = TankBuilder
+        let tank = Tank.Builder
             .random()
             .addComponent(PlayerMarker())
             .position(CGPoint(x: 1500, y: 1500))

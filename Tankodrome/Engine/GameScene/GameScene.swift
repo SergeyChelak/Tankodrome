@@ -69,18 +69,26 @@ class GameScene: SKScene {
         previousTime = currentTime
     }
     
-    public override func didSimulatePhysics() {
+    override func didSimulatePhysics() {
         super.didSimulatePhysics()
         alignCameraPosition()
         for system in systems  {
             system.onPhysicsSimulated(context: self)
         }
+    }
+    
+    override func didFinishUpdate() {
+        super.didFinishUpdate()
         
         addChildren(spawnList)
         spawnList.removeAll()
 
         killList.forEach { $0.removeFromParent() }
         killList.removeAll()
+        
+        (nodes() as [Updatable]).forEach {
+            $0.update()
+        }
     }
     
     private func nodes<T>() -> [T] {

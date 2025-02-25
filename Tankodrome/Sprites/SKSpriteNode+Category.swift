@@ -1,5 +1,5 @@
 //
-//  Sprite+Category.swift
+//  SKSpriteNode+Category.swift
 //  Tankodrome
 //
 //  Created by Sergey on 25.02.2025.
@@ -8,7 +8,7 @@
 import Foundation
 import SpriteKit
 
-extension Sprite {
+extension SKSpriteNode {
     enum Category: Int {
         case tank = 0
         case border
