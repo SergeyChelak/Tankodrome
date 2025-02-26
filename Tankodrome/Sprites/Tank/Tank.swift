@@ -44,7 +44,7 @@ class Tank: SKSpriteNode {
     }
                 
     func setupPhysics() {
-        let bodySize = self.size * CGSize(width: 0.7, height: 1.0)
+        let bodySize = self.size * CGSize(width: 1.0, height: 0.7)
         let body = SKPhysicsBody(rectangleOf: bodySize)
         body.isDynamic = true
         body.allowsRotation = true

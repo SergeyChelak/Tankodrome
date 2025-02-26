@@ -27,7 +27,7 @@ extension Tank {
                 .map { i in
                     let node = SKSpriteNode(texture: texture)
                     node.zPosition = 8
-                    node.position -= CGPoint(x: CGFloat(i) * xOffset, y: 0)
+                    node.position -= CGPoint(x: 0, y: CGFloat(i) * xOffset)
                     return node
                 }
             addChildren(trackNodes)

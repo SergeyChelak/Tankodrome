@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Shotgun_Shells.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
