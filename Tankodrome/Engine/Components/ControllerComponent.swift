@@ -7,8 +7,10 @@
 
 import Foundation
 
-final class ControllerComponent: Component {
-    var value = State()
+final class ControllerComponent: ValueWrapper<ControllerComponent.State>, Component {
+    init() {
+        super.init(value: State())
+    }
 
     struct State {
         // tank

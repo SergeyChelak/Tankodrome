@@ -83,7 +83,7 @@ class LevelGenerator {
     private func generateSprites(_ landscape: Level.Landscape) -> [Sprite] {
         [
             BorderBuilder(rect: landscape.levelRect)
-            //            ObstacleMarker(), ???
+                .addComponent(ObstacleMarker())
                 .addComponent(BorderMarker())
                 .build(),
             
@@ -92,6 +92,7 @@ class LevelGenerator {
                .color(.bronze)
                .addComponent(PlayerMarker())
                .addComponent(ControllerComponent())
+               .addComponent(HealthComponent(value: 500))
                .addComponent(VelocityComponent(value: 0.0, limit: 1500.0))
                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
                .addComponent(AccelerationComponent(value: 100.0))
@@ -101,6 +102,11 @@ class LevelGenerator {
            Tank.Builder
                .random()
                .color(.blue)
+               .addComponent(NpcMarker())
+               .addComponent(HealthComponent(value: 100))
+               .addComponent(VelocityComponent(value: 0.0, limit: 1500.0))
+               .addComponent(RotationSpeedComponent(value: .pi / 3.0))
+               .addComponent(AccelerationComponent(value: 100.0))
                .position(CGPoint(x: 1500, y: 1500))
                .build()
        ]
