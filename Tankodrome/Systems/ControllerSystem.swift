@@ -9,6 +9,16 @@ import Foundation
 
 final class ControllerSystem: System {
     func onUpdate(context: any GameSceneContext) {
+        /// this function should update sprite parameters according to controller state
+        /// currently the movement system is responsible for that
+        /// but it makes movement system is limited to move controllable sprites only
+    }
+    
+    func onContact(context: any GameSceneContext, collision: Collision) {
+        // no op
+    }
+    
+    func onPhysicsSimulated(context: any GameSceneContext) {
         let state = ControllerComponent.State.from(context.controllerState)
         context
             .sprites
@@ -22,15 +32,6 @@ final class ControllerSystem: System {
                 $0.value = state
             }
     }
-    
-    func onContact(context: any GameSceneContext, collision: Collision) {
-        // no op
-    }
-    
-    func onPhysicsSimulated(context: any GameSceneContext) {
-        // no op
-    }
-    
 }
 
 extension ControllerComponent.State {

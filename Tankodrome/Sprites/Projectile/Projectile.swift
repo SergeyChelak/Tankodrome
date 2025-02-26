@@ -11,12 +11,13 @@ import SpriteKit
 class Projectile: SKSpriteNode {
     func setupAppearance(imageName: String) {
         let node = SKSpriteNode(imageNamed: imageName)
+        node.setScale(2.5)
         self.size = node.size
         addChild(node)
     }
     
     func setupPhysics() {
-        let physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 20, height: 60))
+        let physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 60, height: 20))
         physicsBody.affectedByGravity = false
         physicsBody.isDynamic = true
         physicsBody.allowsRotation = false

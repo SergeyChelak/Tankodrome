@@ -10,8 +10,8 @@ import Foundation
 final class VelocityComponent: ValueWrapper<CGFloat>, Component {
     let limit: CGFloat
 
-    init(value: CGFloat, limit: CGFloat) {
-        self.limit = limit
+    init(value: CGFloat, limit: CGFloat? = nil) {
+        self.limit = limit ?? value
         super.init(value: value)
     }
 }

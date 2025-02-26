@@ -122,7 +122,7 @@ final class NpcSystem: System {
         } else {
             velocityComponent.value *= 0.9
         }
-//        shotComponent.shotState = .requested
+        controllerComponent.value.isShootPressed = true
     }
     
     private func move(for entity: Sprite, from obstacles: [Sprite], borders: [Sprite]) {
