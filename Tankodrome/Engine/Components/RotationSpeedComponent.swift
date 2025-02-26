@@ -7,10 +7,4 @@
 
 import Foundation
 
-final class RotationSpeedComponent: Component {
-    var value: CGFloat
-    
-    init(value: CGFloat) {
-        self.value = value
-    }
-}
+final class RotationSpeedComponent: ValueWrapper<CGFloat>, Component { }

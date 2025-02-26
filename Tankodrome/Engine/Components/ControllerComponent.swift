@@ -9,9 +9,7 @@ import Foundation
 
 final class ControllerComponent: Component {
     var value = State()
-}
 
-extension ControllerComponent {
     struct State {
         // tank
         var isAcceleratePressed = false

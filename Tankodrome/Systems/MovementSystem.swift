@@ -30,17 +30,17 @@ final class MovementSystem: System {
         }
         if controlComponent.value.isDeceleratePressed {
             velocityComponent.value -= acceleration
-            velocityComponent.value = velocityComponent.value.max(-maxSpeed)
+            velocityComponent.value = velocityComponent.value.max(-0.3 * maxSpeed)
         }
         
         let vector: CGVector = .rotated(radians: sprite.zRotation) * velocityComponent.value * deltaTime
-        
         let rotation = controlComponent.turnDirection * rotationSpeedComponent.value * deltaTime
         let actions: SKAction = .group([
             .move(by: vector, duration: deltaTime),
             .rotate(byAngle: rotation, duration: deltaTime)
         ])
         sprite.run(actions)
+        sprite.setAttribute(name: Tank.attributeIsAnimated, velocityComponent.value != 0.0)
     }
     
     func onContact(context: any GameSceneContext, collision: Collision) {

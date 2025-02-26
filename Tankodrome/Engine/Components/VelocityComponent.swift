@@ -7,12 +7,11 @@
 
 import Foundation
 
-final class VelocityComponent: Component {
+final class VelocityComponent: ValueWrapper<CGFloat>, Component {
     let limit: CGFloat
-    var value: CGFloat
-    
+
     init(value: CGFloat, limit: CGFloat) {
-        self.value = value
         self.limit = limit
+        super.init(value: value)
     }
 }

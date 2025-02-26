@@ -7,10 +7,4 @@
 
 import Foundation
 
-final class AccelerationComponent: Component {
-    var value: CGFloat
-    
-    init(value: CGFloat) {
-        self.value = value
-    }
-}
+final class AccelerationComponent: ValueWrapper<CGFloat>, Component { }
