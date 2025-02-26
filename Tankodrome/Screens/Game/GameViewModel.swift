@@ -19,6 +19,12 @@ class GameViewModel: ObservableObject {
         scene.register(
             ControllerSystem(),
             MovementSystem(),
+            NpcSystem(
+                fieldOfView: .pi,
+                rayLength: 1500,
+                raysCount: 20,
+                attackDistance: 1000
+            ),
             PhysicSystem()
         )
         return scene

@@ -103,6 +103,7 @@ class LevelGenerator {
                .random()
                .color(.blue)
                .addComponent(NpcMarker())
+               .addComponent(ControllerComponent())
                .addComponent(HealthComponent(value: 100))
                .addComponent(VelocityComponent(value: 0.0, limit: 1500.0))
                .addComponent(RotationSpeedComponent(value: .pi / 3.0))

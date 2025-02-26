@@ -12,11 +12,14 @@ final class ControllerSystem: System {
         let state = ControllerComponent.State.from(context.controllerState)
         context
             .sprites
-            .forEach {
-                guard let component = $0.getComponent(of: ControllerComponent.self) else {
-                    return
+            .compactMap { (sprite: Sprite) -> ControllerComponent? in
+                guard sprite.hasComponent(of: PlayerMarker.self) else {
+                    return nil
                 }
-                component.value = state
+                return sprite.getComponent(of: ControllerComponent.self)
+            }
+            .forEach {
+                $0.value = state
             }
     }
     
