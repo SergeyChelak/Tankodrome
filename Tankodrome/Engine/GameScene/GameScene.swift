@@ -35,7 +35,7 @@ class GameScene: SKScene {
     func setLevel(_ level: Level) {
         removeAllChildren()
         let landscape = level.landscape
-        levelRect = CGRect(origin: .zero, size: landscape.levelSize)
+        levelRect = landscape.levelRect
         addChild(landscape.tileMap)        
         addChildren(level.sprites)
         alignCameraPosition()

@@ -32,9 +32,10 @@ class LevelGenerator {
         let rows = 50
         let cols = 50
         let landscape = try generateLandscape(rows: rows, cols: cols)
+        let sprites = generateSprites(landscape)
         return Level(
             landscape: landscape,
-            sprites: generateSprites()
+            sprites: sprites
         )
     }
     
@@ -79,8 +80,13 @@ class LevelGenerator {
         )
     }
     
-    private func generateSprites() -> [Sprite] {
+    private func generateSprites(_ landscape: Level.Landscape) -> [Sprite] {
         [
+            BorderBuilder(rect: landscape.levelRect)
+            //            ObstacleMarker(), ???
+                .addComponent(BorderMarker())
+                .build(),
+            
            Tank.Builder
                .random()
                .color(.bronze)

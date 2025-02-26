@@ -21,6 +21,10 @@ struct Level {
         var levelSize: CGSize {
             CGSize(width: cols, height: rows) * tileSize
         }
+        
+        var levelRect: CGRect {
+            CGRect(origin: .zero, size: levelSize)
+        }
     }
 }
 
