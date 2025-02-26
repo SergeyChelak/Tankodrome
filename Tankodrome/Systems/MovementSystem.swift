@@ -12,31 +12,35 @@ final class MovementSystem: System {
     func onUpdate(context: any GameSceneContext) {
         let deltaTime = context.deltaTime
         context.sprites.forEach {
-            update(entity: $0, deltaTime: deltaTime)
+            update(sprite: $0, deltaTime: deltaTime)
         }
     }
     
-    private func update(entity: Sprite, deltaTime: TimeInterval) {
-        guard let controlComponent = entity.getComponent(of: ControllerComponent.self),
-              let velocityComponent = entity.getComponent(of: VelocityComponent.self),
-              let rotationSpeedComponent = entity.getComponent(of: RotationSpeedComponent.self) else {
+    private func update(sprite: Sprite, deltaTime: TimeInterval) {
+        guard let controlComponent = sprite.getComponent(of: ControllerComponent.self),
+              let velocityComponent = sprite.getComponent(of: VelocityComponent.self),
+              let rotationSpeedComponent = sprite.getComponent(of: RotationSpeedComponent.self) else {
             return
         }
+        let acceleration = sprite.getComponent(of: AccelerationComponent.self)?.value ?? 0.0
+        let maxSpeed = velocityComponent.limit
         if controlComponent.value.isAcceleratePressed {
-            velocityComponent.value += 5
+            velocityComponent.value += acceleration
+            velocityComponent.value = velocityComponent.value.min(maxSpeed)
         }
         if controlComponent.value.isDeceleratePressed {
-            velocityComponent.value -= 5
+            velocityComponent.value -= acceleration
+            velocityComponent.value = velocityComponent.value.max(-maxSpeed)
         }
         
-        let vector: CGVector = .rotated(radians: entity.zRotation) * velocityComponent.value * deltaTime
+        let vector: CGVector = .rotated(radians: sprite.zRotation) * velocityComponent.value * deltaTime
         
         let rotation = controlComponent.turnDirection * rotationSpeedComponent.value * deltaTime
         let actions: SKAction = .group([
             .move(by: vector, duration: deltaTime),
             .rotate(byAngle: rotation, duration: deltaTime)
         ])
-        entity.run(actions)
+        sprite.run(actions)
     }
     
     func onContact(context: any GameSceneContext, collision: Collision) {
