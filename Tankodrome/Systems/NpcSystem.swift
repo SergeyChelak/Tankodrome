@@ -76,20 +76,26 @@ final class NpcSystem: System {
             }
         }
         
-        guard let controllerComponent = npc.getComponent(of: ControllerComponent.self) else {
+        guard resetControllerState(for: npc) else {
             return
+        }
+        if let player {
+            attack(player: player, by: npc)
+            return
+        }
+        move(for: npc, from: obstacles, borders: borders)
+    }
+    
+    private func resetControllerState(for sprite: Sprite) -> Bool {
+        guard let controllerComponent = sprite.getComponent(of: ControllerComponent.self) else {
+            return false
         }
         controllerComponent.value.isAcceleratePressed = false
         controllerComponent.value.isDeceleratePressed = false
         controllerComponent.value.isShootPressed = false
         controllerComponent.value.isTurnLeftPressed = false
         controllerComponent.value.isTurnRightPressed = false
-        
-        if let player {
-            attack(player: player, by: npc)
-            return
-        }
-        move(for: npc, from: obstacles, borders: borders)
+        return true
     }
     
     private func attack(player: Sprite, by entity: Sprite) {
