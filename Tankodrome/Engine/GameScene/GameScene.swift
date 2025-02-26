@@ -26,8 +26,10 @@ class GameScene: SKScene {
         _controllerState
     }
 
-    func register(_ system: System) {
-        systems.append(system)
+    func register(_ args: System...) {
+        args.forEach {
+            systems.append($0)
+        }
     }
     
     func setLevel(_ level: Level) {

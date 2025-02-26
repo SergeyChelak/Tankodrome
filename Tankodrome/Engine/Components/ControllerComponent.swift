@@ -14,8 +14,8 @@ final class ControllerComponent: Component {
 extension ControllerComponent {
     struct State {
         // tank
-        var isMoveForwardPressed = false
-        var isMoveBackwardPressed = false
+        var isAcceleratePressed = false
+        var isDeceleratePressed = false
         var isTurnLeftPressed = false
         var isTurnRightPressed = false
         // cannon

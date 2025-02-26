@@ -16,7 +16,10 @@ class GameViewModel: ObservableObject {
     }()
     private let scene = {
         let scene = GameScene()
-        scene.register(ControllerSystem())
+        scene.register(
+            ControllerSystem(),
+            MovementSystem()
+        )
         return scene
     }()
     

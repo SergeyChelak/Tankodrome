@@ -86,6 +86,8 @@ class LevelGenerator {
                .color(.bronze)
                .addComponent(PlayerMarker())
                .addComponent(ControllerComponent())
+               .addComponent(VelocityComponent(value: 0.0))
+               .addComponent(RotationSpeedComponent(value: .pi / 3.0))
                .position(CGPoint(x: 1300, y: 1300))
                .build(),
            

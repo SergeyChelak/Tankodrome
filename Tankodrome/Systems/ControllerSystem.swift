@@ -35,15 +35,15 @@ extension ControllerComponent.State {
         var state = ControllerComponent.State()
 #if os(OSX)
         let input = controllerState.keyboardPressState
-        state.isMoveForwardPressed = input.isUpArrowPressed
-        state.isMoveBackwardPressed = input.isDownArrowPressed
+        state.isAcceleratePressed = input.isUpArrowPressed
+        state.isDeceleratePressed = input.isDownArrowPressed
         state.isTurnLeftPressed = input.isLeftArrowPressed
         state.isTurnRightPressed = input.isRightArrowPressed
         state.isShootPressed = input.isSpacePressed
 #endif
 #if os(iOS)
         let input = controllerState.gamepadPressState
-        state.isMoveForwardPressed = input.yValue > 0
+        state.isAcceleratePressed = input.yValue > 0
         state.isMoveBackwardPressed = input.yValue < 0
         state.isTurnLeftPressed = input.xValue < 0
         state.isTurnRightPressed = input.xValue > 0
