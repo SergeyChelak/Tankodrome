@@ -5,11 +5,13 @@
 //  Created by Sergey on 23.02.2025.
 //
 
+import Combine
 import Foundation
 import SwiftUI
 import SpriteKit
 
 class GameViewModel: ObservableObject {
+    private var cancellables: Set<AnyCancellable> = []
     private let generator: LevelGenerator = {
         let config = levelGeneratorConfiguration()
         return LevelGenerator(configuration: config)
@@ -52,11 +54,29 @@ class GameViewModel: ObservableObject {
             try generator.load()
             let level = try generator.generateLevel()
             Task { @MainActor in
+                registerStateSystem()
                 scene.setLevel(level)
             }
         } catch {
             print(error)
         }
+    }
+    
+    private func registerStateSystem() {
+        let stateSystem = StateSystem()
+        stateSystem
+            .healthPercentagePublisher
+            .sink {
+                print("Health \(100 * $0)")
+            }
+            .store(in: &cancellables)
+        stateSystem
+            .statePublisher
+            .sink {
+                print("Updated state: \($0)")
+            }
+            .store(in: &cancellables)
+        scene.register(stateSystem)
     }
 }
 

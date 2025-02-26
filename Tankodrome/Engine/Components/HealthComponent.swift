@@ -7,4 +7,11 @@
 
 import Foundation
 
-final class HealthComponent: ValueWrapper<CGFloat>, Component { }
+final class HealthComponent: ValueWrapper<CGFloat>, Component {
+    let max: CGFloat
+    
+    override init(value: CGFloat) {
+        self.max = value
+        super.init(value: value)
+    }
+}
