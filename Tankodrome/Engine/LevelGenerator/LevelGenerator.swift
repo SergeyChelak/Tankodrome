@@ -9,7 +9,7 @@ import Foundation
 import SpriteKit
 
 class LevelGenerator {
-    typealias NamedGroups = [String: SKTileGroup]    
+    typealias NamedGroups = [String: SKTileGroup]
     
     private let configuration: Configuration
     private let waveFunctionCollapse = WaveFunctionCollapse()
@@ -18,12 +18,12 @@ class LevelGenerator {
     init(configuration: Configuration) {
         self.configuration = configuration
     }
-            
+    
     func load() throws  {
         self.elements = try MapElements.from(
             file: configuration.elementsFileName,
             type: configuration.elementsFileType
-        )        
+        )
         try waveFunctionCollapse.set(dtoTiles: elements.landscape)
     }
     
@@ -87,32 +87,45 @@ class LevelGenerator {
                 .addComponent(BorderMarker())
                 .build(),
             
-           Tank.Builder
-               .random()
-               .color(.bronze)
-               .addComponent(PlayerMarker())
-               .addComponent(ControllerComponent())
-               .addComponent(WeaponComponent(model: .heavy))
-               .addComponent(HealthComponent(value: 500))
-               .addComponent(VelocityComponent(value: 0.0, limit: 1500.0))
-               .addComponent(RotationSpeedComponent(value: .pi / 3.0))
-               .addComponent(AccelerationComponent(value: 100.0))
-               .position(CGPoint(x: 1300, y: 1300))
-               .build(),
-           
-           Tank.Builder
-               .random()
-               .color(.blue)
-               .addComponent(NpcMarker())
-               .addComponent(WeaponComponent(model: .medium))
-               .addComponent(ControllerComponent())
-               .addComponent(HealthComponent(value: 100))
-               .addComponent(VelocityComponent(value: 0.0, limit: 1500.0))
-               .addComponent(RotationSpeedComponent(value: .pi / 3.0))
-               .addComponent(AccelerationComponent(value: 100.0))
-               .position(CGPoint(x: 1500, y: 1500))
-               .build()
-       ]
+            Tank.Builder
+                .random()
+                .color(.bronze)
+                .addComponent(PlayerMarker())
+                .addComponent(ControllerComponent())
+                .addComponent(WeaponComponent(model: .heavy))
+                .addComponent(HealthComponent(value: 500))
+                .addComponent(VelocityComponent(value: 0.0, limit: 1000.0))
+                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
+                .addComponent(AccelerationComponent(value: 100.0))
+                .position(CGPoint(x: 1300, y: 1300))
+                .build(),
+            
+            Tank.Builder
+                .random()
+                .color(.blue)
+                .addComponent(NpcMarker())
+                .addComponent(WeaponComponent(model: .medium))
+                .addComponent(ControllerComponent())
+                .addComponent(HealthComponent(value: 100))
+                .addComponent(VelocityComponent(value: 0.0, limit: 900.0))
+                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
+                .addComponent(AccelerationComponent(value: 100.0))
+                .position(CGPoint(x: 1500, y: 1500))
+                .build(),
+            
+            Tank.Builder
+                .random()
+                .color(.yellow)
+                .addComponent(NpcMarker())
+                .addComponent(WeaponComponent(model: .medium))
+                .addComponent(ControllerComponent())
+                .addComponent(HealthComponent(value: 100))
+                .addComponent(VelocityComponent(value: 0.0, limit: 900.0))
+                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
+                .addComponent(AccelerationComponent(value: 100.0))
+                .position(CGPoint(x: 1500, y: 1100))
+                .build()
+        ]
     }
 }
 
