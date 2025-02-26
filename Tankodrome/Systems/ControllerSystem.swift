@@ -13,11 +13,7 @@ final class ControllerSystem: System {
         /// currently the movement system is responsible for that
         /// but it makes movement system is limited to move controllable sprites only
     }
-    
-    func onContact(context: any GameSceneContext, collision: Collision) {
-        // no op
-    }
-    
+        
     func onPhysicsSimulated(context: any GameSceneContext) {
         let state = ControllerComponent.State.from(context.controllerState)
         context

@@ -42,14 +42,6 @@ final class MovementSystem: System {
         sprite.run(actions)
         sprite.setAttribute(name: Tank.attributeIsAnimated, velocityComponent.value != 0.0)
     }
-    
-    func onContact(context: any GameSceneContext, collision: Collision) {
-        //
-    }
-    
-    func onPhysicsSimulated(context: any GameSceneContext) {
-        //
-    }
 }
 
 fileprivate extension ControllerComponent {

@@ -119,14 +119,6 @@ final class PhysicSystem: System {
     private func explodeEmitter() -> SKEmitterNode? {
         SKEmitterNode(fileNamed: "Explode")
     }
-    
-    func onUpdate(context: any GameSceneContext) {
-        // no op
-    }
-    
-    func onPhysicsSimulated(context: any GameSceneContext) {
-        // no op
-    }
 }
 
 fileprivate enum Body {

@@ -44,14 +44,6 @@ final class AttackSystem: System {
         node.run(.repeatForever(movement))
         context.spawn(node)
     }
-    
-    func onContact(context: any GameSceneContext, collision: Collision) {
-        // no op
-    }
-    
-    func onPhysicsSimulated(context: any GameSceneContext) {
-        // no op
-    }
 }
 
 fileprivate extension WeaponComponent {

@@ -176,13 +176,4 @@ final class NpcSystem: System {
             controllerComponent.value.isTurnLeftPressed = true
         }
     }
-    
-    
-    func onContact(context: any GameSceneContext, collision: Collision) {
-        // no op
-    }
-    
-    func onPhysicsSimulated(context: any GameSceneContext) {
-        // no op
-    }
 }
