@@ -33,6 +33,8 @@ class GameViewModel: ObservableObject {
         return scene
     }()
     
+    let hudModel = HudModel()
+    
     func scene(with size: CGSize) -> SKScene {
         scene.size = size
         return scene
@@ -63,19 +65,7 @@ class GameViewModel: ObservableObject {
     }
     
     private func registerStateSystem() {
-        let stateSystem = StateSystem()
-        stateSystem
-            .healthPercentagePublisher
-            .sink {
-                print("Health \(100 * $0)")
-            }
-            .store(in: &cancellables)
-        stateSystem
-            .statePublisher
-            .sink {
-                print("Updated state: \($0)")
-            }
-            .store(in: &cancellables)
+        let stateSystem = StateSystem(receiver: hudModel)
         scene.register(stateSystem)
     }
 }

@@ -47,6 +47,7 @@ struct GameView: View {
                 controller.disconnect()
             }
 #endif
+            HudView(hud: viewModel.hudModel)
         }
     }
 }

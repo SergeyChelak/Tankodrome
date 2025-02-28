@@ -5,48 +5,26 @@
 //  Created by Sergey on 27.02.2025.
 //
 
-import Combine
 import Foundation
 
-final class StateSystem: System {
-    enum GameState: Equatable {
-        case win, lose, play
-    }
+enum GameState: Equatable {
+    case win, lose, play
+}
 
-    private var state: GameState = .play {
-        didSet {
-            if oldValue != state {
-                _statePublisher.send(state)
-            }
-        }
+protocol StateReceiver {
+    func setHealthPercentage(_ value: CGFloat)
+    func setGameState(_ state: GameState)
+}
+
+final class StateSystem: System {
+    private let receiver: StateReceiver
+    
+    init(receiver: StateReceiver) {
+        self.receiver = receiver
+        receiver.setGameState(.play)
+        receiver.setHealthPercentage(0.0)
     }
-    
-    private var healthPercentage: CGFloat = 0.0 {
-        didSet {
-            if oldValue != healthPercentage {
-                _healthPercentagePublisher.send(healthPercentage)
-            }
-        }
-    }
-    
-    private lazy var _statePublisher: CurrentValueSubject<GameState, Never> = {
-        CurrentValueSubject(self.state)
-    }()
-    
-    var statePublisher: AnyPublisher<GameState, Never> {
-        _statePublisher
-            .eraseToAnyPublisher()
-    }
-    
-    private lazy var _healthPercentagePublisher: CurrentValueSubject<CGFloat, Never> = {
-        CurrentValueSubject(self.healthPercentage)
-    }()
-    
-    var healthPercentagePublisher: AnyPublisher<CGFloat, Never> {
-        _healthPercentagePublisher
-            .eraseToAnyPublisher()
-    }
-    
+        
     func onUpdate(context: GameSceneContext) {
         let sprites = context.sprites
         var npcCount = 0
@@ -65,15 +43,15 @@ final class StateSystem: System {
         }
         
         if npcCount == 0 {
-            state = .win
+            receiver.setGameState(.win)
             return
         }
         
         guard let playerHealth, playerHealth.value > 0.0 else {
-            state = .lose
-            healthPercentage = 0.0
+            receiver.setGameState(.lose)
+            receiver.setHealthPercentage(0.0)
             return
         }
-        healthPercentage = playerHealth.value / playerHealth.max
+        receiver.setHealthPercentage(playerHealth.value / playerHealth.max)
     }
 }
