@@ -16,4 +16,11 @@ extension SKNode {
     func addChildren(_ nodes: [SKNode]) {
         nodes.forEach { addChild($0) }
     }
+    
+    func nodes<T>() -> [T] {
+        children
+            .compactMap {
+                $0 as? T
+            }
+    }
 }

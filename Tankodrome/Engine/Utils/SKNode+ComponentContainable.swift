@@ -15,6 +15,12 @@ extension SKNode: ComponentContainable {
         }
     }
     
+    func addComponents(_ items: [Component]) {
+        items.forEach {
+            addComponent($0)
+        }
+    }
+    
     func addComponent<T: Component>(_ component: T) {
         let key = identifier(of: T.self)
         lazyUserData[key] = component
@@ -38,6 +44,15 @@ extension SKNode: ComponentContainable {
         lazyUserData.allValues
             .compactMap {
                 $0 as? Component
+            }
+    }
+}
+
+extension SKNode {
+    func nodes<T: Component>(with type: T.Type) -> [Sprite] {
+        nodes()
+            .filter {
+                $0.hasComponent(of: type)
             }
     }
 }

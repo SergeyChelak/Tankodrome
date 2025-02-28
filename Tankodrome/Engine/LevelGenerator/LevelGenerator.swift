@@ -35,7 +35,10 @@ class LevelGenerator {
         let sprites = generateSprites(landscape)
         return Level(
             landscape: landscape,
-            sprites: sprites
+            sprites: sprites,
+            sceneComponents: [
+                ScaleComponent(value: 3.0)
+            ]
         )
     }
     

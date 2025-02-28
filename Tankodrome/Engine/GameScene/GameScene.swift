@@ -21,6 +21,8 @@ class GameScene: SKScene {
     private var spawnList: [Sprite] = []
     private var killList: [Sprite] = []
     
+    private var mapScaleFactor: CGFloat = 1
+    
     private let _controllerState = AggregatedControllerState()
     var controllerState: ControllerState {
         _controllerState
@@ -34,11 +36,13 @@ class GameScene: SKScene {
     
     func setLevel(_ level: Level) {
         removeAllChildren()
+        self.camera = nil
+        addComponents(level.sceneComponents)
         let landscape = level.landscape
         levelRect = landscape.levelRect
         addChild(landscape.tileMap)        
         addChildren(level.sprites)
-        alignCameraPosition()
+        setupCamera()
     }
     
     func pushControlEvent(_ event: ControlEvent) {
@@ -52,22 +56,22 @@ class GameScene: SKScene {
     }
     
     private func setupCamera() {
+        defer {
+            alignCameraPosition()
+        }
         self.camera = viewportCamera
+        if let scale = getComponent(of: ScaleComponent.self)?.value {
+            mapScaleFactor = scale
+        }
         viewportCamera.setScale(mapScaleFactor)
-        alignCameraPosition()
+        addChild(viewportCamera)        
     }
     
-    private var defaultCameraPosition: CGPoint {
-        let size = levelRect.size.half()
-        return CGPoint(x: size.width, y: size.height)
-    }
-    
-    private var mapScaleFactor: CGFloat = 3
     private func alignCameraPosition() {
-        guard let camera else { return }
-        let playerNode = nodes(with: PlayerMarker.self).first
-        let position = playerNode?.position ?? defaultCameraPosition
-        
+        guard let camera,
+              let position = nodes(with: PlayerMarker.self).first?.position else {
+            return
+        }
         var x = position.x
         x = max(x, mapScaleFactor * size.width * 0.5)
         x = min(x, levelRect.width - mapScaleFactor * size.width * 0.5)
@@ -91,10 +95,10 @@ class GameScene: SKScene {
     
     override func didSimulatePhysics() {
         super.didSimulatePhysics()
-        alignCameraPosition()
         for system in systems  {
             system.onPhysicsSimulated(context: self)
         }
+        alignCameraPosition()
     }
     
     override func didFinishUpdate() {
@@ -106,22 +110,13 @@ class GameScene: SKScene {
         killList.forEach { $0.removeFromParent() }
         killList.removeAll()
         
-        (nodes() as [Updatable]).forEach {
-            $0.update()
-        }
-    }
-    
-    private func nodes<T>() -> [T] {
-        children
-            .compactMap {
-                $0 as? T
-            }
-    }
-        
-    private func nodes<T: Component>(with type: T.Type) -> [Sprite] {
-        nodes()
-            .filter {
-                $0.hasComponent(of: type)
+        [
+            nodes() as [Updatable],
+            viewportCamera.nodes() as [Updatable]
+        ]
+            .flatMap { $0 }
+            .forEach {
+                $0.update()
             }
     }
 }
