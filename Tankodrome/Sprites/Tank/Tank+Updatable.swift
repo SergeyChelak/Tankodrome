@@ -8,10 +8,11 @@
 import Foundation
 
 extension Tank: Updatable {
-    static let attributeIsAnimated = "isAnimated"
-    
     func update() {
-        let isAnimated = getAttribute(name: Self.attributeIsAnimated) ?? false
+        guard let component = getComponent(of: VelocityComponent.self) else {
+            return
+        }
+        let isAnimated = component.value != 0.0
         tracks.setTrackAnimated(isAnimated)
     }
 }

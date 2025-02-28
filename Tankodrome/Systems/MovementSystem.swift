@@ -40,7 +40,6 @@ final class MovementSystem: System {
             .rotate(byAngle: rotation, duration: deltaTime)
         ])
         sprite.run(actions)
-        sprite.setAttribute(name: Tank.attributeIsAnimated, velocityComponent.value != 0.0)
     }
 }
 
