@@ -31,7 +31,8 @@ class LevelGenerator {
         // TODO: apply random size
         let rows = 50
         let cols = 50
-        let landscape = try generateLandscape(rows: rows, cols: cols)
+//        let landscape = try generateLandscape(rows: rows, cols: cols)
+        let landscape = try stubLandscape(rows: rows, cols: cols)
         let sprites = generateSprites(landscape)
         return Level(
             landscape: landscape,
@@ -52,6 +53,20 @@ class LevelGenerator {
                 continue
             }
         }
+        return try fillLandscape(rows: rows, cols: cols, dataSource: waveFunctionCollapse)
+    }
+
+    // TODO: remove temporary method
+    private func stubLandscape(rows: Int, cols: Int) throws -> Level.Landscape {
+        struct DataSource: TileDataSource {
+            func tileId(row: Int, col: Int) -> TileId? {
+                "Ground_Tile_01_A"
+            }
+        }
+        return try fillLandscape(rows: rows, cols: cols, dataSource: DataSource())
+    }
+    
+    private func fillLandscape(rows: Int, cols: Int, dataSource: TileDataSource) throws -> Level.Landscape {
         // not efficient to get these values each time
         // but it seems to be ok because this action occurs relatively rarely
         let (tileSet, tileGroups) = try tileSetGroups(with: configuration.tileSetName)
@@ -67,7 +82,7 @@ class LevelGenerator {
         
         for row in 0..<rows {
             for col in 0..<cols {
-                guard let tileId = waveFunctionCollapse.tileId(row: row, col: col),
+                guard let tileId = dataSource.tileId(row: row, col: col),
                       let group = tileGroups[tileId] else {
                     continue
                 }
