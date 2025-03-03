@@ -64,7 +64,8 @@ class GameScene: SKScene {
             mapScaleFactor = scale
         }
         viewportCamera.setScale(mapScaleFactor)
-        addChild(viewportCamera)        
+        viewportCamera.removeFromParent()
+        addChild(viewportCamera)
     }
     
     private func alignCameraPosition() {

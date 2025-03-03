@@ -12,10 +12,9 @@ struct GameView: View {
 #if os(iOS)
     private let controller = VirtualController()
 #endif
-    // TODO: inverse dependency
     @StateObject
-    var viewModel = GameViewModel()
-    
+    var viewModel: GameViewModel
+
     var body: some View {
         GeometryReader { proxy in
             contentView(proxy.size)
@@ -38,6 +37,7 @@ struct GameView: View {
                 viewModel.onKeyPress(press)
                 return .handled
             }
+            .setFocused()
 #endif
 #if os(iOS)
             .onAppear {
@@ -53,5 +53,5 @@ struct GameView: View {
 }
 
 #Preview {
-    GameView()
+    GameView(viewModel: GameViewModel())
 }

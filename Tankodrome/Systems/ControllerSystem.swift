@@ -44,7 +44,7 @@ extension ControllerComponent.State {
 #if os(iOS)
         let input = controllerState.gamepadPressState
         state.isAcceleratePressed = input.yValue > 0
-        state.isMoveBackwardPressed = input.yValue < 0
+        state.isDeceleratePressed = input.yValue < 0
         state.isTurnLeftPressed = input.xValue < 0
         state.isTurnRightPressed = input.xValue > 0
         state.isShootPressed = input.isBPressed

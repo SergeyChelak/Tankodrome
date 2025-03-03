@@ -13,13 +13,13 @@ extension HudView {
         
         var body: some View {
             VStack {
-                Spacer()
                 HStack {
                     Text(text)
                         .font(.title)
                         .shadow(color: .black, radius: 2)
                     Spacer()
                 }
+                Spacer()
             }
             .padding()
         }
