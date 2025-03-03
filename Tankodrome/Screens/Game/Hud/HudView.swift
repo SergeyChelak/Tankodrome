@@ -13,7 +13,7 @@ struct HudView<T: HudViewModel>: View {
     
     var body: some View {
         ZStack {
-            GameOverView(state: hud.state)
+            GameOverView(state: hud.state, callback: hud.actionCallback)
             StatsOverlayView(text: hud.healthText)
         }
         .padding()
@@ -21,6 +21,6 @@ struct HudView<T: HudViewModel>: View {
 }
 
 #Preview {
-    let hud = HudModel()
+    let hud = HudModel(actionCallback: { _ in })
     return HudView(hud: hud)
 }

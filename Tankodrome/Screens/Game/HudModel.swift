@@ -12,6 +12,17 @@ class HudModel: ObservableObject {
     private(set) var healthPercentage: CGFloat = 0.0
     @Published
     private(set) var state: GameState = .play
+    
+    let actionCallback: ActionCallback
+    
+    init(actionCallback: @escaping ActionCallback) {
+        self.actionCallback = actionCallback
+    }
+    
+    func reset() {
+        state = .play
+        healthPercentage = 0.0
+    }
 }
 
 extension HudModel: HudViewModel {

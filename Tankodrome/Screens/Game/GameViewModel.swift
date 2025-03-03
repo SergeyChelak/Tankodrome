@@ -33,7 +33,7 @@ class GameViewModel: ObservableObject {
         return scene
     }()
     
-    let hudModel = HudModel()
+    private(set) lazy var hudModel = HudModel(actionCallback: handleHudAction(_:))
     
     func scene(with size: CGSize) -> SKScene {
         scene.size = size
@@ -68,7 +68,20 @@ class GameViewModel: ObservableObject {
         let stateSystem = StateSystem(receiver: hudModel)
         scene.register(stateSystem)
     }
+    
+    private func handleHudAction(_ action: HudAction) {
+        switch action {
+        case .replay:
+//            hudModel.reset()
+            break
+        case .nextLevel:
+//            hudModel.reset()
+            // TODO: ...
+            break
+        }
+    }
 }
+
 
 extension GameViewModel: ControlHandler {
     func handleControlEvent(_ event: ControlEvent) {

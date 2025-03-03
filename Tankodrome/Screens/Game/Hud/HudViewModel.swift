@@ -7,7 +7,10 @@
 
 import Foundation
 
+typealias ActionCallback = (HudAction) -> Void
+
 protocol HudViewModel: ObservableObject {
     var state: GameState { get }
     var healthText: String { get }
+    var actionCallback: ActionCallback { get }
 }
