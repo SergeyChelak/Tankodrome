@@ -9,22 +9,46 @@ import Foundation
 import SpriteKit
 
 class LevelGenerator {
-    typealias NamedGroups = [String: SKTileGroup]
+    typealias TileSetRegistry = [String: TileSetData]
     
+    // TODO: remove
     private let configuration: Configuration
+    
+    // TODO: place in constructor
+    private let tileSetMapper = TileSetMapper()
+    private var tileSetRegistry: TileSetRegistry = [:]
+    
     private let waveFunctionCollapse = WaveFunctionCollapse()
-    private var elements: MapElements = .empty
     
     init(configuration: Configuration) {
         self.configuration = configuration
     }
     
+    func load(_ dataSource: MapsDataSource) throws {
+        tileSetRegistry = try tileSetRegistry(from: dataSource.maps.values)
+        // TODO: check if map part are the same size
+        // TODO: check is tiles are the same size
+        try waveFunctionCollapse.setTiles(from: dataSource.maps, mapper: wfcTiledMapper)
+    }
+    
+    private func tileSetRegistry(from maps: any Collection<TiledMap>) throws -> TileSetRegistry {
+        var registry: TileSetRegistry = [:]
+        for map in maps {
+            guard let tileSet = map.tileSets.first,
+                  let name = tileSetMapper.tileSetName(for: tileSet) else {
+                throw GenerateError.tileSetNotSpecified
+            }
+            if registry[name] == nil {
+                let data = try TileSetData.fromTileSet(named: name)
+                registry[name] = data
+                print("[OK] Registered '\(name)' tile set")
+            }
+        }
+        return registry
+    }
+        
     func load() throws  {
-        self.elements = try MapElements.from(
-            file: configuration.elementsFileName,
-            type: configuration.elementsFileType
-        )
-        try waveFunctionCollapse.set(dtoTiles: elements.landscape)
+        print("[WARN] outdated load function call")
     }
     
     func generateLevel() throws -> Level {
@@ -69,10 +93,10 @@ class LevelGenerator {
     private func fillLandscape(rows: Int, cols: Int, dataSource: TileDataSource) throws -> Level.Landscape {
         // not efficient to get these values each time
         // but it seems to be ok because this action occurs relatively rarely
-        let (tileSet, tileGroups) = try tileSetGroups(with: configuration.tileSetName)
-        let tileSize = tileSet.defaultTileSize
+        let tileSetData = try TileSetData.fromTileSet(named: configuration.tileSetName)
+        let tileSize = tileSetData.tileSet.defaultTileSize
         let tileMap = SKTileMapNode(
-            tileSet: tileSet,
+            tileSet: tileSetData.tileSet,
             columns: cols,
             rows: rows,
             tileSize: tileSize
@@ -83,7 +107,7 @@ class LevelGenerator {
         for row in 0..<rows {
             for col in 0..<cols {
                 guard let tileId = dataSource.tileId(row: row, col: col),
-                      let group = tileGroups[tileId] else {
+                      let group = tileSetData.groups[tileId] else {
                     continue
                 }
                 // Important: SpriteKit zero is a bottom left corner & moves up and right
@@ -147,22 +171,23 @@ class LevelGenerator {
     }
 }
 
-
-private func tileSetGroups(with name: String) throws -> (SKTileSet, LevelGenerator.NamedGroups) {
-    guard let tileSet = SKTileSet(named: name) else {
-        throw GenerateError.wrongTileSet( name)
-    }
-    var namedGroups: [String: SKTileGroup] = [:]
-    tileSet
-        .tileGroups
-        .compactMap {
-            guard let name = $0.name else {
-                return nil
+fileprivate func wfcTiledMapper(_ data: (String, TiledMap)) throws -> WaveFunctionCollapse.Tile {
+    let properties = data.1.properties
+    let property = { (name: String) -> Set<String> in
+        var result = Set<String>()
+        for entry in properties {
+            guard entry.name == name else {
+                continue
             }
-            return (name, $0)
+            result.insert(entry.value)
         }
-        .forEach { (name, group) in
-            namedGroups[name] = group
-        }
-    return (tileSet, namedGroups)
+        return result
+    }
+    return WaveFunctionCollapse.Tile(
+        name: data.0,
+        up: property("topEdge"),
+        right: property("rightEdge"),
+        down: property("bottomEdge"),
+        left: property("leftEdge")
+    )
 }

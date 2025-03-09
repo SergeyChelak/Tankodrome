@@ -8,6 +8,9 @@
 import Foundation
 import DequeModule
 
+// TODO: review -- it could be nested alias in WFC
+typealias TileId = String
+
 final class WaveFunctionCollapse {
     typealias TileIdSet = Set<TileId>
     
@@ -20,10 +23,10 @@ final class WaveFunctionCollapse {
         self.size = Size(rows: rows, cols: cols)
     }
     
-    func set(dtoTiles: [MapElements.Tile]) throws {
+    func setTiles<T>(from input: any Collection<T>, mapper: (T) throws -> Tile) throws {
         var tiles: [Tile] = []
-        for element in dtoTiles {
-            let tile = try Tile.from(dto: element)
+        for element in input {
+            let tile = try mapper(element)
             tiles.append(tile)
         }
         updateConstrains(&tiles)

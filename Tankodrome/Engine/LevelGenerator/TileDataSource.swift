@@ -7,8 +7,6 @@
 
 import Foundation
 
-typealias TileId = String
-
 protocol TileDataSource {
     func tileId(row: Int, col: Int) -> TileId?
 }

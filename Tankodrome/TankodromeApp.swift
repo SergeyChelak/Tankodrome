@@ -20,6 +20,9 @@ struct TankodromeApp: App {
     var body: some Scene {
         WindowGroup {
             contentView()
+                .task {
+                    await flow.load()
+                }
 #if os(OSX)
                 .onDisappear {
                     NSApplication.shared.terminate(nil)
@@ -30,6 +33,8 @@ struct TankodromeApp: App {
     
     private func contentView() -> AnyView {
         switch flow.state {
+        case .loading(let message):
+            AnyView(Text(message))
         case .menu:
             AnyView(MainMenuView(handler: flow))
         case .game:
@@ -40,11 +45,40 @@ struct TankodromeApp: App {
 
 class TankodromeAppFlow: ObservableObject {
     enum State {
-        case menu, game
+        case loading(String),
+             menu,
+             game
     }
     
     @Published
-    private(set) var state: State = .menu
+    private(set) var state: State = .loading("Loading...")
+    
+    func load() async {
+        do {
+            try await loadResources()
+        } catch {
+            await handleError(error)
+            return
+        }
+        Task { @MainActor in
+            state = .menu
+        }
+    }
+    
+    private func loadResources() async throws {
+        let tiledDataSource = TiledDataSource()
+        try tiledDataSource.load()
+        let parts = tiledDataSource.maps
+        print("[OK] Loaded \(parts.count) parts")
+        
+        let generator = LevelGenerator(configuration: levelGeneratorConfiguration())
+        try generator.load(tiledDataSource)
+    }
+    
+    @MainActor
+    private func handleError(_ error: Error) async {
+        state = .loading("Failed to start")
+    }
 }
 
 extension TankodromeAppFlow: MainMenuHandler {
