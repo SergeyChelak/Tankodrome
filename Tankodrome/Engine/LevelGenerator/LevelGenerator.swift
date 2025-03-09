@@ -148,18 +148,6 @@ class LevelGenerator {
 }
 
 
-fileprivate extension MapElements {
-    static func from(file: String, type: String) throws -> Self {
-        guard let path = Bundle.main.path(forResource: file, ofType: type) else {
-            throw GenerateError.badPath("name: \(file), type: \(type)")
-        }
-        let data = try Data(contentsOf: URL(fileURLWithPath: path))
-        let decoder = JSONDecoder()
-        return try decoder.decode(Self.self, from: data)
-    }
-}
-
-
 private func tileSetGroups(with name: String) throws -> (SKTileSet, LevelGenerator.NamedGroups) {
     guard let tileSet = SKTileSet(named: name) else {
         throw GenerateError.wrongTileSet( name)

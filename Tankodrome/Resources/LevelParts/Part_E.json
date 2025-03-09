@@ -1,0 +1,106 @@
+{ "compressionlevel":-1,
+ "height":10,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[1, 1, 1, 4, 4, 4, 4, 1, 1, 1,
+            1, 1, 1, 4, 4, 4, 4, 1, 1, 1,
+            1, 1, 1, 4, 4, 4, 4, 1, 1, 1,
+            1, 1, 1, 4, 4, 4, 4, 4, 4, 4,
+            1, 1, 1, 4, 4, 4, 4, 4, 4, 4,
+            1, 1, 1, 4, 4, 4, 4, 4, 4, 4,
+            1, 1, 1, 4, 4, 4, 4, 4, 4, 4,
+            1, 1, 1, 4, 4, 4, 4, 1, 1, 1,
+            1, 1, 1, 4, 4, 4, 4, 1, 1, 1,
+            1, 1, 1, 4, 4, 4, 4, 1, 1, 1],
+         "height":10,
+         "id":1,
+         "name":"landscape",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":2,
+         "name":"contour_objects",
+         "objects":[
+                {
+                 "height":1265.03,
+                 "id":1,
+                 "name":"",
+                 "rotation":0,
+                 "type":"rectangle",
+                 "visible":true,
+                 "width":369.778,
+                 "x":7.48538,
+                 "y":7.48538
+                }, 
+                {
+                 "height":369.778,
+                 "id":2,
+                 "name":"",
+                 "rotation":0,
+                 "type":"rectangle",
+                 "visible":true,
+                 "width":372.772,
+                 "x":901.24,
+                 "y":5.9883
+                }, 
+                {
+                 "height":374.269,
+                 "id":3,
+                 "name":"",
+                 "rotation":0,
+                 "type":"rectangle",
+                 "visible":true,
+                 "width":371.275,
+                 "x":902.737,
+                 "y":899.743
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":3,
+ "nextobjectid":4,
+ "orientation":"orthogonal",
+ "properties":[
+        {
+         "name":"bottomEdge",
+         "type":"string",
+         "value":"AAABBBBAAA"
+        }, 
+        {
+         "name":"leftEdge",
+         "type":"string",
+         "value":"A"
+        }, 
+        {
+         "name":"rightEdge",
+         "type":"string",
+         "value":"AAABBBBAAA"
+        }, 
+        {
+         "name":"topEdge",
+         "type":"string",
+         "value":"AAABBBBAAA"
+        }],
+ "renderorder":"right-down",
+ "tiledversion":"1.11.2",
+ "tileheight":128,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "source":"..\/Landscape.tsx"
+        }],
+ "tilewidth":128,
+ "type":"map",
+ "version":"1.10",
+ "width":10
+}
