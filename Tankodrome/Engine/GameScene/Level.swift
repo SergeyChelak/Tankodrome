@@ -8,14 +8,6 @@
 import Foundation
 import SpriteKit
 
-struct LevelData {
-    typealias LandscapeGrid = [[String]]
-    
-    let landscapeGrid: LandscapeGrid
-    
-}
-
-// TODO: make spritekit container
 struct Level {
     let landscape: Landscape
     let sprites: [Sprite]

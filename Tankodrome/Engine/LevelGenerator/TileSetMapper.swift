@@ -12,6 +12,7 @@ protocol TileMapper {
     func groupName(for id: Int) -> String?
 }
 
+// TODO: split responsibilities
 final class TileSetMapper {
     private let tileSetSources: [String: TileMapper] = [
         "../Landscape.tsx" : LandscapeTileMapper()

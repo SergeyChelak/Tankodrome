@@ -55,24 +55,36 @@ class TankodromeAppFlow: ObservableObject {
     
     func load() async {
         do {
-            try await loadResources()
+            let _ = try await loadResources()
+            Task { @MainActor in
+                state = .menu
+            }
         } catch {
             await handleError(error)
-            return
-        }
-        Task { @MainActor in
-            state = .menu
         }
     }
     
-    private func loadResources() async throws {
+    private func loadResources() async throws -> GameServices {
         let tiledDataSource = TiledDataSource()
         try tiledDataSource.load()
         let parts = tiledDataSource.maps
         print("[OK] Loaded \(parts.count) parts")
         
-        let generator = try composeLevelGenerator(dataSource: tiledDataSource)
-        try generator.generate()
+        let tileSetMapper = TileSetMapper()
+        
+        let generator = try LevelGenerator(
+            dataSource: tiledDataSource,
+            tileSetMapper: tileSetMapper
+        )
+        
+        let levelComposer = try LevelComposer(
+            dataSource: tiledDataSource,
+            tileSetMapper: tileSetMapper
+        )
+        return GameServices(
+            levelGenerator: generator,
+            levelComposer: levelComposer
+        )
     }
     
     @MainActor
@@ -85,4 +97,9 @@ extension TankodromeAppFlow: MainMenuHandler {
     func play() {
         state = .game
     }
+}
+
+struct GameServices {
+    let levelGenerator: LevelGenerator
+    let levelComposer: LevelComposer
 }

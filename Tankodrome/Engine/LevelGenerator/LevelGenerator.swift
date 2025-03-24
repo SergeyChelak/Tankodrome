@@ -7,19 +7,11 @@
 
 import Foundation
 
-func composeLevelGenerator(dataSource: MapsDataSource) throws -> LevelGenerator {
-    try LevelGenerator(
-        dataSource: dataSource,
-        tileSetMapper: TileSetMapper()
-    )
-}
-
 final class LevelGenerator {
     private typealias Size = Matrix.Size
     private typealias Position = Matrix.Position
     
-    private var mapBlockSize: Size = .zero
-    private var tileSetData: TileSetData
+    private var mapBlockSize: Size = .zero    
     
     private let waveFunctionCollapse = WaveFunctionCollapse()
     
@@ -31,19 +23,7 @@ final class LevelGenerator {
         self.tileSetMapper = tileSetMapper
         
         let maps = dataSource.maps.values
-        
-        self.tileSetData = try {
-            guard let tileSetData = try TileSetRegistry
-                .from(
-                    maps: maps,
-                    tileSetMapper: tileSetMapper
-                )
-                    .distinctTileSet() else {
-                throw GenerateError.multipleOrEmptyTileSet
-            }
-            return tileSetData
-        }()
-        
+
         self.mapBlockSize = {
             let sizes = maps
                 .map {
