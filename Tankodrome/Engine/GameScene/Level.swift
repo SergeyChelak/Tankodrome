@@ -29,3 +29,20 @@ struct Level {
     }
 }
 
+struct LevelModel {
+    // TODO: refactor
+    typealias Size = Matrix.Size
+    
+    struct Landscape {
+        let size: Size
+        private var tiles: [String]
+        
+        init(size: Size) {
+            self.size = size
+            self.tiles = [String].init(
+                repeating: "",
+                count: size.count
+            )
+        }
+    }
+}

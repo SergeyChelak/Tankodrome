@@ -13,6 +13,8 @@ typealias TileId = String
 
 final class WaveFunctionCollapse {
     typealias TileIdSet = Set<TileId>
+    typealias Size = Matrix.Size
+    typealias Position = Matrix.Position
     
     private var size: Size = .zero
     private var grid: Grid = []
@@ -20,7 +22,11 @@ final class WaveFunctionCollapse {
     
     // MARK: setup
     func setSize(rows: Int, cols: Int) {
-        self.size = Size(rows: rows, cols: cols)
+        self.setSize(Size(rows: rows, cols: cols))
+    }
+    
+    func setSize(_ size: Size) {
+        self.size = size
     }
     
     func setTiles<T>(from input: any Collection<T>, mapper: (T) throws -> Tile) throws {

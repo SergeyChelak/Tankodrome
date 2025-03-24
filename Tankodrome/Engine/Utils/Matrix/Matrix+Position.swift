@@ -1,13 +1,13 @@
 //
-//  WaveFunctionCollapse+Position.swift
+//  Matrix+Position.swift
 //  Tankodrome
 //
-//  Created by Sergey on 24.02.2025.
+//  Created by Sergey on 24.03.2025.
 //
 
 import Foundation
 
-extension WaveFunctionCollapse {
+extension Matrix {
     struct Position {
         var row: Int
         var col: Int

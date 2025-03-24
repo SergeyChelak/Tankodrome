@@ -7,12 +7,6 @@
 
 import Foundation
 
-protocol MapsDataSource {
-    var maps: [String: TiledMap] { get }
-    
-//    func load() throws
-}
-
 class TiledDataSource: MapsDataSource {
     private let partFiles = [
         "Part_A",

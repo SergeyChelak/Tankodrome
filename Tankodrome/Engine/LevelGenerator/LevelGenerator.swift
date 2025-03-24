@@ -2,173 +2,124 @@
 //  LevelGenerator.swift
 //  Tankodrome
 //
-//  Created by Sergey on 24.02.2025.
+//  Created by Sergey on 24.03.2025.
 //
 
 import Foundation
-import SpriteKit
 
-class LevelGenerator {
-    typealias TileSetRegistry = [String: TileSetData]
-    
-    // TODO: remove
-    private let configuration: Configuration
-    
-    // TODO: place in constructor
-    private let tileSetMapper = TileSetMapper()
-    private var tileSetRegistry: TileSetRegistry = [:]
+func composeLevelGenerator() -> LevelGenerator {
+    LevelGenerator(tileSetMapper: TileSetMapper())
+}
+
+final class LevelGenerator {
+    // TODO: refactor
+    typealias Size = Matrix.Size
+    private var mapBlockSize: Size = .zero
+    private var tileSetData: TileSetData?
+    private let tileSetMapper: TileSetMapper
     
     private let waveFunctionCollapse = WaveFunctionCollapse()
     
-    init(configuration: Configuration) {
-        self.configuration = configuration
+    init(tileSetMapper: TileSetMapper) {
+        self.tileSetMapper = tileSetMapper
     }
     
     func load(_ dataSource: MapsDataSource) throws {
-        tileSetRegistry = try tileSetRegistry(from: dataSource.maps.values)
-        // TODO: check if map part are the same size
-        // TODO: check is tiles are the same size
+        let maps = dataSource.maps.values
+        guard let tileSetData = try TileSetRegistry
+            .from(
+                maps: maps,
+                tileSetMapper: tileSetMapper
+            )
+            .distinctTileSet()  else {
+            throw GenerateError.multipleOrEmptyTileSet
+        }
+        self.tileSetData = tileSetData
+        setupBlockSize(maps)
         try waveFunctionCollapse.setTiles(from: dataSource.maps, mapper: wfcTiledMapper)
     }
     
-    private func tileSetRegistry(from maps: any Collection<TiledMap>) throws -> TileSetRegistry {
-        var registry: TileSetRegistry = [:]
-        for map in maps {
-            guard let tileSet = map.tileSets.first,
-                  let name = tileSetMapper.tileSetName(for: tileSet) else {
-                throw GenerateError.tileSetNotSpecified
+    private func setupBlockSize(_ maps: any Collection<TiledMap>) {
+        let sizes = maps
+            .map {
+                Size(rows: $0.height, cols: $0.width)
             }
-            if registry[name] == nil {
-                let data = try TileSetData.fromTileSet(named: name)
-                registry[name] = data
-                print("[OK] Registered '\(name)' tile set")
-            }
+        guard let first = sizes.first,
+              sizes.allSatisfy({ $0 == first }) else {
+            print("[WARN] map list is empty or maps have different dimensions")
+            return
         }
-        return registry
+        mapBlockSize = first
     }
+    
+    func makeLevel() throws {
+        // amount of map parts, choose as random in 5..10
+        let blocksGridSize = { () -> Size in
+            Size(rows: 7, cols: 7)
+        }()
         
-    func load() throws  {
-        print("[WARN] outdated load function call")
-    }
-    
-    func generateLevel() throws -> Level {
-        // TODO: apply random size
-        let rows = 50
-        let cols = 50
-//        let landscape = try generateLandscape(rows: rows, cols: cols)
-        let landscape = try stubLandscape(rows: rows, cols: cols)
-        let sprites = generateSprites(landscape)
-        return Level(
-            landscape: landscape,
-            sprites: sprites,
-            sceneComponents: [
-                ScaleComponent(value: 3.0)
-            ]
-        )
-    }
-    
-    private func generateLandscape(rows: Int, cols: Int) throws -> Level.Landscape {
-        waveFunctionCollapse.setSize(rows: rows, cols: cols)
+        // generate layout with WFC
+        waveFunctionCollapse.setSize(blocksGridSize)
         while true {
             do {
                 try waveFunctionCollapse.start(timeout: 1.5)
                 break
             } catch GenerateError.timeout {
+                print("[WARN] reached timeout")
                 continue
             }
         }
-        return try fillLandscape(rows: rows, cols: cols, dataSource: waveFunctionCollapse)
-    }
-
-    // TODO: remove temporary method
-    private func stubLandscape(rows: Int, cols: Int) throws -> Level.Landscape {
-        struct DataSource: TileDataSource {
-            func tileId(row: Int, col: Int) -> TileId? {
-                "Ground_Tile_01_A"
-            }
-        }
-        return try fillLandscape(rows: rows, cols: cols, dataSource: DataSource())
-    }
-    
-    private func fillLandscape(rows: Int, cols: Int, dataSource: TileDataSource) throws -> Level.Landscape {
-        // not efficient to get these values each time
-        // but it seems to be ok because this action occurs relatively rarely
-        let tileSetData = try TileSetData.fromTileSet(named: configuration.tileSetName)
-        let tileSize = tileSetData.tileSet.defaultTileSize
-        let tileMap = SKTileMapNode(
-            tileSet: tileSetData.tileSet,
-            columns: cols,
-            rows: rows,
-            tileSize: tileSize
-        )
-        tileMap.anchorPoint = .zero
-        tileMap.name = "Landscape"
         
-        for row in 0..<rows {
-            for col in 0..<cols {
-                guard let tileId = dataSource.tileId(row: row, col: col),
-                      let group = tileSetData.groups[tileId] else {
-                    continue
-                }
-                // Important: SpriteKit zero is a bottom left corner & moves up and right
-                tileMap.setTileGroup(group, forColumn: col, row: rows - row - 1)
+        for row in 0..<blocksGridSize.rows {
+            var s = ""
+            for col in 0..<blocksGridSize.cols {
+                let id = waveFunctionCollapse.tileId(row: row, col: col)!
+                s = s + id + " "
             }
+            print(s)
         }
-        return Level.Landscape(
-            tileMap: tileMap,
-            tileSize: tileSize,
-            rows: rows,
-            cols: cols
-        )
+        
+        // build level model
+        // - fill landscape from block tiles
+        // - add physics bodies layer
+        // - calculate spawn points
+        // - setup player & NPCs
     }
     
-    private func generateSprites(_ landscape: Level.Landscape) -> [Sprite] {
-        [
-            BorderBuilder(rect: landscape.levelRect)
-                .addComponent(ObstacleMarker())
-                .addComponent(BorderMarker())
-                .build(),
-            
-            Tank.Builder
-                .random()
-                .color(.bronze)
-                .addComponent(PlayerMarker())
-                .addComponent(ControllerComponent())
-                .addComponent(WeaponComponent(model: .heavy))
-                .addComponent(HealthComponent(value: 500))
-                .addComponent(VelocityComponent(value: 0.0, limit: 1000.0))
-                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
-                .addComponent(AccelerationComponent(value: 100.0))
-                .position(CGPoint(x: 1300, y: 1300))
-                .build(),
-            
-            Tank.Builder
-                .random()
-                .color(.blue)
-                .addComponent(NpcMarker())
-                .addComponent(WeaponComponent(model: .medium))
-                .addComponent(ControllerComponent())
-                .addComponent(HealthComponent(value: 100))
-                .addComponent(VelocityComponent(value: 0.0, limit: 900.0))
-                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
-                .addComponent(AccelerationComponent(value: 100.0))
-                .position(CGPoint(x: 1500, y: 1500))
-                .build(),
-            
-            Tank.Builder
-                .random()
-                .color(.yellow)
-                .addComponent(NpcMarker())
-                .addComponent(WeaponComponent(model: .medium))
-                .addComponent(ControllerComponent())
-                .addComponent(HealthComponent(value: 100))
-                .addComponent(VelocityComponent(value: 0.0, limit: 900.0))
-                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
-                .addComponent(AccelerationComponent(value: 100.0))
-                .position(CGPoint(x: 1500, y: 1100))
-                .build()
-        ]
-    }
+    /*
+        private func createTileMap(rows: Int, cols: Int) throws -> SKTileMapNode {
+            guard let tileSetData else {
+                throw GenerateError.unexpectedError("Missing tile set")
+            }
+            let tileSize = tileSetData.tileSet.defaultTileSize
+            let mapSize = Size(
+                rows: rows * mapBlockSize.rows,
+                cols: cols * mapBlockSize.cols
+            )
+            let tileMap = SKTileMapNode(
+                tileSet: tileSetData.tileSet,
+                columns: mapSize.cols,
+                rows: mapSize.rows,
+                tileSize: tileSize
+            )
+            tileMap.anchorPoint = .zero
+            tileMap.name = "Landscape"
+            for row in 0..<mapSize.rows {
+                for col in 0..<mapSize.cols {
+                    let blockRow = row / mapBlockSize.rows
+                    let blockCol = col / mapBlockSize.cols
+                    
+                    let innerRow = row % mapBlockSize.rows
+                    let innerCol = col % mapBlockSize.cols
+                    
+                    // Important: SpriteKit zero is a bottom left corner & moves up and right
+    //                tileMap.setTileGroup(group, forColumn: col, row: mapSize.rows - row - 1)
+                }
+            }
+            fatalError()
+        }
+    */
+
 }
 
 fileprivate func wfcTiledMapper(_ data: (String, TiledMap)) throws -> WaveFunctionCollapse.Tile {

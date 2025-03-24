@@ -1,14 +1,14 @@
 //
-//  WaveFunctionCollapse+Size.swift
+//  Matrix+Size.swift
 //  Tankodrome
 //
-//  Created by Sergey on 24.02.2025.
+//  Created by Sergey on 24.03.2025.
 //
 
 import Foundation
 
-extension WaveFunctionCollapse {
-    struct Size {
+extension Matrix {
+    struct Size: Equatable {
         let rows: Int
         let cols: Int
         

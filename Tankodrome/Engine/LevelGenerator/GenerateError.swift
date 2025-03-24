@@ -14,4 +14,6 @@ enum GenerateError: Error {
     case unableCollapse
     case timeout
     case tileSetNotSpecified
+    case multipleOrEmptyTileSet
+    case unexpectedError(String)
 }

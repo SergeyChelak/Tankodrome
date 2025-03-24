@@ -40,3 +40,32 @@ struct TileSetData {
         )
     }
 }
+
+struct TileSetRegistry {
+    typealias Store = [String: TileSetData]
+    private var store: Store = [:]
+    
+    func distinctTileSet() -> TileSetData? {
+        guard let value = store.first?.value,
+              store.count == 1 else {
+            return nil
+        }
+        return value
+    }
+    
+    static func from(maps: any Collection<TiledMap>, tileSetMapper: TileSetMapper) throws -> Self {
+        var store: Store = [:]
+        for map in maps {
+            guard let tileSet = map.tileSets.first,
+                  let name = tileSetMapper.tileSetName(for: tileSet) else {
+                throw GenerateError.tileSetNotSpecified
+            }
+            if store[name] == nil {
+                let data = try TileSetData.fromTileSet(named: name)
+                store[name] = data
+                print("[OK] Registered '\(name)' tile set")
+            }
+        }
+        return Self(store: store)
+    }
+}

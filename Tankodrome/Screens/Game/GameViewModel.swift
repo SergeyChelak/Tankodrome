@@ -12,9 +12,9 @@ import SpriteKit
 
 class GameViewModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
-    private let generator: LevelGenerator = {
+    private let generator: LevelGeneratorDeprecated = {
         let config = levelGeneratorConfiguration()
-        return LevelGenerator(configuration: config)
+        return LevelGeneratorDeprecated(configuration: config)
     }()
     private let scene = {
         let scene = GameScene()
@@ -90,8 +90,8 @@ extension GameViewModel: ControlHandler {
 }
 
 
-func levelGeneratorConfiguration() -> LevelGenerator.Configuration {
-    LevelGenerator.Configuration(
+func levelGeneratorConfiguration() -> LevelGeneratorDeprecated.Configuration {
+    LevelGeneratorDeprecated.Configuration(
         elementsFileName: "MapElements",
         elementsFileType: "json",
         tileSetName: "LandscapeTileSet"
