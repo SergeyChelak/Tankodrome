@@ -7,52 +7,56 @@
 
 import Foundation
 
-func composeLevelGenerator() -> LevelGenerator {
-    LevelGenerator(tileSetMapper: TileSetMapper())
+func composeLevelGenerator(dataSource: MapsDataSource) throws -> LevelGenerator {
+    try LevelGenerator(
+        dataSource: dataSource,
+        tileSetMapper: TileSetMapper()
+    )
 }
 
 final class LevelGenerator {
-    // TODO: refactor
     typealias Size = Matrix.Size
     private var mapBlockSize: Size = .zero
-    private var tileSetData: TileSetData?
-    private let tileSetMapper: TileSetMapper
+    private var tileSetData: TileSetData
     
     private let waveFunctionCollapse = WaveFunctionCollapse()
     
-    init(tileSetMapper: TileSetMapper) {
-        self.tileSetMapper = tileSetMapper
-    }
-    
-    func load(_ dataSource: MapsDataSource) throws {
+    init(dataSource: MapsDataSource, tileSetMapper: TileSetMapper) throws {
         let maps = dataSource.maps.values
-        guard let tileSetData = try TileSetRegistry
-            .from(
-                maps: maps,
-                tileSetMapper: tileSetMapper
-            )
-            .distinctTileSet()  else {
-            throw GenerateError.multipleOrEmptyTileSet
-        }
-        self.tileSetData = tileSetData
-        setupBlockSize(maps)
-        try waveFunctionCollapse.setTiles(from: dataSource.maps, mapper: wfcTiledMapper)
-    }
-    
-    private func setupBlockSize(_ maps: any Collection<TiledMap>) {
-        let sizes = maps
-            .map {
-                Size(rows: $0.height, cols: $0.width)
+        
+        self.tileSetData = try {
+            guard let tileSetData = try TileSetRegistry
+                .from(
+                    maps: maps,
+                    tileSetMapper: tileSetMapper
+                )
+                    .distinctTileSet() else {
+                throw GenerateError.multipleOrEmptyTileSet
             }
-        guard let first = sizes.first,
-              sizes.allSatisfy({ $0 == first }) else {
-            print("[WARN] map list is empty or maps have different dimensions")
-            return
-        }
-        mapBlockSize = first
+            return tileSetData
+        }()
+        
+        self.mapBlockSize = {
+            let sizes = maps
+                .map {
+                    Size(rows: $0.height, cols: $0.width)
+                }
+            guard let first = sizes.first,
+                  sizes.allSatisfy({ $0 == first }) else {
+                print("[WARN] map list is empty or maps have different dimensions")
+                return .zero
+            }
+            return first
+        }()
+                
+        try waveFunctionCollapse.setTiles(
+            from: dataSource.maps,
+            mapper: wfcTiledMapper
+        )
     }
+        
     
-    func makeLevel() throws {
+    func generate() throws {
         // amount of map parts, choose as random in 5..10
         let blocksGridSize = { () -> Size in
             Size(rows: 7, cols: 7)

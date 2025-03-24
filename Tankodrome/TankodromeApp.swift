@@ -71,9 +71,8 @@ class TankodromeAppFlow: ObservableObject {
         let parts = tiledDataSource.maps
         print("[OK] Loaded \(parts.count) parts")
         
-        let generator = composeLevelGenerator()
-        try generator.load(tiledDataSource)
-        try generator.makeLevel()
+        let generator = try composeLevelGenerator(dataSource: tiledDataSource)
+        try generator.generate()
     }
     
     @MainActor
