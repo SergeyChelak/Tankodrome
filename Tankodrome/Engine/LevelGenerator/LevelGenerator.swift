@@ -15,13 +15,21 @@ func composeLevelGenerator(dataSource: MapsDataSource) throws -> LevelGenerator 
 }
 
 final class LevelGenerator {
-    typealias Size = Matrix.Size
+    private typealias Size = Matrix.Size
+    private typealias Position = Matrix.Position
+    
     private var mapBlockSize: Size = .zero
     private var tileSetData: TileSetData
     
     private let waveFunctionCollapse = WaveFunctionCollapse()
     
+    private let dataSource: MapsDataSource
+    private let tileSetMapper: TileSetMapper
+    
     init(dataSource: MapsDataSource, tileSetMapper: TileSetMapper) throws {
+        self.dataSource = dataSource
+        self.tileSetMapper = tileSetMapper
+        
         let maps = dataSource.maps.values
         
         self.tileSetData = try {
@@ -44,6 +52,7 @@ final class LevelGenerator {
             guard let first = sizes.first,
                   sizes.allSatisfy({ $0 == first }) else {
                 print("[WARN] map list is empty or maps have different dimensions")
+                // TODO: throw?
                 return .zero
             }
             return first
@@ -54,16 +63,12 @@ final class LevelGenerator {
             mapper: wfcTiledMapper
         )
     }
-        
     
-    func generate() throws {
-        // amount of map parts, choose as random in 5..10
-        let blocksGridSize = { () -> Size in
-            Size(rows: 7, cols: 7)
-        }()
+    func generate() throws -> LevelData {
+        let blocksSize = generateLevelSize()
         
         // generate layout with WFC
-        waveFunctionCollapse.setSize(blocksGridSize)
+        waveFunctionCollapse.setSize(blocksSize)
         while true {
             do {
                 try waveFunctionCollapse.start(timeout: 1.5)
@@ -74,56 +79,59 @@ final class LevelGenerator {
             }
         }
         
-        for row in 0..<blocksGridSize.rows {
-            var s = ""
-            for col in 0..<blocksGridSize.cols {
-                let id = waveFunctionCollapse.tileId(row: row, col: col)!
-                s = s + id + " "
-            }
-            print(s)
-        }
-        
-        // build level model
+        let landscapeGrid = try fillLandscape(source: waveFunctionCollapse, blockSize: blocksSize)
+                
+        // build level with steps
         // - fill landscape from block tiles
         // - add physics bodies layer
-        // - calculate spawn points
+        // - collect spawn points
         // - setup player & NPCs
+        
+        return LevelData(
+            landscapeGrid: landscapeGrid
+        )
     }
     
-    /*
-        private func createTileMap(rows: Int, cols: Int) throws -> SKTileMapNode {
-            guard let tileSetData else {
-                throw GenerateError.unexpectedError("Missing tile set")
-            }
-            let tileSize = tileSetData.tileSet.defaultTileSize
-            let mapSize = Size(
-                rows: rows * mapBlockSize.rows,
-                cols: cols * mapBlockSize.cols
-            )
-            let tileMap = SKTileMapNode(
-                tileSet: tileSetData.tileSet,
-                columns: mapSize.cols,
-                rows: mapSize.rows,
-                tileSize: tileSize
-            )
-            tileMap.anchorPoint = .zero
-            tileMap.name = "Landscape"
-            for row in 0..<mapSize.rows {
-                for col in 0..<mapSize.cols {
-                    let blockRow = row / mapBlockSize.rows
-                    let blockCol = col / mapBlockSize.cols
-                    
-                    let innerRow = row % mapBlockSize.rows
-                    let innerCol = col % mapBlockSize.cols
-                    
-                    // Important: SpriteKit zero is a bottom left corner & moves up and right
-    //                tileMap.setTileGroup(group, forColumn: col, row: mapSize.rows - row - 1)
+    private func generateLevelSize() -> Size {
+        // amount of map parts, choose as random in 5..10
+        Size(rows: 7, cols: 7)
+    }
+    
+    private func fillLandscape(source: TileDataSource, blockSize: Size) throws -> LevelData.LandscapeGrid {
+        let gridSize = Size(
+            rows: blockSize.rows * mapBlockSize.rows,
+            cols: blockSize.cols * mapBlockSize.cols
+        )
+        
+        var landscapeGrid = [[String]].init(
+            repeating: [String].init(repeating: "", count: gridSize.cols),
+            count: gridSize.rows
+        )
+        
+        for row in 0..<blockSize.rows {
+            for col in 0..<blockSize.cols {
+                guard let id = waveFunctionCollapse.tileId(row: row, col: col),
+                      let map = dataSource.maps[id],
+                      let tileSet = map.tileSets.first,
+                      let layer = map.layers.first(where: { $0.name == "landscape" }),
+                      let tiles = layer.data else {
+                    // TODO: continue?
+                    throw GenerateError.missingLayer
+                }
+                for (i, value) in tiles.enumerated() {
+                    let innerPosition = Position.from(index: i, of: mapBlockSize)
+                    let r = innerPosition.row + row * mapBlockSize.rows
+                    let c = innerPosition.col + col * mapBlockSize.cols
+                    guard let tile = tileSetMapper.tileGroupName(for: tileSet, id: value) else {
+                        throw GenerateError.missingTile
+                    }
+                    landscapeGrid[r][c] = tile
                 }
             }
-            fatalError()
         }
-    */
-
+        
+        return landscapeGrid
+    }
 }
 
 fileprivate func wfcTiledMapper(_ data: (String, TiledMap)) throws -> WaveFunctionCollapse.Tile {

@@ -8,6 +8,14 @@
 import Foundation
 import SpriteKit
 
+struct LevelData {
+    typealias LandscapeGrid = [[String]]
+    
+    let landscapeGrid: LandscapeGrid
+    
+}
+
+// TODO: make spritekit container
 struct Level {
     let landscape: Landscape
     let sprites: [Sprite]
@@ -25,24 +33,6 @@ struct Level {
         
         var levelRect: CGRect {
             CGRect(origin: .zero, size: levelSize)
-        }
-    }
-}
-
-struct LevelModel {
-    // TODO: refactor
-    typealias Size = Matrix.Size
-    
-    struct Landscape {
-        let size: Size
-        private var tiles: [String]
-        
-        init(size: Size) {
-            self.size = size
-            self.tiles = [String].init(
-                repeating: "",
-                count: size.count
-            )
         }
     }
 }
