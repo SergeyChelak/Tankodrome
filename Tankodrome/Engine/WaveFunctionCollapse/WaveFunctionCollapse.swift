@@ -66,17 +66,18 @@ final class WaveFunctionCollapse {
         }
     }
     
-    private func defaultCell() -> Cell {
+    private func makeGrid() -> Grid {
         let options = Set(tileMap.keys)
-        return Cell(options: options)
+        let cell =  Cell(options: options)
+        return [Cell].init(
+            repeating: cell,
+            count: size.count
+        )
     }
     
     // MARK: Wfc
     func start(timeout: TimeInterval) throws {
-        self.grid = [Cell].init(
-            repeating: defaultCell(),
-            count: size.count
-        )
+        self.grid = makeGrid()
         let startTime = Date()
         let duration = { () -> TimeInterval in
             Date().timeIntervalSince(startTime)
