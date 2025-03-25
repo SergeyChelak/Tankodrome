@@ -17,15 +17,21 @@ final class WaveFunctionCollapse {
     typealias Position = Matrix.Position
     
     typealias CellCollapsePicker = (CellCollapsePickerContext, Set<Int>) -> CellCollapse?
+    typealias CellConstructor = (Int, Size, Set<TileId>) -> Cell
     
     private var size: Size = .zero()
     private var grid: Grid = .empty()
     private var tileMap: [TileId: Tile] = [:]
     
     private var cellCollapsePicker: CellCollapsePicker
+    private var cellConstructor: CellConstructor
     
-    init(cellCollapsePicker: @escaping CellCollapsePicker = defaultCellCollapsePicker) {
+    init(
+        cellCollapsePicker: @escaping CellCollapsePicker = defaultCellCollapsePicker,
+        cellConstructor: @escaping CellConstructor = defaultCellConstructor
+    ) {
         self.cellCollapsePicker = cellCollapsePicker
+        self.cellConstructor = cellConstructor
     }
     
     // MARK: setup
@@ -76,22 +82,10 @@ final class WaveFunctionCollapse {
     
     private func makeGrid() -> Grid {
         let options = Set(tileMap.keys)
-//        let cell = Cell(options: options)
-//        return Grid(size: size, value: cell)
-        var array: [Cell] = []
-        let count = size.count
-        array.reserveCapacity(count)
-        for index in 0..<count {
-            let pos = Position.from(index: index, of: size)
-            let row = pos.row
-            let col = pos.col
-            let isEdge = row == 0 || col == 0 || row == size.rows - 1 || col == size.cols - 1
-            let cell = Cell(
-                priority: isEdge ? 1 : 0,
-                options: options
-            )
-            array.append(cell)
-        }
+        let array = (0..<size.count)
+            .map { index in
+                cellConstructor(index, size, options)
+            }
         return Grid(content: array, size: size)
     }
     
@@ -264,4 +258,8 @@ extension WaveFunctionCollapse: CellCollapsePickerContext {
     func gridSize() -> Matrix.Size {
         grid.size
     }
+}
+
+func defaultCellConstructor(index: Int, size: Matrix.Size, options: Set<TileId>) -> WaveFunctionCollapse.Cell {
+    WaveFunctionCollapse.Cell(options: options)
 }

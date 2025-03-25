@@ -14,7 +14,8 @@ final class LevelGenerator {
     private var mapBlockSize: Size = .zero()
     
     private let waveFunctionCollapse = WaveFunctionCollapse(
-        cellCollapsePicker: cellCollapsePicker(_:_:)
+        cellCollapsePicker: cellCollapsePicker(_:_:),
+        cellConstructor: cellConstructor(index:size:options:)
     )
     
     private let dataSource: MapsDataSource
@@ -76,7 +77,7 @@ final class LevelGenerator {
     
     private func generateLevelSize() -> Size {
         // amount of map parts, choose as random in 5..10
-        Size(rows: 5, cols: 5)
+        Size(rows: 15, cols: 15)
     }
     
     private func fillLandscape(source: TileDataSource, blockSize: Size) throws -> LevelData.LandscapeGrid {
@@ -117,6 +118,17 @@ final class LevelGenerator {
     }
 }
 
+func cellConstructor(index: Int, size: Matrix.Size, options: Set<TileId>) -> WaveFunctionCollapse.Cell {
+    let pos = Matrix.Position.from(index: index, of: size)
+    let row = pos.row
+    let col = pos.col
+    let isEdge = row == 0 || col == 0 || row == size.rows - 1 || col == size.cols - 1
+    return WaveFunctionCollapse.Cell(
+        priority: isEdge ? 1 : 0,
+        options: options
+    )
+}
+
 func cellCollapsePicker(_ context: CellCollapsePickerContext, _ indices: Set<Int>) -> CellCollapse? {
     let size = context.gridSize()
     let edgePositions = indices
@@ -130,6 +142,7 @@ func cellCollapsePicker(_ context: CellCollapsePickerContext, _ indices: Set<Int
         }
     
     if let position = edgePositions.randomElement() {
+        // TODO: create constant storage?
         let solidWall = "A"
         
         let row = position.row
@@ -162,12 +175,10 @@ func cellCollapsePicker(_ context: CellCollapsePickerContext, _ indices: Set<Int
             }
         
         if let option = options.randomElement() {
-//            fatalError("Empty set for edge at \(position)")
             return (position.index(in: size), option.name)
         }
     }
-        
-//    return nil
+
     return defaultCellCollapsePicker(context, indices)
 }
 
