@@ -29,8 +29,8 @@ final class LevelComposer {
     
     func level(from data: LevelData) -> Level {
         let landscape = createLandscape(data.landscapeGrid)
-        let sprites = createSprites(landscape)
-        let contours = createContours(data, sceneSize: landscape.levelSize)
+        let sprites = createSprites()
+        let contours = createContours(data, levelRect: landscape.levelRect)
         return Level(
             landscape: landscape,
             sprites: sprites,
@@ -73,11 +73,19 @@ final class LevelComposer {
         )
     }
     
-    private func createContours(_ data: LevelData, sceneSize: CGSize) -> [SKNode] {
+    private func createContours(_ data: LevelData, levelRect: CGRect) -> [SKNode] {
+        var nodes: [SKNode] = [
+            BorderBuilder(rect: levelRect)
+                .addComponent(ObstacleMarker())
+                .addComponent(BorderMarker())
+                .build()
+        ]
+
+        let levelSize = levelRect.size
         let tileSize = tileSetData.tileSet.defaultTileSize
         let blockSize = data.mapBlockSize.cgSizeValue * tileSize
-        
-        return data.contourObjects
+                
+        let contours = data.contourObjects
             .map { (obj: LevelData.ContourObject) -> CGRect in
                 let offset = CGPoint(
                     x: blockSize.width * CGFloat(obj.blockPosition.col),
@@ -87,10 +95,11 @@ final class LevelComposer {
                 return CGRect(origin: origin, size: obj.rectangle.size)
             }
             .map { (rect: CGRect) -> CGRect in
-                CGRect(x: rect.origin.x,
-                       y: sceneSize.height - rect.origin.y - rect.size.height,
-                       width: rect.width,
-                       height: rect.height
+                CGRect(
+                    x: rect.origin.x,
+                    y: levelSize.height - rect.origin.y - rect.size.height,
+                    width: rect.width,
+                    height: rect.height
                 )
             }
             .map { (rect: CGRect) -> SKNode in
@@ -100,8 +109,6 @@ final class LevelComposer {
                     BorderMarker()
                 )
                 node.position = rect.origin
-//                node.color = .gray
-//                node.size = rect.size
                 node.anchorPoint = .zero
                 
                 let center = CGPoint(
@@ -120,15 +127,13 @@ final class LevelComposer {
                 node.physicsBody = physicsBody
                 return node
             }
+        nodes.append(contentsOf: contours)
+        
+        return nodes
     }
     
-    private func createSprites(_ landscape: Level.Landscape) -> [Sprite] {
+    private func createSprites() -> [Sprite] {
         [
-            BorderBuilder(rect: landscape.levelRect)
-                .addComponent(ObstacleMarker())
-                .addComponent(BorderMarker())
-                .build(),
-            
             Tank.Builder
                 .random()
                 .color(.bronze)
