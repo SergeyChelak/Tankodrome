@@ -130,49 +130,40 @@ func cellCollapsePicker(_ context: CellCollapsePickerContext, _ indices: Set<Int
         }
     
     if let position = edgePositions.randomElement() {
+        let solidWall = "A"
+        
         let row = position.row
         let col = position.col
                 
         let options = context.cell(at: position)
             .options
             .compactMap { (value: String) -> WaveFunctionCollapse.Tile? in
-                guard let tile = context.tile(for: value) else {
-                    return nil
-                }
-                assert(tile.name == value)
-                return tile
+                context.tile(for: value)
             }
             .filter { tile in
-                guard col == 0 else {
-                    return true
-                }
-                return tile.left.allSatisfy { $0 == "A" }
+                col == 0
+                ? tile.left.allSatisfy { $0 == solidWall }
+                : true
             }
             .filter { tile in
-                guard col == size.cols - 1 else {
-                    return true
-                }
-                return tile.right.allSatisfy { $0 == "A" }
+                col == size.cols - 1
+                ? tile.right.allSatisfy { $0 == solidWall }
+                : true
             }
             .filter { tile in
-                guard row == 0 else {
-                    return true
-                }
-                return tile.up.allSatisfy { $0 == "A" }
+                row == 0
+                ? tile.up.allSatisfy { $0 == solidWall }
+                : true
             }
             .filter { tile in
-                guard row == size.rows - 1 else {
-                    return true
-                }
-                return tile.down.allSatisfy { $0 == "A" }
-            }
-            .map {
-                $0.name
+                row == size.rows - 1
+                ? tile.down.allSatisfy { $0 == solidWall }
+                : true
             }
         
         if let option = options.randomElement() {
 //            fatalError("Empty set for edge at \(position)")
-            return (position.index(in: size), option)
+            return (position.index(in: size), option.name)
         }
     }
         
