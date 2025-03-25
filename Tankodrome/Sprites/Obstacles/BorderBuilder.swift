@@ -9,7 +9,7 @@ import Foundation
 import SpriteKit
 
 final class BorderBuilder {
-    private var rect: CGRect
+    private let rect: CGRect
     private var padding: CGFloat = 100.0
     private var components: [Component] = []
     

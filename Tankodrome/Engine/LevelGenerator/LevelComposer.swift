@@ -81,7 +81,6 @@ final class LevelComposer {
                 .build()
         ]
 
-        let levelSize = levelRect.size
         let tileSize = tileSetData.tileSet.defaultTileSize
         let blockSize = data.mapBlockSize.cgSizeValue * tileSize
                 
@@ -94,38 +93,13 @@ final class LevelComposer {
                 let origin = obj.rectangle.origin + offset
                 return CGRect(origin: origin, size: obj.rectangle.size)
             }
-            .map { (rect: CGRect) -> CGRect in
-                CGRect(
-                    x: rect.origin.x,
-                    y: levelSize.height - rect.origin.y - rect.size.height,
-                    width: rect.width,
-                    height: rect.height
-                )
-            }
-            .map { (rect: CGRect) -> SKNode in
-                let node = Sprite()
-                node.addComponents(
-                    ObstacleMarker(),
-                    BorderMarker()
-                )
-                node.position = rect.origin
-                node.anchorPoint = .zero
-                
-                let center = CGPoint(
-                    x: rect.size.width * 0.5,
-                    y: rect.size.height * 0.5
-                )
-
-                let physicsBody = SKPhysicsBody(
-                    rectangleOf: rect.size,
-                    center: center
-                )
-                physicsBody.isDynamic = false
-                physicsBody.affectedByGravity = false
-                physicsBody.allowsRotation = false
-                physicsBody.setCategory(.border)
-                node.physicsBody = physicsBody
-                return node
+            .map {
+                RectangleContourBuilder(bodyRectangle: $0)
+                    .setYFlipped(true)
+                    .setSceneRectangle(levelRect)
+                    .addComponent(ObstacleMarker())
+                    .addComponent(BorderMarker())
+                    .build()
             }
         nodes.append(contentsOf: contours)
         
