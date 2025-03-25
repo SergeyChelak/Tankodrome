@@ -76,7 +76,7 @@ final class LevelGenerator {
     
     private func generateLevelSize() -> Size {
         // amount of map parts, choose as random in 5..10
-        Size(rows: 10, cols: 10)
+        Size(rows: 5, cols: 5)
     }
     
     private func fillLandscape(source: TileDataSource, blockSize: Size) throws -> LevelData.LandscapeGrid {
@@ -97,7 +97,8 @@ final class LevelGenerator {
                       let tileSet = map.tileSets.first,
                       let layer = map.landscapeLayer(),
                       let tiles = layer.data else {
-                    // TODO: continue?
+                    // TODO:
+//                    continue
                     throw GenerateError.missingLayer
                 }
                 for (i, value) in tiles.enumerated() {
@@ -116,9 +117,67 @@ final class LevelGenerator {
     }
 }
 
-func cellCollapsePicker(_ indices: Set<Int>, _ grid: WaveFunctionCollapse.Grid) -> (Int, TileId)? {
+func cellCollapsePicker(_ context: CellCollapsePickerContext, _ indices: Set<Int>) -> CellCollapse? {
+    let size = context.gridSize()
+    let edgePositions = indices
+        .map {
+            Matrix.Position.from(index: $0, of: size)
+        }
+        .filter {
+            let row = $0.row
+            let col = $0.col
+            return row == 0 || col == 0 || row == size.rows - 1 || col == size.cols - 1
+        }
     
-    return defaultCellCollapsePicker(indices, grid)
+    if let position = edgePositions.randomElement() {
+        let row = position.row
+        let col = position.col
+                
+        let options = context.cell(at: position)
+            .options
+            .compactMap { (value: String) -> WaveFunctionCollapse.Tile? in
+                guard let tile = context.tile(for: value) else {
+                    return nil
+                }
+                assert(tile.name == value)
+                return tile
+            }
+            .filter { tile in
+                guard col == 0 else {
+                    return true
+                }
+                return tile.left.allSatisfy { $0 == "A" }
+            }
+            .filter { tile in
+                guard col == size.cols - 1 else {
+                    return true
+                }
+                return tile.right.allSatisfy { $0 == "A" }
+            }
+            .filter { tile in
+                guard row == 0 else {
+                    return true
+                }
+                return tile.up.allSatisfy { $0 == "A" }
+            }
+            .filter { tile in
+                guard row == size.rows - 1 else {
+                    return true
+                }
+                return tile.down.allSatisfy { $0 == "A" }
+            }
+            .map {
+                $0.name
+            }
+        
+        if let option = options.randomElement() {
+//            fatalError("Empty set for edge at \(position)")
+            return (position.index(in: size), option)
+        }
+    }
+        
+//    return nil
+    return defaultCellCollapsePicker(context, indices)
 }
 
 fileprivate func wfcTiledMapper(_ data: (String, TiledMap)) throws -> WaveFunctionCollapse.Tile {
