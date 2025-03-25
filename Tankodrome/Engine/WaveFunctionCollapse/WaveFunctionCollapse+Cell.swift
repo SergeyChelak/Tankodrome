@@ -8,7 +8,7 @@
 import Foundation
 
 extension WaveFunctionCollapse {
-    typealias Grid = [Cell]
+    typealias Grid = Matrix.ArrayWrapper<Cell>
     
     struct Cell {
         var options: Set<TileId>

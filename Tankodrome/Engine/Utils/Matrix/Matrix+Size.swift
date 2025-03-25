@@ -16,6 +16,8 @@ extension Matrix {
             rows * cols
         }
         
-        static let zero = Self(rows: 0, cols: 0)
+        static func zero() -> Self {
+            Self(rows: 0, cols: 0)
+        }
     }
 }

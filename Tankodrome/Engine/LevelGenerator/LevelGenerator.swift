@@ -11,7 +11,7 @@ final class LevelGenerator {
     private typealias Size = Matrix.Size
     private typealias Position = Matrix.Position
     
-    private var mapBlockSize: Size = .zero    
+    private var mapBlockSize: Size = .zero()
     
     private let waveFunctionCollapse = WaveFunctionCollapse(
         cellCollapsePicker: cellCollapsePicker(_:_:)
@@ -35,7 +35,7 @@ final class LevelGenerator {
                   sizes.allSatisfy({ $0 == first }) else {
                 print("[WARN] map list is empty or maps have different dimensions")
                 // TODO: throw?
-                return .zero
+                return .zero()
             }
             return first
         }()

@@ -18,8 +18,8 @@ final class WaveFunctionCollapse {
     
     typealias CellCollapsePicker = (Set<Int>, WaveFunctionCollapse.Grid) -> (Int, TileId)?
     
-    private var size: Size = .zero
-    private var grid: Grid = []
+    private var size: Size = .zero()
+    private var grid: Grid = .empty()
     private var tileMap: [TileId: Tile] = [:]
     
     private var cellCollapsePicker: CellCollapsePicker
@@ -77,10 +77,7 @@ final class WaveFunctionCollapse {
     private func makeGrid() -> Grid {
         let options = Set(tileMap.keys)
         let cell =  Cell(options: options)
-        return [Cell].init(
-            repeating: cell,
-            count: size.count
-        )
+        return Grid(size: size, value: cell)
     }
     
     // MARK: Wfc
