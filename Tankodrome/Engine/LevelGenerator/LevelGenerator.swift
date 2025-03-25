@@ -74,7 +74,7 @@ final class LevelGenerator {
     
     private func generateLevelSize() -> Size {
         // amount of map parts, choose as random in 5..10
-        Size(rows: 7, cols: 7)
+        Size(rows: 10, cols: 10)
     }
     
     private func fillLandscape(source: TileDataSource, blockSize: Size) throws -> LevelData.LandscapeGrid {

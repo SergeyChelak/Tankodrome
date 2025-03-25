@@ -52,6 +52,6 @@ struct GameView: View {
     }
 }
 
-#Preview {
-    GameView(viewModel: GameViewModel())
-}
+//#Preview {
+//    GameView(viewModel: GameViewModel())
+//}

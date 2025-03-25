@@ -12,10 +12,6 @@ import SpriteKit
 
 class GameViewModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
-    private let generator: LevelGeneratorDeprecated = {
-        let config = levelGeneratorConfiguration()
-        return LevelGeneratorDeprecated(configuration: config)
-    }()
     private let scene = {
         let scene = GameScene()
         scene.register(
@@ -35,6 +31,18 @@ class GameViewModel: ObservableObject {
     
     private(set) lazy var hudModel = HudModel(actionCallback: handleHudAction(_:))
     
+    private let levelGenerator: LevelGenerator
+    private let levelComposer: LevelComposer
+    
+    init(
+        levelGenerator: LevelGenerator,
+        levelComposer: LevelComposer
+    ) {
+        self.levelComposer = levelComposer
+        self.levelGenerator = levelGenerator
+    }
+
+    
     func scene(with size: CGSize) -> SKScene {
         scene.size = size
         return scene
@@ -53,8 +61,8 @@ class GameViewModel: ObservableObject {
     // temporary...
     func load() async {
         do {
-            try generator.load()
-            let level = try generator.generateLevel()
+            let data = try levelGenerator.generate()
+            let level = levelComposer.level(from: data)
             Task { @MainActor in
                 registerStateSystem()
                 scene.setLevel(level)
@@ -87,13 +95,4 @@ extension GameViewModel: ControlHandler {
     func handleControlEvent(_ event: ControlEvent) {
         scene.pushControlEvent(event)
     }
-}
-
-
-func levelGeneratorConfiguration() -> LevelGeneratorDeprecated.Configuration {
-    LevelGeneratorDeprecated.Configuration(
-        elementsFileName: "MapElements",
-        elementsFileType: "json",
-        tileSetName: "LandscapeTileSet"
-    )
 }
