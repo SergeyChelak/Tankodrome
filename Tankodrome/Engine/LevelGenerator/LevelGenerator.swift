@@ -93,7 +93,7 @@ final class LevelGenerator {
                 guard let id = waveFunctionCollapse.tileId(row: row, col: col),
                       let map = dataSource.maps[id],
                       let tileSet = map.tileSets.first,
-                      let layer = map.layers.first(where: { $0.name == "landscape" }),
+                      let layer = map.landscapeLayer(),
                       let tiles = layer.data else {
                     // TODO: continue?
                     throw GenerateError.missingLayer

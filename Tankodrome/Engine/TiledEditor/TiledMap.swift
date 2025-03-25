@@ -26,3 +26,15 @@ struct TiledMap: Codable {
     let properties: [Property]
     let tileSets: [TileSet]
 }
+
+extension TiledMap {
+    func landscapeLayer() -> Layer? {
+        layer(with: "landscape")
+    }
+
+    private func layer(with name: String) -> Layer? {
+        layers.first {
+            $0.name == name
+        }
+    }
+}
