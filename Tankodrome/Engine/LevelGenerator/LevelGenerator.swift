@@ -13,7 +13,9 @@ final class LevelGenerator {
     
     private var mapBlockSize: Size = .zero    
     
-    private let waveFunctionCollapse = WaveFunctionCollapse()
+    private let waveFunctionCollapse = WaveFunctionCollapse(
+        cellCollapsePicker: cellCollapsePicker(_:_:)
+    )
     
     private let dataSource: MapsDataSource
     private let tileSetMapper: TileSetMapper
@@ -112,6 +114,11 @@ final class LevelGenerator {
         
         return landscapeGrid
     }
+}
+
+func cellCollapsePicker(_ indices: Set<Int>, _ grid: WaveFunctionCollapse.Grid) -> (Int, TileId)? {
+    
+    return defaultCellCollapsePicker(indices, grid)
 }
 
 fileprivate func wfcTiledMapper(_ data: (String, TiledMap)) throws -> WaveFunctionCollapse.Tile {
