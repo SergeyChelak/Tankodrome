@@ -11,6 +11,7 @@ import SpriteKit
 struct Level {
     let landscape: Landscape
     let sprites: [Sprite]
+    let contours: [SKNode]
     let sceneComponents: [Component]
     
     struct Landscape {

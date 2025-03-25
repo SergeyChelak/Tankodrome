@@ -30,9 +30,11 @@ final class LevelComposer {
     func level(from data: LevelData) -> Level {
         let landscape = createLandscape(data.landscapeGrid)
         let sprites = createSprites(landscape)
+        let contours = createContours(data, sceneSize: landscape.levelSize)
         return Level(
             landscape: landscape,
             sprites: sprites,
+            contours: contours,
             sceneComponents: [
                 ScaleComponent(value: 3.0)
             ]
@@ -40,9 +42,8 @@ final class LevelComposer {
     }
     
     private func createLandscape(_ grid: LevelData.LandscapeGrid) -> Level.Landscape {
-        // TODO: so stupid... wrap in matrix
-        let rows = grid.count
-        let cols = grid[0].count
+        let rows = grid.size.rows
+        let cols = grid.size.cols
         
         let tileSize = tileSetData.tileSet.defaultTileSize
         let tileMap = SKTileMapNode(
@@ -56,7 +57,7 @@ final class LevelComposer {
         
         for row in 0..<rows {
             for col in 0..<cols {
-                let tileId = grid[row][col]
+                let tileId = grid[(row, col)]
                 guard let group = tileSetData.groups[tileId] else {
                     continue
                 }
@@ -70,6 +71,55 @@ final class LevelComposer {
             rows: rows,
             cols: cols
         )
+    }
+    
+    private func createContours(_ data: LevelData, sceneSize: CGSize) -> [SKNode] {
+        let tileSize = tileSetData.tileSet.defaultTileSize
+        let blockSize = data.mapBlockSize.cgSizeValue * tileSize
+        
+        return data.contourObjects
+            .map { (obj: LevelData.ContourObject) -> CGRect in
+                let offset = CGPoint(
+                    x: blockSize.width * CGFloat(obj.blockPosition.col),
+                    y: blockSize.height * CGFloat(obj.blockPosition.row)
+                )
+                let origin = obj.rectangle.origin + offset
+                return CGRect(origin: origin, size: obj.rectangle.size)
+            }
+            .map { (rect: CGRect) -> CGRect in
+                CGRect(x: rect.origin.x,
+                       y: sceneSize.height - rect.origin.y - rect.size.height,
+                       width: rect.width,
+                       height: rect.height
+                )
+            }
+            .map { (rect: CGRect) -> SKNode in
+                let node = Sprite()
+                node.addComponents(
+                    ObstacleMarker(),
+                    BorderMarker()
+                )
+                node.position = rect.origin
+//                node.color = .gray
+//                node.size = rect.size
+                node.anchorPoint = .zero
+                
+                let center = CGPoint(
+                    x: rect.size.width * 0.5,
+                    y: rect.size.height * 0.5
+                )
+
+                let physicsBody = SKPhysicsBody(
+                    rectangleOf: rect.size,
+                    center: center
+                )
+                physicsBody.isDynamic = false
+                physicsBody.affectedByGravity = false
+                physicsBody.allowsRotation = false
+                physicsBody.setCategory(.border)
+                node.physicsBody = physicsBody
+                return node
+            }
     }
     
     private func createSprites(_ landscape: Level.Landscape) -> [Sprite] {
@@ -87,23 +137,23 @@ final class LevelComposer {
                 .addComponent(WeaponComponent(model: .heavy))
                 .addComponent(HealthComponent(value: 500))
                 .addComponent(VelocityComponent(value: 0.0, limit: 1000.0))
-                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
+                .addComponent(RotationSpeedComponent(value: .pi * 0.9))
                 .addComponent(AccelerationComponent(value: 100.0))
-                .position(CGPoint(x: 1300, y: 1300))
+                .position(CGPoint(x: 2000, y: 2500))
                 .build(),
             
-            Tank.Builder
-                .random()
-                .color(.blue)
-                .addComponent(NpcMarker())
-                .addComponent(WeaponComponent(model: .medium))
-                .addComponent(ControllerComponent())
-                .addComponent(HealthComponent(value: 100))
-                .addComponent(VelocityComponent(value: 0.0, limit: 900.0))
-                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
-                .addComponent(AccelerationComponent(value: 100.0))
-                .position(CGPoint(x: 1500, y: 1500))
-                .build(),
+//            Tank.Builder
+//                .random()
+//                .color(.blue)
+//                .addComponent(NpcMarker())
+//                .addComponent(WeaponComponent(model: .medium))
+//                .addComponent(ControllerComponent())
+//                .addComponent(HealthComponent(value: 100))
+//                .addComponent(VelocityComponent(value: 0.0, limit: 900.0))
+//                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
+//                .addComponent(AccelerationComponent(value: 100.0))
+//                .position(CGPoint(x: 1500, y: 1500))
+//                .build(),
             
             Tank.Builder
                 .random()

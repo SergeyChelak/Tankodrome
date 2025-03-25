@@ -63,21 +63,24 @@ final class LevelGenerator {
         }
         
         let landscapeGrid = try fillLandscape(source: waveFunctionCollapse, blockSize: blocksSize)
-                
+        let contourObjects = try contours(source: waveFunctionCollapse, blockSize: blocksSize)
         // build level with steps
-        // - fill landscape from block tiles
-        // - add physics bodies layer
+        // + fill landscape from block tiles
+        // + add contour objects layer
         // - collect spawn points
         // - setup player & NPCs
         
         return LevelData(
-            landscapeGrid: landscapeGrid
+            mapBlockSize: mapBlockSize,
+            landscapeGrid: landscapeGrid,
+            contourObjects: contourObjects
         )
     }
     
     private func generateLevelSize() -> Size {
         // amount of map parts, choose as random in 5..10
-        Size(rows: 15, cols: 15)
+        let dim = 10
+        return Size(rows: dim, cols: dim)
     }
     
     private func fillLandscape(source: TileDataSource, blockSize: Size) throws -> LevelData.LandscapeGrid {
@@ -85,22 +88,15 @@ final class LevelGenerator {
             rows: blockSize.rows * mapBlockSize.rows,
             cols: blockSize.cols * mapBlockSize.cols
         )
-        
-        var landscapeGrid = [[String]].init(
-            repeating: [String].init(repeating: "", count: gridSize.cols),
-            count: gridSize.rows
-        )
-        
+        var landscapeGrid = LevelData.LandscapeGrid(size: gridSize, value: "")
         for row in 0..<blockSize.rows {
             for col in 0..<blockSize.cols {
-                guard let id = waveFunctionCollapse.tileId(row: row, col: col),
+                guard let id = source.tileId(row: row, col: col),
                       let map = dataSource.maps[id],
                       let tileSet = map.tileSets.first,
                       let layer = map.landscapeLayer(),
                       let tiles = layer.data else {
-                    // TODO:
-//                    continue
-                    throw GenerateError.missingLayer
+                    throw GenerateError.missingLayer("landscape")
                 }
                 for (i, value) in tiles.enumerated() {
                     let innerPosition = Position.from(index: i, of: mapBlockSize)
@@ -109,12 +105,43 @@ final class LevelGenerator {
                     guard let tile = tileSetMapper.tileGroupName(for: tileSet, id: value) else {
                         throw GenerateError.missingTile
                     }
-                    landscapeGrid[r][c] = tile
+                    landscapeGrid[(r, c)] = tile
                 }
             }
         }
         
         return landscapeGrid
+    }
+    
+    private func contours(source: TileDataSource, blockSize: Size) throws -> [LevelData.ContourObject] {
+        var contourObjects: [LevelData.ContourObject] = []
+        // only rectangles are supported right now
+        for row in 0..<blockSize.rows {
+            for col in 0..<blockSize.cols {
+                guard let id = source.tileId(row: row, col: col),
+                      let map = dataSource.maps[id],
+                      let layer = map.contourObjectsLayer(),
+                      let objects = layer.objects else {
+                    throw GenerateError.missingLayer("contours")
+                }
+                let blockPosition = Matrix.Position(row: row, col: col)
+                let items = objects
+                    .filter {
+                        $0.isPoint != true
+                    }
+                    .map {
+                        CGRect(x: $0.x, y: $0.y, width: $0.width, height: $0.height)
+                    }
+                    .map {
+                        LevelData.ContourObject(
+                            blockPosition: blockPosition,
+                            rectangle: $0
+                        )
+                    }
+                contourObjects.append(contentsOf: items)
+            }
+        }
+        return contourObjects
     }
 }
 

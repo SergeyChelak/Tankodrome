@@ -21,3 +21,9 @@ extension Matrix {
         }
     }
 }
+
+extension Matrix.Size {
+    var cgSizeValue: CGSize {
+        CGSize(width: self.cols, height: self.rows)
+    }
+}

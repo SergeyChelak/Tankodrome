@@ -8,8 +8,14 @@
 import Foundation
 
 struct LevelData {
-    typealias LandscapeGrid = [[String]]
+    typealias LandscapeGrid = Matrix.ArrayWrapper<String>
     
+    struct ContourObject {
+        let blockPosition: Matrix.Position
+        let rectangle: CGRect
+    }
+    
+    let mapBlockSize: Matrix.Size
     let landscapeGrid: LandscapeGrid
-    
+    let contourObjects: [ContourObject]
 }

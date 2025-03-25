@@ -40,7 +40,8 @@ class GameScene: SKScene {
         addComponents(level.sceneComponents)
         let landscape = level.landscape
         levelRect = landscape.levelRect
-        addChild(landscape.tileMap)        
+        addChild(landscape.tileMap)
+        addChildren(level.contours)
         addChildren(level.sprites)
         setupCamera()
     }
