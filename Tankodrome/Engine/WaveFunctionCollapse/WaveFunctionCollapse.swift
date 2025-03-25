@@ -76,8 +76,23 @@ final class WaveFunctionCollapse {
     
     private func makeGrid() -> Grid {
         let options = Set(tileMap.keys)
-        let cell =  Cell(options: options)
-        return Grid(size: size, value: cell)
+//        let cell = Cell(options: options)
+//        return Grid(size: size, value: cell)
+        var array: [Cell] = []
+        let count = size.count
+        array.reserveCapacity(count)
+        for index in 0..<count {
+            let pos = Position.from(index: index, of: size)
+            let row = pos.row
+            let col = pos.col
+            let isEdge = row == 0 || col == 0 || row == size.rows - 1 || col == size.cols - 1
+            let cell = Cell(
+                priority: isEdge ? 1 : 0,
+                options: options
+            )
+            array.append(cell)
+        }
+        return Grid(content: array, size: size)
     }
     
     // MARK: Wfc
@@ -135,6 +150,7 @@ final class WaveFunctionCollapse {
         var indices: Set<Int> = []
         for (idx, cell) in grid.enumerated() {
             let cellEntropy = cell.entropy
+            let cellPriority = cell.priority
             guard cellEntropy > 1 else {
                 continue
             }
@@ -143,12 +159,14 @@ final class WaveFunctionCollapse {
                 continue
             }
             let minEntropy = grid[storedIndex].entropy
-            if minEntropy == cellEntropy {
-                indices.insert(idx)
-            } else if minEntropy < cellEntropy {
-                indices.removeAll()
-                indices.insert(idx)
+            let maxPriority = grid[storedIndex].priority
+            if cellEntropy > minEntropy || cellPriority < maxPriority {
+                continue
             }
+            if minEntropy > cellEntropy || cellPriority > maxPriority {
+                indices.removeAll()
+            }
+            indices.insert(idx)
         }
         return indices
     }
