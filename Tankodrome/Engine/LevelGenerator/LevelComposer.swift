@@ -29,8 +29,8 @@ final class LevelComposer {
     
     func level(from data: LevelData) -> Level {
         let landscape = createLandscape(data.landscapeGrid)
-        let sprites = createSprites()
         let contours = createContours(data, levelRect: landscape.levelRect)
+        let sprites = createSprites(data, levelRect: landscape.levelRect)
         return Level(
             landscape: landscape,
             sprites: sprites,
@@ -106,46 +106,51 @@ final class LevelComposer {
         return nodes
     }
     
-    private func createSprites() -> [Sprite] {
-        [
-            Tank.Builder
-                .random()
-                .color(.bronze)
-                .addComponent(PlayerMarker())
-                .addComponent(ControllerComponent())
-                .addComponent(WeaponComponent(model: .heavy))
-                .addComponent(HealthComponent(value: 500))
-                .addComponent(VelocityComponent(value: 0.0, limit: 1000.0))
-                .addComponent(RotationSpeedComponent(value: .pi * 0.9))
-                .addComponent(AccelerationComponent(value: 100.0))
-                .position(CGPoint(x: 2000, y: 2500))
-                .build(),
-            
-//            Tank.Builder
-//                .random()
-//                .color(.blue)
-//                .addComponent(NpcMarker())
-//                .addComponent(WeaponComponent(model: .medium))
-//                .addComponent(ControllerComponent())
-//                .addComponent(HealthComponent(value: 100))
-//                .addComponent(VelocityComponent(value: 0.0, limit: 900.0))
-//                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
-//                .addComponent(AccelerationComponent(value: 100.0))
-//                .position(CGPoint(x: 1500, y: 1500))
-//                .build(),
-            
-            Tank.Builder
-                .random()
-                .color(.yellow)
-                .addComponent(NpcMarker())
-                .addComponent(WeaponComponent(model: .medium))
-                .addComponent(ControllerComponent())
-                .addComponent(HealthComponent(value: 100))
-                .addComponent(VelocityComponent(value: 0.0, limit: 900.0))
-                .addComponent(RotationSpeedComponent(value: .pi / 3.0))
-                .addComponent(AccelerationComponent(value: 100.0))
-                .position(CGPoint(x: 1500, y: 1100))
-                .build()
-        ]
+    private func createSprites(_ data: LevelData, levelRect: CGRect) -> [Sprite] {
+        let tileSize = tileSetData.tileSet.defaultTileSize
+        let blockSize = data.mapBlockSize.cgSizeValue * tileSize
+        let calculatePosition = { (sp: LevelData.SpawnPoint) -> CGPoint in
+            let offset = CGPoint(
+                x: blockSize.width * CGFloat(sp.blockPosition.col),
+                y: blockSize.height * CGFloat(sp.blockPosition.row)
+            )
+            var result = offset + sp.point
+            result.y = levelRect.size.height - result.y
+            return result
+        }
+        var sprites: [Sprite] = []
+        for value in data.gameActors {
+            let sprite = switch value {
+            case .player(let data):
+                Tank.Builder
+                    .random()
+                    .color(data.color)
+                    .addComponent(PlayerMarker())
+                    .addComponent(ControllerComponent())
+                    .addComponent(WeaponComponent(model: data.weapon))
+                    .addComponent(HealthComponent(value: data.health))
+                    .addComponent(VelocityComponent(value: 0.0, limit: data.velocity))
+                    .addComponent(RotationSpeedComponent(value: data.rotationSpeed))
+                    .addComponent(AccelerationComponent(value: data.acceleration))
+                    .position(calculatePosition(data.spawnPoint))
+                    .build()
+            case .npcTank(let data):
+                Tank.Builder
+                    .random()
+                    .color(data.color)
+                    .addComponent(NpcMarker())
+                    .addComponent(ControllerComponent())
+                    .addComponent(WeaponComponent(model: data.weapon))
+                    .addComponent(HealthComponent(value: data.health))
+                    .addComponent(VelocityComponent(value: 0.0, limit: data.velocity))
+                    .addComponent(RotationSpeedComponent(value: data.rotationSpeed))
+                    .addComponent(AccelerationComponent(value: data.acceleration))
+                    .position(calculatePosition(data.spawnPoint))
+                    .build()
+            }
+            sprites.append(sprite)
+        }
+        
+        return sprites
     }
 }

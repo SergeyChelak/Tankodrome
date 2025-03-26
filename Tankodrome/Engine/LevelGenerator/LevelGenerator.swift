@@ -62,18 +62,15 @@ final class LevelGenerator {
             }
         }
         
-        let landscapeGrid = try fillLandscape(source: waveFunctionCollapse, blockSize: blocksSize)
-        let contourObjects = try contours(source: waveFunctionCollapse, blockSize: blocksSize)
-        // build level with steps
-        // + fill landscape from block tiles
-        // + add contour objects layer
-        // - collect spawn points
-        // - setup player & NPCs
-        
+        let landscapeGrid = try fillLandscape(source: waveFunctionCollapse)
+        let contourObjects = try contours(source: waveFunctionCollapse)
+        let spawnPoints = collectSpawnPoints(source: waveFunctionCollapse)
+        let actors = setupActors(spawnPoints)
         return LevelData(
             mapBlockSize: mapBlockSize,
             landscapeGrid: landscapeGrid,
-            contourObjects: contourObjects
+            contourObjects: contourObjects,
+            gameActors: actors
         )
     }
     
@@ -83,7 +80,8 @@ final class LevelGenerator {
         return Size(rows: dim, cols: dim)
     }
     
-    private func fillLandscape(source: TileDataSource, blockSize: Size) throws -> LevelData.LandscapeGrid {
+    private func fillLandscape(source: TileDataSource) throws -> LevelData.LandscapeGrid {
+        let blockSize = source.size
         let gridSize = Size(
             rows: blockSize.rows * mapBlockSize.rows,
             cols: blockSize.cols * mapBlockSize.cols
@@ -113,7 +111,8 @@ final class LevelGenerator {
         return landscapeGrid
     }
     
-    private func contours(source: TileDataSource, blockSize: Size) throws -> [LevelData.ContourObject] {
+    private func contours(source: TileDataSource) throws -> [LevelData.ContourObject] {
+        let blockSize = source.size
         var contourObjects: [LevelData.ContourObject] = []
         // only rectangles are supported right now
         for row in 0..<blockSize.rows {
@@ -142,6 +141,62 @@ final class LevelGenerator {
             }
         }
         return contourObjects
+    }
+    
+    private func collectSpawnPoints(source: TileDataSource) -> [LevelData.SpawnPoint] {
+        let blockSize = source.size
+        var spawnPoints: [LevelData.SpawnPoint] = []
+        for row in 0..<blockSize.rows {
+            for col in 0..<blockSize.cols {
+                guard let id = source.tileId(row: row, col: col),
+                      let map = dataSource.maps[id],
+                      let layer = map.spawnPointsLayer(),
+                      let objects = layer.objects else {
+                    continue
+                }
+                let blockPosition = Matrix.Position(row: row, col: col)
+                let points = objects
+                    .map {
+                        assert($0.isPoint == true)
+                        return CGPoint(x: $0.x, y: $0.y)
+                    }
+                    .map {
+                        LevelData.SpawnPoint(
+                            blockPosition: blockPosition,
+                            point: $0
+                        )
+                    }
+                spawnPoints.append(contentsOf: points)
+            }
+        }
+        return spawnPoints
+    }
+    
+    private func setupActors(_ points: [LevelData.SpawnPoint]) -> [LevelData.GameActor] {
+        let count = points.count / 3
+        var indices: Set<Int> = {
+            let array = (0..<count)
+                .map { $0 }
+            return Set(array)
+        }()
+        var isPlayerCreated = false
+        var actors: [LevelData.GameActor] = []
+        for _ in 0..<count {
+            guard let index = indices.randomElement() else {
+                continue
+            }
+            indices.remove(index)
+            let point = points[index]
+            if !isPlayerCreated {
+                isPlayerCreated = true
+                let val = createActorPlayer(point)
+                actors.append(val)
+            } else {
+                let val = createActorNPC(point)
+                actors.append(val)
+            }
+        }
+        return actors
     }
 }
 
@@ -228,4 +283,32 @@ fileprivate func wfcTiledMapper(_ data: (String, TiledMap)) throws -> WaveFuncti
         down: property("bottomEdge"),
         left: property("leftEdge")
     )
+}
+
+fileprivate func createActorPlayer(_ point: LevelData.SpawnPoint) -> LevelData.GameActor {
+    let data = LevelData.TankData(
+        spawnPoint: point,
+        phase: 0,
+        color: .bronze,
+        weapon: .medium,
+        health: .greatestFiniteMagnitude,
+        velocity: 1000.0,
+        acceleration: 100.0,
+        rotationSpeed: .pi * 0.8
+    )
+    return .player(data)
+}
+
+fileprivate func createActorNPC(_ point: LevelData.SpawnPoint) -> LevelData.GameActor {
+    let data = LevelData.TankData(
+        spawnPoint: point,
+        phase: 0,
+        color: .blue,
+        weapon: .medium,
+        health: 100,
+        velocity: 900.0,
+        acceleration: 100.0,
+        rotationSpeed: .pi * 0.5
+    )
+    return .npcTank(data)
 }

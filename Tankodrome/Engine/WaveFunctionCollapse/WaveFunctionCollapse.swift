@@ -19,7 +19,7 @@ final class WaveFunctionCollapse {
     typealias CellCollapsePicker = (CellCollapsePickerContext, Set<Int>) -> CellCollapse?
     typealias CellConstructor = (Int, Size, Set<TileId>) -> Cell
     
-    private var size: Size = .zero()
+    private(set) var size: Size = .zero()
     private var grid: Grid = .empty()
     private var tileMap: [TileId: Tile] = [:]
     
