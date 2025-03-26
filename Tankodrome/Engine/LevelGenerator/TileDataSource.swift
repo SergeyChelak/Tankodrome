@@ -8,5 +8,6 @@
 import Foundation
 
 protocol TileDataSource {
+    var size: Matrix.Size { get }
     func tileId(row: Int, col: Int) -> TileId?
 }

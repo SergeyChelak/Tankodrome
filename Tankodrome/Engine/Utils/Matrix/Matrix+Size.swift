@@ -16,6 +16,14 @@ extension Matrix {
             rows * cols
         }
         
-        static let zero = Self(rows: 0, cols: 0)
+        static func zero() -> Self {
+            Self(rows: 0, cols: 0)
+        }
+    }
+}
+
+extension Matrix.Size {
+    var cgSizeValue: CGSize {
+        CGSize(width: self.cols, height: self.rows)
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 import SpriteKit
 
 final class BorderBuilder {
-    private var rect: CGRect
+    private let rect: CGRect
     private var padding: CGFloat = 100.0
     private var components: [Component] = []
     
@@ -67,7 +67,6 @@ final class BorderBuilder {
         components.forEach { c in
             node.addComponent(c)
         }
-//        node.name = "border"
         node.size = rect.size
         let physicsBody = SKPhysicsBody(
             rectangleOf: rect.size,

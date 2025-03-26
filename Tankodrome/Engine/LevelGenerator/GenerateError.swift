@@ -16,6 +16,6 @@ enum GenerateError: Error {
     case tileSetNotSpecified
     case multipleOrEmptyTileSet
     case unexpectedError(String)
-    case missingLayer
+    case missingLayer(String)
     case missingTile
 }

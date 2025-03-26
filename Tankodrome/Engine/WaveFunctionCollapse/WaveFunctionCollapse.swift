@@ -16,9 +16,23 @@ final class WaveFunctionCollapse {
     typealias Size = Matrix.Size
     typealias Position = Matrix.Position
     
-    private var size: Size = .zero
-    private var grid: Grid = []
+    typealias CellCollapsePicker = (CellCollapsePickerContext, Set<Int>) -> CellCollapse?
+    typealias CellConstructor = (Int, Size, Set<TileId>) -> Cell
+    
+    private(set) var size: Size = .zero()
+    private var grid: Grid = .empty()
     private var tileMap: [TileId: Tile] = [:]
+    
+    private var cellCollapsePicker: CellCollapsePicker
+    private var cellConstructor: CellConstructor
+    
+    init(
+        cellCollapsePicker: @escaping CellCollapsePicker = defaultCellCollapsePicker,
+        cellConstructor: @escaping CellConstructor = defaultCellConstructor
+    ) {
+        self.cellCollapsePicker = cellCollapsePicker
+        self.cellConstructor = cellConstructor
+    }
     
     // MARK: setup
     func setSize(rows: Int, cols: Int) {
@@ -66,17 +80,18 @@ final class WaveFunctionCollapse {
         }
     }
     
-    private func defaultCell() -> Cell {
+    private func makeGrid() -> Grid {
         let options = Set(tileMap.keys)
-        return Cell(options: options)
+        let array = (0..<size.count)
+            .map { index in
+                cellConstructor(index, size, options)
+            }
+        return Grid(content: array, size: size)
     }
     
     // MARK: Wfc
     func start(timeout: TimeInterval) throws {
-        self.grid = [Cell].init(
-            repeating: defaultCell(),
-            count: size.count
-        )
+        self.grid = makeGrid()
         let startTime = Date()
         let duration = { () -> TimeInterval in
             Date().timeIntervalSince(startTime)
@@ -100,8 +115,7 @@ final class WaveFunctionCollapse {
                 mode = .normal
             }
             
-            guard let index = indices.randomElement(),
-                  let option = grid[index].options.randomElement() else {
+            guard let (index, option) = cellCollapsePicker(self, indices) else {
                 return
             }
             
@@ -130,6 +144,7 @@ final class WaveFunctionCollapse {
         var indices: Set<Int> = []
         for (idx, cell) in grid.enumerated() {
             let cellEntropy = cell.entropy
+            let cellPriority = cell.priority
             guard cellEntropy > 1 else {
                 continue
             }
@@ -138,12 +153,14 @@ final class WaveFunctionCollapse {
                 continue
             }
             let minEntropy = grid[storedIndex].entropy
-            if minEntropy == cellEntropy {
-                indices.insert(idx)
-            } else if minEntropy < cellEntropy {
-                indices.removeAll()
-                indices.insert(idx)
+            let maxPriority = grid[storedIndex].priority
+            if cellEntropy > minEntropy || cellPriority < maxPriority {
+                continue
             }
+            if minEntropy > cellEntropy || cellPriority > maxPriority {
+                indices.removeAll()
+            }
+            indices.insert(idx)
         }
         return indices
     }
@@ -223,4 +240,26 @@ extension WaveFunctionCollapse: TileDataSource {
         let cell = grid[pos.index(in: size)]
         return cell.isCollapsed ? cell.options.first : nil
     }
+}
+
+extension WaveFunctionCollapse: CellCollapsePickerContext {
+    func cell(at position: Matrix.Position) -> Cell {
+        grid[position]
+    }
+    
+    func cell(at index: Int) -> WaveFunctionCollapse.Cell {
+        grid[index]
+    }
+    
+    func tile(for id: TileId) -> Tile? {
+        tileMap[id]
+    }
+    
+    func gridSize() -> Matrix.Size {
+        grid.size
+    }
+}
+
+func defaultCellConstructor(index: Int, size: Matrix.Size, options: Set<TileId>) -> WaveFunctionCollapse.Cell {
+    WaveFunctionCollapse.Cell(options: options)
 }
