@@ -173,28 +173,20 @@ final class LevelGenerator {
     }
     
     private func setupActors(_ points: [LevelData.SpawnPoint]) -> [LevelData.GameActor] {
-        let count = points.count / 3
-        var indices: Set<Int> = {
-            let array = (0..<count)
+        let indices = (0..<points.count)
                 .map { $0 }
-            return Set(array)
-        }()
-        var isPlayerCreated = false
+                .shuffled()
         var actors: [LevelData.GameActor] = []
-        for _ in 0..<count {
-            guard let index = indices.randomElement() else {
-                continue
-            }
-            indices.remove(index)
+        // setup player position
+        let point = points[indices[0]]
+        let val = createActorPlayer(point)
+        actors.append(val)
+        // setup npc position
+        let npcCount = points.count / 3
+        for index in indices[1...npcCount] {
             let point = points[index]
-            if !isPlayerCreated {
-                isPlayerCreated = true
-                let val = createActorPlayer(point)
-                actors.append(val)
-            } else {
-                let val = createActorNPC(point)
-                actors.append(val)
-            }
+            let val = createActorNPC(point)
+            actors.append(val)
         }
         return actors
     }
