@@ -15,6 +15,7 @@ extension Tank {
         private var tracks: Tracks = .type1
         private var components: [Component] = []
         private var position: CGPoint = .zero
+        private var phase: CGFloat = .zero
         
         static func random() -> Builder {
             var builder = Builder()
@@ -33,6 +34,11 @@ extension Tank {
             }
             
             return builder
+        }
+        
+        func phase(_ phase: CGFloat) -> Self {
+            self.phase = phase
+            return self
         }
         
         func color(_ color: Color) -> Self {
@@ -93,6 +99,7 @@ extension Tank {
             }
             sprite.position = position
             sprite.setupPhysics()
+            sprite.zRotation = phase
             return sprite
         }
         

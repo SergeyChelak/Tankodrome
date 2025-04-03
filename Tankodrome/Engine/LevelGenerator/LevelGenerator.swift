@@ -280,7 +280,7 @@ fileprivate func wfcTiledMapper(_ data: (String, TiledMap)) throws -> WaveFuncti
 fileprivate func createActorPlayer(_ point: LevelData.SpawnPoint) -> LevelData.GameActor {
     let data = LevelData.TankData(
         spawnPoint: point,
-        phase: 0,
+        phase: .random(in: 0..<360).degreesToRadians(),
         color: .bronze,
         weapon: .medium,
         health: .greatestFiniteMagnitude,
@@ -294,7 +294,7 @@ fileprivate func createActorPlayer(_ point: LevelData.SpawnPoint) -> LevelData.G
 fileprivate func createActorNPC(_ point: LevelData.SpawnPoint) -> LevelData.GameActor {
     let data = LevelData.TankData(
         spawnPoint: point,
-        phase: 0,
+        phase: .random(in: 0..<360).degreesToRadians(),
         color: .blue,
         weapon: .medium,
         health: 100,

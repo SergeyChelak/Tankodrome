@@ -125,6 +125,7 @@ final class LevelComposer {
                 Tank.Builder
                     .random()
                     .color(data.color)
+                    .phase(data.phase)
                     .addComponent(PlayerMarker())
                     .addComponent(ControllerComponent())
                     .addComponent(WeaponComponent(model: data.weapon))
@@ -138,6 +139,7 @@ final class LevelComposer {
                 Tank.Builder
                     .random()
                     .color(data.color)
+                    .phase(data.phase)
                     .addComponent(NpcMarker())
                     .addComponent(ControllerComponent())
                     .addComponent(WeaponComponent(model: data.weapon))
