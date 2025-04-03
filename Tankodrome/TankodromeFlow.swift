@@ -8,12 +8,6 @@
 import Foundation
 import SwiftUI
 
-struct GameServices {
-    let levelGenerator: LevelGenerator
-    let levelComposer: LevelComposer
-    let gameScene: GameScene
-}
-
 final class TankodromeFlow: ObservableObject {
     private var gameView: ViewHolder = .empty
     private var menuView: ViewHolder = .empty
@@ -41,30 +35,10 @@ final class TankodromeFlow: ObservableObject {
     private func showGameView() async {
         activeViewHolder = gameView
     }
-    
-    private func nextLevel() async {
-        //
-    }
 }
 
 extension TankodromeFlow: MainMenuHandler {
     func play() {
         Task { await showGameView() }
-    }
-}
-
-final class TankodromeViewFactory {
-    func gameView(
-        flow: GameFlow
-    ) -> ViewHolder {
-        let viewModel = GameViewModel(
-            gameFlow: flow
-        )
-        let view = GameView(viewModel: viewModel)
-        return ViewHolder(view)
-    }
-    
-    func menuView(_ handler: MainMenuHandler) -> ViewHolder {
-        ViewHolder(MainMenuView(handler: handler))
     }
 }
