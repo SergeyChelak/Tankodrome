@@ -10,7 +10,7 @@ import Foundation
 import GameController
 
 class VirtualController {
-    private let controller: GCVirtualController = {
+    private lazy var controller: GCVirtualController = {
         let configuration = GCVirtualController.Configuration()
         configuration.elements = [
             GCInputDirectionPad,
@@ -61,6 +61,7 @@ class VirtualController {
     }
     
     func disconnect() {
+        assert(Thread.isMainThread)
         controller.disconnect()
     }
 }
