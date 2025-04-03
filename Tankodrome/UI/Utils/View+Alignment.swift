@@ -21,22 +21,22 @@ struct AlignmentViewModifier: ViewModifier {
     func body(content: Content) -> some View {
         switch alignment {
         case .leading:
-            VStack {
+            HStack {
                 content
                 Spacer()
             }
         case .trailing:
-            VStack {
+            HStack {
                 Spacer()
                 content
             }
         case .top:
-            HStack {
+            VStack {
                 content
                 Spacer()
             }
         case .bottom:
-            HStack {
+            VStack {
                 Spacer()
                 content
             }

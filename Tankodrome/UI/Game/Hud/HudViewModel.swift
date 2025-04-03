@@ -12,12 +12,18 @@ final class HudViewModel: ObservableObject {
     @Published
     private(set) var healthPercentage: CGFloat = 0.0
     
+    private var gameState: GameState = .pause
+    
     init(gameFlow: GameFlow) {
         self.gameFlow = gameFlow
     }
     
     var healthText: String {
         String(format: "Health: %.0f%%", 100.0 * healthPercentage)
+    }
+    
+    func onPauseTap() {
+        fatalError("not implemented")
     }
     
     @MainActor
@@ -39,6 +45,8 @@ extension HudViewModel: StateReceiver {
     }
     
     func setGameState(_ gameState: GameState) {
-        // TODO: handle game state updates
+        if self.gameState != gameState {
+            self.gameState = gameState
+        }
     }
 }

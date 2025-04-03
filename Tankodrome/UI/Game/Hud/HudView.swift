@@ -22,6 +22,14 @@ struct HudView: View {
                 .font(.largeTitle)
                 .shadow(color: .black, radius: 2.0)
                 .alignToLeadingTop()
+            
+            // TODO: iOS only
+            Image(systemName: "pause.circle.fill")
+                .font(.largeTitle)
+                .shadow(color: .black, radius: 2.0)
+                .onTapGesture(perform: viewModel.onPauseTap)
+                .alignTo(.top)
+                .alignTo(.trailing)
         }
         .padding()
         .task {

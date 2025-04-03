@@ -8,7 +8,7 @@
 import Foundation
 
 enum GameState: Equatable {
-    case win, lose, play
+    case win, lose, play, pause
 }
 
 protocol StateReceiver {
