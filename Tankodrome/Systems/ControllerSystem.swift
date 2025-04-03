@@ -35,10 +35,10 @@ extension ControllerComponent.State {
         var state = ControllerComponent.State()
 #if os(OSX)
         let input = controllerState.keyboardPressState
-        state.isAcceleratePressed = input.isUpArrowPressed
-        state.isDeceleratePressed = input.isDownArrowPressed
-        state.isTurnLeftPressed = input.isLeftArrowPressed
-        state.isTurnRightPressed = input.isRightArrowPressed
+        state.isAcceleratePressed = input.isUpArrowPressed || input.isWPressed
+        state.isDeceleratePressed = input.isDownArrowPressed || input.isSPressed
+        state.isTurnLeftPressed = input.isLeftArrowPressed || input.isAPressed
+        state.isTurnRightPressed = input.isRightArrowPressed || input.isDPressed
         state.isShootPressed = input.isSpacePressed
 #endif
 #if os(iOS)
