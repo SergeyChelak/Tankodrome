@@ -9,9 +9,6 @@ import SwiftUI
 import SpriteKit
 
 struct GameView: View {
-#if os(iOS)
-    private let controller = VirtualController()
-#endif
     @StateObject
     var viewModel: GameViewModel
 
@@ -23,31 +20,11 @@ struct GameView: View {
     
     private func contentView(_ size: CGSize) -> some View {
         ZStack {
-            SpriteView(
-                scene: viewModel.scene(with: size),
-                options: [.ignoresSiblingOrder],
-                debugOptions: [.showsFPS, .showsPhysics, .showsNodeCount]
-            )
-            .ignoresSafeArea()
-            .task {
-                await viewModel.load()
-            }
-#if os(OSX)
-            .onKeyPress(phases: .all) { press in
-                viewModel.onKeyPress(press)
-                return .handled
-            }
-            .setFocused()
-#endif
-#if os(iOS)
-            .onAppear {
-                controller.connect(to: viewModel)
-            }
-            .onDisappear {
-                controller.disconnect()
-            }
-#endif
-            HudView(hud: viewModel.hudModel)
+            composeGameScene(viewModel.gameFlow)
+            composeHudView(viewModel.gameFlow)
+        }
+        .task {
+            await viewModel.load()
         }
         .opacity(viewModel.opacity)
     }

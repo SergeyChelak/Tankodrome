@@ -7,20 +7,25 @@
 
 import SwiftUI
 
-struct HudView<T: HudViewModel>: View {
-    @ObservedObject
-    var hud: T
+func composeHudView(_ gameFlow: GameFlow) -> some View {
+    let viewModel = HudViewModel(gameFlow: gameFlow)
+    return HudView(viewModel: viewModel)
+}
+
+struct HudView: View {
+    @StateObject
+    var viewModel: HudViewModel
     
     var body: some View {
         ZStack {
-            GameOverView(state: hud.state, callback: hud.actionCallback)
-            StatsOverlayView(text: hud.healthText)
+            Text(viewModel.healthText)
+                .font(.largeTitle)
+                .shadow(color: .black, radius: 2.0)
+                .alignToLeadingTop()
         }
         .padding()
+        .task {
+            await viewModel.load()
+        }
     }
-}
-
-#Preview {
-    let hud = HudModel(actionCallback: { _ in })
-    return HudView(hud: hud)
 }

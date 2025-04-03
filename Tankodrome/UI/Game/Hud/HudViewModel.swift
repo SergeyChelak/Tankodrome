@@ -7,10 +7,38 @@
 
 import Foundation
 
-typealias ActionCallback = (HudAction) -> Void
+final class HudViewModel: ObservableObject {
+    private let gameFlow: GameFlow
+    @Published
+    private(set) var healthPercentage: CGFloat = 0.0
+    
+    init(gameFlow: GameFlow) {
+        self.gameFlow = gameFlow
+    }
+    
+    var healthText: String {
+        String(format: "Health: %.0f%%", 100.0 * healthPercentage)
+    }
+    
+    @MainActor
+    func load() async {
+        registerStateSystem()
+    }
 
-protocol HudViewModel: ObservableObject {
-    var state: GameState { get }
-    var healthText: String { get }
-    var actionCallback: ActionCallback { get }
+    private func registerStateSystem() {
+        let stateSystem = StateSystem(receiver: self)
+        gameFlow.gameScene.register(stateSystem)
+    }
+}
+
+extension HudViewModel: StateReceiver {
+    func setHealthPercentage(_ value: CGFloat) {
+        if healthPercentage != value {
+            healthPercentage = value
+        }
+    }
+    
+    func setGameState(_ gameState: GameState) {
+        // TODO: handle game state updates
+    }
 }

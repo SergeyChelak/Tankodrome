@@ -22,7 +22,7 @@ struct RootView: View {
         }
     }
     
-    var contentViewHolder: ViewHolder {
+    private var contentViewHolder: ViewHolder {
         switch viewModel.state {
         case .play:
             viewFactory.gameView(flow: viewModel.gameFlow)
