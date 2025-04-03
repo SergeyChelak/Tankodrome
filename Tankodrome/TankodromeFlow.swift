@@ -11,6 +11,7 @@ import SwiftUI
 struct GameServices {
     let levelGenerator: LevelGenerator
     let levelComposer: LevelComposer
+    let gameScene: GameScene
 }
 
 final class TankodromeFlow: ObservableObject {
@@ -27,7 +28,8 @@ final class TankodromeFlow: ObservableObject {
             let services = try await makeGameServices()
             gameView = factory.gameView(
                 levelGenerator: services.levelGenerator,
-                levelComposer: services.levelComposer
+                levelComposer: services.levelComposer,
+                gameScene: services.gameScene
             )
             print("[OK] Initialized")
         }
@@ -62,7 +64,8 @@ final class TankodromeFlow: ObservableObject {
         )
         return GameServices(
             levelGenerator: generator,
-            levelComposer: levelComposer
+            levelComposer: levelComposer,
+            gameScene: createGameScene()
         )
     }
 }
@@ -73,15 +76,33 @@ extension TankodromeFlow: MainMenuHandler {
     }
 }
 
+fileprivate func createGameScene() -> GameScene {
+    let scene = GameScene()
+    scene.register(
+        ControllerSystem(),
+        NpcSystem(
+            fieldOfView: .pi,
+            rayLength: 1500,
+            raysCount: 20,
+            attackDistance: 1000
+        ),
+        MovementSystem(),
+        AttackSystem(),
+        PhysicSystem()
+    )
+    return scene
+}
 
 final class TankodromeViewFactory {
     func gameView(
         levelGenerator: LevelGenerator,
-        levelComposer: LevelComposer
+        levelComposer: LevelComposer,
+        gameScene: GameScene
     ) -> ViewHolder {
         let viewModel = GameViewModel(
             levelGenerator: levelGenerator,
-            levelComposer: levelComposer
+            levelComposer: levelComposer,
+            gameScene: gameScene
         )
         let view = GameView(viewModel: viewModel)
         return ViewHolder(view)

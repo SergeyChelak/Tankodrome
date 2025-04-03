@@ -12,22 +12,7 @@ import SpriteKit
 
 class GameViewModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
-    private let scene = {
-        let scene = GameScene()
-        scene.register(
-            ControllerSystem(),
-            NpcSystem(
-                fieldOfView: .pi,
-                rayLength: 1500,
-                raysCount: 20,
-                attackDistance: 1000
-            ),
-            MovementSystem(),
-            AttackSystem(),
-            PhysicSystem()
-        )
-        return scene
-    }()
+    private let scene: GameScene
     
     private(set) lazy var hudModel = HudModel(actionCallback: handleHudAction(_:))
     
@@ -36,10 +21,12 @@ class GameViewModel: ObservableObject {
     
     init(
         levelGenerator: LevelGenerator,
-        levelComposer: LevelComposer
+        levelComposer: LevelComposer,
+        gameScene: GameScene
     ) {
         self.levelComposer = levelComposer
         self.levelGenerator = levelGenerator
+        self.scene = gameScene
     }
 
     
