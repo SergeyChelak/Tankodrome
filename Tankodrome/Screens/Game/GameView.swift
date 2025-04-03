@@ -49,6 +49,7 @@ struct GameView: View {
 #endif
             HudView(hud: viewModel.hudModel)
         }
+        .opacity(viewModel.opacity)
     }
 }
 

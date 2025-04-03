@@ -19,6 +19,9 @@ class GameViewModel: ObservableObject {
     private let levelGenerator: LevelGenerator
     private let levelComposer: LevelComposer
     
+    @Published
+    var opacity: CGFloat = 0.0
+    
     init(
         levelGenerator: LevelGenerator,
         levelComposer: LevelComposer,
@@ -53,6 +56,9 @@ class GameViewModel: ObservableObject {
             Task { @MainActor in
                 registerStateSystem()
                 scene.setLevel(level)
+                withAnimation {
+                    opacity = 1.0
+                }
             }
         } catch {
             print(error)

@@ -14,7 +14,12 @@ struct TankodromeApp: App {
     
     var body: some Scene {
         WindowGroup {
-            flow.activeViewHolder.view
+            ZStack {
+                Image("Ground_Tile_02_C")
+                    .resizable(resizingMode: .tile)
+                    .ignoresSafeArea()
+                flow.activeViewHolder.view
+            }            
 #if os(OSX)
                 .onDisappear {
                     NSApplication.shared.terminate(nil)
