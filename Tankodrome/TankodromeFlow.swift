@@ -25,13 +25,10 @@ final class TankodromeFlow: ObservableObject {
         menuView = factory.menuView(self)
         Task {
             await showMenuView()
-            let services = try await makeGameServices()
+            let gameFlow: GameFlow = try .initialize()
             gameView = factory.gameView(
-                levelGenerator: services.levelGenerator,
-                levelComposer: services.levelComposer,
-                gameScene: services.gameScene
+                flow: gameFlow
             )
-            print("[OK] Initialized")
         }
     }
     
@@ -45,28 +42,8 @@ final class TankodromeFlow: ObservableObject {
         activeViewHolder = gameView
     }
     
-    private func makeGameServices() async throws -> GameServices {
-        let tiledDataSource = TiledDataSource()
-        try tiledDataSource.load()
-        let parts = tiledDataSource.maps
-        print("[OK] Loaded \(parts.count) parts")
-        
-        let tileSetMapper = TileSetMapper()
-        
-        let generator = try LevelGenerator(
-            dataSource: tiledDataSource,
-            tileSetMapper: tileSetMapper
-        )
-        
-        let levelComposer = try LevelComposer(
-            dataSource: tiledDataSource,
-            tileSetMapper: tileSetMapper
-        )
-        return GameServices(
-            levelGenerator: generator,
-            levelComposer: levelComposer,
-            gameScene: createGameScene()
-        )
+    private func nextLevel() async {
+        //
     }
 }
 
@@ -76,33 +53,12 @@ extension TankodromeFlow: MainMenuHandler {
     }
 }
 
-fileprivate func createGameScene() -> GameScene {
-    let scene = GameScene()
-    scene.register(
-        ControllerSystem(),
-        NpcSystem(
-            fieldOfView: .pi,
-            rayLength: 1500,
-            raysCount: 20,
-            attackDistance: 1000
-        ),
-        MovementSystem(),
-        AttackSystem(),
-        PhysicSystem()
-    )
-    return scene
-}
-
 final class TankodromeViewFactory {
     func gameView(
-        levelGenerator: LevelGenerator,
-        levelComposer: LevelComposer,
-        gameScene: GameScene
+        flow: GameFlow
     ) -> ViewHolder {
         let viewModel = GameViewModel(
-            levelGenerator: levelGenerator,
-            levelComposer: levelComposer,
-            gameScene: gameScene
+            gameFlow: flow
         )
         let view = GameView(viewModel: viewModel)
         return ViewHolder(view)
@@ -111,22 +67,4 @@ final class TankodromeViewFactory {
     func menuView(_ handler: MainMenuHandler) -> ViewHolder {
         ViewHolder(MainMenuView(handler: handler))
     }
-    
-//    func splashView() -> ViewHolder {
-//        ViewHolder(Text("Loading..."))
-//    }
-}
-
-class ViewHolder {
-    let view: AnyView
-    
-    init<V: View>(_ view: V) {
-        self.view = AnyView(view)
-    }
-    
-    init(_ anyView: AnyView) {
-        self.view = anyView
-    }
-    
-    static let empty: ViewHolder = ViewHolder(EmptyView())
 }

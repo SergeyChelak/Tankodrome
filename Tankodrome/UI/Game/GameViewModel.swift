@@ -12,26 +12,22 @@ import SpriteKit
 
 class GameViewModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
-    private let scene: GameScene
     
     private(set) lazy var hudModel = HudModel(actionCallback: handleHudAction(_:))
-    
-    private let levelGenerator: LevelGenerator
-    private let levelComposer: LevelComposer
-    
+        
+    private let gameFlow: GameFlow
     @Published
-    var opacity: CGFloat = 0.0
+    private(set) var opacity: CGFloat = 0.0
     
     init(
-        levelGenerator: LevelGenerator,
-        levelComposer: LevelComposer,
-        gameScene: GameScene
+        gameFlow: GameFlow
     ) {
-        self.levelComposer = levelComposer
-        self.levelGenerator = levelGenerator
-        self.scene = gameScene
+        self.gameFlow = gameFlow
     }
-
+    
+    private var scene: GameScene {
+        gameFlow.gameScene
+    }
     
     func scene(with size: CGSize) -> SKScene {
         scene.size = size
@@ -48,20 +44,13 @@ class GameViewModel: ObservableObject {
         handleControlEvent(event)
     }
     
-    // temporary...
+    @MainActor
     func load() async {
-        do {
-            let data = try levelGenerator.generate()
-            let level = levelComposer.level(from: data)
-            Task { @MainActor in
-                registerStateSystem()
-                scene.setLevel(level)
-                withAnimation {
-                    opacity = 1.0
-                }
+        Task { @MainActor in
+            registerStateSystem()
+            withAnimation {
+                opacity = 1.0
             }
-        } catch {
-            print(error)
         }
     }
     
@@ -71,15 +60,12 @@ class GameViewModel: ObservableObject {
     }
     
     private func handleHudAction(_ action: HudAction) {
-        switch action {
-        case .replay:
-//            hudModel.reset()
-            break
-        case .nextLevel:
-//            hudModel.reset()
-            // TODO: ...
-            break
-        }
+//        switch action {
+//        case .replay:
+//            replayLevel()
+//        case .nextLevel:
+//            nextLevel()
+//        }
     }
 }
 

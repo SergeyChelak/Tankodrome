@@ -35,6 +35,11 @@ class GameScene: SKScene {
     }
     
     func setLevel(_ level: Level) {
+        Task { await setLevel(level) }
+    }
+    
+    @MainActor
+    func setLevel(_ level: Level) async {
         removeAllChildren()
         self.camera = nil
         addComponents(level.sceneComponents)
