@@ -8,22 +8,32 @@
 import SwiftUI
 
 struct RootView: View {
-//    private let factory: TankodromeViewFactory
-//    
-//    init(factory: TankodromeViewFactory) {
-//        self.factory = factory
-//    }
+    // TODO: set outside
+    let viewFactory = GameViewFactory()
+    @StateObject
+    var viewModel: RootViewModel
     
     var body: some View {
         ZStack {
             Image("Ground_Tile_02_C")
                 .resizable(resizingMode: .tile)
                 .ignoresSafeArea()
-            Text("Put game view here")
+            contentViewHolder.view
+        }
+    }
+    
+    var contentViewHolder: ViewHolder {
+        switch viewModel.state {
+        case .play:
+            viewFactory.gameView(flow: viewModel.gameFlow)
+        case .pause:
+            ViewHolder(Text("Pause view isn't implemented yet"))
+        case .mainMenu:
+            viewFactory.menuView(viewModel)
         }
     }
 }
 
-#Preview {
-    RootView()
-}
+//#Preview {
+//    RootView()
+//}

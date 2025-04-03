@@ -7,19 +7,35 @@
 
 import Foundation
 
-final class RootViewModel: ObservableObject {
-    //
+enum FlowState {
+    case play
+    case pause
+    case mainMenu
+//    case gameOver(GameStats)
 }
 
-//enum FlowState {
-//    case loading
-//    case failed
-//    case play
-//    case paused
-//    case mainMenu
-//    case gameOver(GameStats)
-//}
-//
 //struct GameStats {
 //    let win: Bool
 //}
+
+
+final class RootViewModel: ObservableObject {
+    @Published
+    private(set) var state: FlowState = .mainMenu
+    
+    private let context: AppContext
+    
+    init(_ context: AppContext) {
+        self.context = context
+    }
+    
+    var gameFlow: GameFlow {
+        context.gameFlow
+    }
+}
+
+extension RootViewModel: MainMenuHandler {
+    func play() {
+        self.state = .play
+    }
+}

@@ -19,9 +19,7 @@ class GameViewModel: ObservableObject {
     @Published
     private(set) var opacity: CGFloat = 0.0
     
-    init(
-        gameFlow: GameFlow
-    ) {
+    init(gameFlow: GameFlow) {
         self.gameFlow = gameFlow
     }
     
