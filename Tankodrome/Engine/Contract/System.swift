@@ -8,6 +8,8 @@
 import Foundation
 
 protocol System {
+    func levelDidSet(context: GameSceneContext)
+    
     func onUpdate(context: GameSceneContext)
     
     func onContact(context: GameSceneContext, collision: Collision)
@@ -16,6 +18,10 @@ protocol System {
 }
 
 extension System {
+    func levelDidSet(context: GameSceneContext) {
+        // no op
+    }
+    
     func onUpdate(context: GameSceneContext) {
         // no op
     }

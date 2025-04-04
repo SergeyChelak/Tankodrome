@@ -25,28 +25,4 @@ final class HudViewModel: ObservableObject {
     func onPauseTap() {
         gameFlow.gameScene.pushSpecialInstruction(.terminate)
     }
-    
-    @MainActor
-    func load() async {
-        registerStateSystem()
-    }
-
-    private func registerStateSystem() {
-        let stateSystem = StateSystem(receiver: self)
-        gameFlow.gameScene.register(stateSystem)
-    }
-}
-
-extension HudViewModel: StateReceiver {
-    func setHealthPercentage(_ value: CGFloat) {
-        if healthPercentage != value {
-            healthPercentage = value
-        }
-    }
-    
-    func setGameState(_ gameState: GameState) {
-        if self.gameState != gameState {
-            self.gameState = gameState
-        }
-    }
 }

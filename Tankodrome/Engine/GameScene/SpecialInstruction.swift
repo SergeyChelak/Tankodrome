@@ -9,4 +9,5 @@ import Foundation
 
 enum SpecialInstruction {
     case terminate
+    case resume
 }

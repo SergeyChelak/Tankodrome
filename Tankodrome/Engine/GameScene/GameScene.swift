@@ -47,6 +47,9 @@ class GameScene: SKScene {
         addChildren(level.contours)
         addChildren(level.sprites)
         setupCamera()
+        systems.forEach {
+            $0.levelDidSet(context: self)
+        }
     }
     
     func pushControlEvent(_ event: ControlEvent) {

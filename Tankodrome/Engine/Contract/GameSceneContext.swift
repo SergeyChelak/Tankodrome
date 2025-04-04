@@ -15,4 +15,7 @@ protocol GameSceneContext {
     func spawn(_ sprite: Sprite)
     func kill(_ sprite: Sprite)
     func popSpecialInstruction() -> SpecialInstruction?
+    func addComponent<T: Component>(_ component: T)
+    func getComponent<T: Component>(of type: T.Type) -> T?
+    func removeComponent<T: Component>(of type: T.Type)
 }

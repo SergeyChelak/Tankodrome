@@ -83,7 +83,8 @@ fileprivate func createGameScene() -> GameScene {
         ),
         MovementSystem(),
         AttackSystem(),
-        PhysicSystem()
+        PhysicSystem(),
+        StateSystem()
     )
     return scene
 }

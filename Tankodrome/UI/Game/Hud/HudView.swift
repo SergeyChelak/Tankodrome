@@ -31,8 +31,5 @@ struct HudView: View {
                 .align(.top, .trailing)
         }
         .padding()
-        .task {
-            await viewModel.load()
-        }
     }
 }

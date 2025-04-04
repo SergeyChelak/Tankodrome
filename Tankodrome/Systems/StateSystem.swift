@@ -7,29 +7,24 @@
 
 import Foundation
 
-enum GameState: Equatable {
-    case win, lose, play, pause
-}
-
-protocol StateReceiver {
-    func setHealthPercentage(_ value: CGFloat)
-    func setGameState(_ state: GameState)
-}
-
 final class StateSystem: System {
-    private let receiver: StateReceiver
-    
-    init(receiver: StateReceiver) {
-        self.receiver = receiver
-        receiver.setGameState(.play)
-        receiver.setHealthPercentage(0.0)
+    func levelDidSet(context: GameSceneContext) {
+        updateState(context: context, newState: .play)
+        
+        // fill with default values
+        let hudData = HudData(playerHealth: 1.0)
+        context.addComponent(HudDataComponent(value: hudData))
     }
     
     // TODO: split as two functions?
     func onUpdate(context: GameSceneContext) {
-        if let instruction = context.popSpecialInstruction(),
-           instruction == .terminate {
-            receiver.setGameState(.pause)
+        if let instruction = context.popSpecialInstruction() {
+            switch instruction {
+            case .terminate:
+                updateState(context: context, newState: .pause)
+            case .resume:
+                updateState(context: context, newState: .play)
+            }
             return
         }
                 
@@ -50,15 +45,28 @@ final class StateSystem: System {
         }
         
         if npcCount == 0 {
-            receiver.setGameState(.win)
+            updateState(context: context, newState: .win)
             return
         }
         
         guard let playerHealth, playerHealth.value > 0.0 else {
-            receiver.setGameState(.lose)
-            receiver.setHealthPercentage(0.0)
+            updateState(context: context, newState: .lose)
+            updateHudHealth(context: context, health: 0.0)
             return
         }
-        receiver.setHealthPercentage(playerHealth.value / playerHealth.max)
+        updateHudHealth(context: context, health: playerHealth.value / playerHealth.max)
+    }
+    
+    private func updateState(context: GameSceneContext, newState: GameState) {
+        context.addComponent(GameStateComponent(value: newState))
+    }
+    
+    private func updateHudHealth(context: GameSceneContext, health: CGFloat) {
+        guard let component = context.getComponent(of: HudDataComponent.self) else {
+            return
+        }
+        var data = component.value
+        data.playerHealth = health
+        component.value = data
     }
 }
