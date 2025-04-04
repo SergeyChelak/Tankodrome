@@ -24,8 +24,15 @@ final class StateSystem: System {
         receiver.setGameState(.play)
         receiver.setHealthPercentage(0.0)
     }
-        
+    
+    // TODO: split as two functions?
     func onUpdate(context: GameSceneContext) {
+        if let instruction = context.popSpecialInstruction(),
+           instruction == .terminate {
+            receiver.setGameState(.pause)
+            return
+        }
+                
         let sprites = context.sprites
         var npcCount = 0
         var playerHealth: HealthComponent?

@@ -24,6 +24,7 @@ class GameScene: SKScene {
     private var mapScaleFactor: CGFloat = 1
     
     private let aggregatedControllerState = AggregatedControllerState()
+    private var specialInstruction: SpecialInstruction?
 
     func register(_ args: System...) {
         args.forEach {
@@ -49,7 +50,24 @@ class GameScene: SKScene {
     }
     
     func pushControlEvent(_ event: ControlEvent) {
+        if let instruction = specialInstruction(event) {
+            pushSpecialInstruction(instruction)
+            return
+        }
         aggregatedControllerState.update(event)
+    }
+    
+    func pushSpecialInstruction(_ instruction: SpecialInstruction) {
+        self.specialInstruction = instruction
+    }
+    
+    private func specialInstruction(_ event: ControlEvent) -> SpecialInstruction? {
+        if case(.key(let keyData)) = event {
+            if keyData.isPressed(.escape) {
+                return .terminate
+            }
+        }
+        return nil
     }
     
     override func didMove(to view: SKView) {
@@ -164,5 +182,11 @@ extension GameScene: GameSceneContext {
     
     func kill(_ sprite: Sprite) {
         killList.append(sprite)
+    }
+    
+    func popSpecialInstruction() -> SpecialInstruction? {
+        let value = self.specialInstruction
+        self.specialInstruction = nil
+        return value
     }
 }

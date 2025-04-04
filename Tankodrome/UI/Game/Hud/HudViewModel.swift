@@ -23,7 +23,7 @@ final class HudViewModel: ObservableObject {
     }
     
     func onPauseTap() {
-        fatalError("not implemented")
+        gameFlow.gameScene.pushSpecialInstruction(.terminate)
     }
     
     @MainActor

@@ -32,3 +32,12 @@ enum ControlEvent {
         let yValue: Float
     }
 }
+
+extension ControlEvent.KeyData {
+    func isPressed(_ key: KeyEquivalent) -> Bool {
+        guard isPressed else {
+            return false
+        }
+        return self.keyEquivalent == key
+    }
+}
