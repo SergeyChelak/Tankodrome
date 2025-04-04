@@ -25,9 +25,9 @@ final class HudViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    var healthText: String {
-        String(format: "Health: %.0f%%", 100.0 * healthPercentage)
-    }
+//    var healthText: String {
+//        String(format: "Health: %.0f%%", 100.0 * healthPercentage)
+//    }
     
     private var gameScene: GameScene {
         gameFlow.gameScene

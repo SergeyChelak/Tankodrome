@@ -18,9 +18,7 @@ struct HudView: View {
     
     var body: some View {
         ZStack {
-            Text(viewModel.healthText)
-                .font(.largeTitle)
-                .shadow(color: .black, radius: 2.0)
+            HealthBarView(value: viewModel.healthPercentage)
                 .align(.leading, .top)
             
             // TODO: iOS only
@@ -30,6 +28,6 @@ struct HudView: View {
                 .onTapGesture(perform: viewModel.onPauseTap)
                 .align(.top, .trailing)
         }
-        .padding()
+        .padding(5)
     }
 }
