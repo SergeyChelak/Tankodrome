@@ -12,17 +12,20 @@ final class GameFlow {
     private let levelComposer: LevelComposer
     let gameScene: GameScene
     private var levelData: LevelData
+    let eventPublisher: SceneEventPublisher
     
     init(
         levelGenerator: LevelGenerator,
         levelComposer: LevelComposer,
         gameScene: GameScene,
-        levelData: LevelData
+        levelData: LevelData,
+        eventPublisher: SceneEventPublisher
     ) {
         self.levelGenerator = levelGenerator
         self.levelComposer = levelComposer
         self.gameScene = gameScene
         self.levelData = levelData
+        self.eventPublisher = eventPublisher
     }
         
     func nextLevel() throws {
@@ -56,17 +59,21 @@ func composeGameFlow() throws -> GameFlow {
         tileSetMapper: tileSetMapper
     )
     
+    let scene = createGameScene()
+    
     let levelData = try generator.generate()
     let level = levelComposer.level(from: levelData)
-    
-    let scene = createGameScene()
     scene.setLevel(level)
+    
+    let eventPublisher = SceneEventPublisher()
+    scene.setEventListener(eventPublisher)
     
     return GameFlow(
         levelGenerator: generator,
         levelComposer: levelComposer,
         gameScene: scene,
-        levelData: levelData
+        levelData: levelData,
+        eventPublisher: eventPublisher
     )
 }
 

@@ -11,9 +11,7 @@ final class HudViewModel: ObservableObject {
     private let gameFlow: GameFlow
     @Published
     private(set) var healthPercentage: CGFloat = 0.0
-    
-    private var gameState: GameState = .pause
-    
+        
     init(gameFlow: GameFlow) {
         self.gameFlow = gameFlow
     }

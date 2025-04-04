@@ -25,6 +25,12 @@ class GameScene: SKScene {
     
     private let aggregatedControllerState = AggregatedControllerState()
     private var specialInstruction: SpecialInstruction?
+    
+    private var eventListener: SceneEventListener?
+    
+    func setEventListener(_ eventListener: SceneEventListener?) {
+        self.eventListener = eventListener
+    }
 
     func register(_ args: System...) {
         args.forEach {
@@ -116,6 +122,7 @@ class GameScene: SKScene {
             $0.onUpdate(context: self)
         }
         previousTime = currentTime
+        eventListener?.onUpdate()
     }
     
     override func didSimulatePhysics() {
@@ -124,6 +131,7 @@ class GameScene: SKScene {
             system.onPhysicsSimulated(context: self)
         }
         alignCameraPosition()
+        eventListener?.onDidSimulatePhysics()
     }
     
     override func didFinishUpdate() {
@@ -143,6 +151,7 @@ class GameScene: SKScene {
             .forEach {
                 $0.update()
             }
+        eventListener?.onDidFinishUpdate()
     }
 }
 
