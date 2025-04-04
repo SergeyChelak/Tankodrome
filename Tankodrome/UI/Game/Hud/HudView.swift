@@ -21,15 +21,14 @@ struct HudView: View {
             Text(viewModel.healthText)
                 .font(.largeTitle)
                 .shadow(color: .black, radius: 2.0)
-                .alignToLeadingTop()
+                .align(.leading, .top)
             
             // TODO: iOS only
             Image(systemName: "pause.circle.fill")
                 .font(.largeTitle)
                 .shadow(color: .black, radius: 2.0)
                 .onTapGesture(perform: viewModel.onPauseTap)
-                .alignTo(.top)
-                .alignTo(.trailing)
+                .align(.top, .trailing)
         }
         .padding()
         .task {

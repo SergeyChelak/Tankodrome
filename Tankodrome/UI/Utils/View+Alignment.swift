@@ -45,14 +45,17 @@ struct AlignmentViewModifier: ViewModifier {
 }
 
 extension View {
-    func alignTo(_ alignment: AlignmentViewModifier.Alignment) -> some View {
-        let modifier = AlignmentViewModifier(alignment)
-        return self.modifier(modifier)
+    func align(_ alignments: AlignmentViewModifier.Alignment...) -> some View {
+        var view: any View = self
+        for alignment in alignments {
+            view = view.alignTo(alignment)
+        }
+        return AnyView(view)
     }
     
-    func alignToLeadingTop() -> some View {
-        self.alignTo(.leading)
-            .alignTo(.top)
+    private func alignTo(_ alignment: AlignmentViewModifier.Alignment) -> some View {
+        let modifier = AlignmentViewModifier(alignment)
+        return self.modifier(modifier)
     }
 }
 
