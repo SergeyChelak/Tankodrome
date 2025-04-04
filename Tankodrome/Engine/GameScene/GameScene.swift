@@ -23,10 +23,7 @@ class GameScene: SKScene {
     
     private var mapScaleFactor: CGFloat = 1
     
-    private let _controllerState = AggregatedControllerState()
-    var controllerState: ControllerState {
-        _controllerState
-    }
+    private let aggregatedControllerState = AggregatedControllerState()
 
     func register(_ args: System...) {
         args.forEach {
@@ -52,7 +49,7 @@ class GameScene: SKScene {
     }
     
     func pushControlEvent(_ event: ControlEvent) {
-        _controllerState.update(event)
+        aggregatedControllerState.update(event)
     }
     
     override func didMove(to view: SKView) {
@@ -145,6 +142,10 @@ extension GameScene: SKPhysicsContactDelegate {
 }
 
 extension GameScene: GameSceneContext {
+    var controllerState: ControllerState {
+        aggregatedControllerState
+    }
+
     func rayCast(from start: CGPoint, rayLength: CGFloat, angle: CGFloat) -> [Sprite] {
         let end = start + .rotated(radians: angle) * rayLength
         var nodes: [Sprite] = []
