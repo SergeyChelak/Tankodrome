@@ -283,7 +283,7 @@ fileprivate func createActorPlayer(_ point: LevelData.SpawnPoint) -> LevelData.G
         phase: .random(in: 0..<360).degreesToRadians(),
         color: .bronze,
         weapon: .medium,
-        health: .greatestFiniteMagnitude,
+        health: 5000.0, //.greatestFiniteMagnitude,
         velocity: 1000.0,
         acceleration: 100.0,
         rotationSpeed: .pi * 0.8

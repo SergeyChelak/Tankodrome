@@ -39,6 +39,7 @@ final class HudViewModel: ObservableObject {
     
     // called on background thread
     private func updateHud() {
+        // TODO: move to GameFlow?
         guard let component = gameScene.getComponent(of: HudDataComponent.self) else {
             return
         }
