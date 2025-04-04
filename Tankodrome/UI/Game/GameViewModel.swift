@@ -8,19 +8,11 @@
 import Foundation
 import SwiftUI
 
+// TODO: remove as useless
 class GameViewModel: ObservableObject {
     let gameFlow: GameFlow
-    @Published
-    private(set) var opacity: CGFloat = 0.0
     
     init(gameFlow: GameFlow) {
         self.gameFlow = gameFlow
-    }
-        
-    @MainActor
-    func load() async {
-        withAnimation {
-            opacity = 1.0
-        }
-    }
+    }        
 }

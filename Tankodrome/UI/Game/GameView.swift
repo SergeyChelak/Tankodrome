@@ -23,10 +23,7 @@ struct GameView: View {
             composeGameScene(viewModel.gameFlow)
             composeHudView(viewModel.gameFlow)
         }
-        .task {
-            await viewModel.load()
-        }
-        .opacity(viewModel.opacity)
+        .fadeIn()
     }
 }
 
