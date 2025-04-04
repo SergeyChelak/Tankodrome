@@ -26,10 +26,10 @@ struct RootView: View {
         switch viewModel.state {
         case .play:
             viewFactory.gameView(flow: viewModel.gameFlow)
-        case .pause:
-            ViewHolder(Text("Pause view isn't implemented yet"))
         case .mainMenu:
             viewFactory.menuView(viewModel)
+        default:
+            ViewHolder(Text("Need to implement..."))
         }
     }
 }

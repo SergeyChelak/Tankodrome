@@ -18,6 +18,7 @@ final class HudViewModel: ObservableObject {
         self.gameFlow = gameFlow
         gameFlow.gameSceneEventPublisher()
             .receive(on: DispatchQueue.global())
+            .filter { $0 == .finish }
             .sink { [weak self] _ in
                 self?.updateHud()
             }
