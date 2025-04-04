@@ -16,8 +16,7 @@ final class HudViewModel: ObservableObject {
         
     init(gameFlow: GameFlow) {
         self.gameFlow = gameFlow
-        gameFlow.eventPublisher
-            .publisher
+        gameFlow.gameSceneEventPublisher()
             .receive(on: DispatchQueue.global())
             .sink { [weak self] _ in
                 self?.updateHud()

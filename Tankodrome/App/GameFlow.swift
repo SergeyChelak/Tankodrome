@@ -6,13 +6,14 @@
 //
 
 import Foundation
+import Combine
 
 final class GameFlow {
     private let levelGenerator: LevelGenerator
     private let levelComposer: LevelComposer
     let gameScene: GameScene
     private var levelData: LevelData
-    let eventPublisher: SceneEventPublisher
+    private let eventPublisher: SceneEventPublisher
     
     init(
         levelGenerator: LevelGenerator,
@@ -42,6 +43,10 @@ final class GameFlow {
         self.levelData = data
         self.gameScene.setLevel(level)
     }
+    
+    func gameSceneEventPublisher() -> AnyPublisher<SceneEvent, Never> {
+        eventPublisher.publisher
+    }
 }
 
 func composeGameFlow() throws -> GameFlow {
@@ -65,7 +70,7 @@ func composeGameFlow() throws -> GameFlow {
     let level = levelComposer.level(from: levelData)
     scene.setLevel(level)
     
-    let eventPublisher = SceneEventPublisher()
+    let eventPublisher = BridgePublisher()
     scene.setEventListener(eventPublisher)
     
     return GameFlow(
@@ -94,4 +99,30 @@ fileprivate func createGameScene() -> GameScene {
         StateSystem()
     )
     return scene
+}
+
+
+/// Bridge from ECS to MVVM
+private final class BridgePublisher {
+    private let subject = PassthroughSubject<SceneEvent, Never>()
+}
+
+extension BridgePublisher: SceneEventPublisher {
+    var publisher: AnyPublisher<SceneEvent, Never> {
+        subject.eraseToAnyPublisher()
+    }
+}
+
+extension BridgePublisher: SceneEventListener {
+    func onUpdate() {
+        subject.send(.update)
+    }
+    
+    func onDidSimulatePhysics() {
+        subject.send(.simulatePhysics)
+    }
+    
+    func onDidFinishUpdate() {
+        subject.send(.finish)
+    }
 }
