@@ -5,16 +5,19 @@
 //  Created by Sergey on 03.04.2025.
 //
 
-import Combine
 import Foundation
+
+struct GameStats {
+    let isWinner: Bool
+}
 
 final class AppContext: ObservableObject {
     enum Flow {
         case play(GameFlow)
         case menu(MenuFlow)
+        // TODO: add flow for error state
     }
-    private var cancellables: Set<AnyCancellable> = []
-    
+        
     @Published
     private(set) var flow: Flow
     
@@ -30,34 +33,50 @@ final class AppContext: ObservableObject {
         self.flow = .menu(menuFlow)
         
         self.menuFlow.delegate = self
-        
-        // subscribe
-        gameFlow
-            .gameSceneEventPublisher()
-            .receive(on: DispatchQueue.global())
-            .filter { $0 == .finish }
-            .sink { [weak self] _ in
-                self?.handleGameState()
-            }
-            .store(in: &cancellables)
+        self.gameFlow.delegate = self
+    }
+}
+
+extension AppContext: GameFlowDelegate {
+    func gamePaused() {
+        Task { @MainActor in
+            menuFlow.open(.pause)
+            self.flow = .menu(menuFlow)
+        }
     }
     
-    private func handleGameState() {
-        //
+    func gameOver(_ stats: GameStats) {
+        Task { @MainActor in
+            menuFlow.open(.gameOver(stats))
+            self.flow = .menu(menuFlow)
+        }
     }
 }
 
 extension AppContext: MenuFlowDelegate {
     func newGame() {
-        self.flow = .play(gameFlow)
+        // TODO: add isBusy lock?
+        Task {
+            do {
+                try gameFlow.nextLevel()
+                Task { @MainActor in
+                    self.flow = .play(gameFlow)
+                }
+            } catch {
+                // TODO: handle error
+            }
+        }
     }
     
     func resumeGame() {
-        // TODO: ...
+        gameFlow.resumeGame()
+        self.flow = .play(gameFlow)
     }
     
     func replayLevel() {
-        // TODO: ...
+        // async?
+        gameFlow.replayLevel()
+        self.flow = .play(gameFlow)
     }
     
     func closeApplication() {

@@ -30,11 +30,7 @@ final class MenuFlow: ObservableObject {
         case open(Route)
         case empty
     }
-    
-    struct GameStats {
-        let isWinner: Bool
-    }
-    
+        
     @Published
     private(set) var route: Route
     
@@ -61,7 +57,7 @@ final class MenuFlow: ObservableObject {
         }
     }
     
-    private func open(_ route: Route) {
+    func open(_ route: Route) {
         switch route {
         case .landing:
             self.route = .landing
@@ -70,7 +66,7 @@ final class MenuFlow: ObservableObject {
         case .options:
             self.route = .options
         case .pause:
-            fatalError()
+            self.route = .pause
         }
     }
 }

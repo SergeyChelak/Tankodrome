@@ -40,4 +40,11 @@ struct LevelData {
     let landscapeGrid: LandscapeGrid
     let contourObjects: [ContourObject]
     let gameActors: [GameActor]
+    
+    static let empty = LevelData(
+        mapBlockSize: .zero(),
+        landscapeGrid: .empty(),
+        contourObjects: [],
+        gameActors: []
+    )
 }

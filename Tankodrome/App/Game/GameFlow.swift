@@ -8,13 +8,23 @@
 import Foundation
 import Combine
 
-// TODO: refactor as observable...
+protocol GameFlowDelegate: AnyObject {
+    func gamePaused()
+    
+    func gameOver(_ stats: GameStats)
+}
+
 final class GameFlow {
+    private var cancellables: Set<AnyCancellable> = []
+
     private let levelGenerator: LevelGenerator
     private let levelComposer: LevelComposer
     let gameScene: GameScene
     private var levelData: LevelData
     private let eventPublisher: SceneEventPublisher
+    
+    weak var delegate: GameFlowDelegate?
+    private var state: GameState = .play
     
     init(
         levelGenerator: LevelGenerator,
@@ -28,14 +38,34 @@ final class GameFlow {
         self.gameScene = gameScene
         self.levelData = levelData
         self.eventPublisher = eventPublisher
+        
+        eventPublisher
+            .publisher
+            .receive(on: DispatchQueue.global())
+            .filter { $0 == .finish }
+            .sink { [weak self] _ in
+                self?.handleGameState()
+            }
+            .store(in: &cancellables)
+    }
+    
+    var gameState: GameState? {
+        gameScene.getComponent(of: GameStateComponent.self)?.value
+    }
+    
+    private var isWinner: Bool {
+        guard let data = gameScene.getComponent(of: HudDataComponent.self)?.value else {
+            return false
+        }
+        return data.playerHealth > 0.0 && data.enemiesLeft == 0
     }
         
-    func _nextLevel() throws {
+    func nextLevel() throws {
         let data = try levelGenerator.generate()
         updateLevelData(data)
     }
     
-    func _replayLevel() throws {
+    func replayLevel() {
         updateLevelData(self.levelData)
     }
     
@@ -43,15 +73,32 @@ final class GameFlow {
         let level = levelComposer.level(from: data)
         self.levelData = data
         self.gameScene.setLevel(level)
+        resumeGame()
+    }
+    
+    func resumeGame() {
+        self.gameScene.pushSpecialInstruction(.resume)
     }
     
     func gameSceneEventPublisher() -> AnyPublisher<SceneEvent, Never> {
         eventPublisher.publisher
     }
-    
-    var gameState: GameState? {
-        gameScene.getComponent(of: GameStateComponent.self)?.value
+        
+    private func handleGameState() {
+        guard let state = gameState, state != self.state else {
+            return
+        }
+        self.state = state
+        switch state {
+        case .play:
+            break
+        case .pause:
+            delegate?.gamePaused()
+        case .over:
+            delegate?.gameOver(GameStats(isWinner: isWinner))
+        }
     }
+
 }
 
 func composeGameFlow() throws -> GameFlow {
@@ -71,10 +118,6 @@ func composeGameFlow() throws -> GameFlow {
     
     let scene = createGameScene()
     
-    let levelData = try generator.generate()
-    let level = levelComposer.level(from: levelData)
-    scene.setLevel(level)
-    
     let eventPublisher = BridgePublisher()
     scene.setEventListener(eventPublisher)
     
@@ -82,7 +125,7 @@ func composeGameFlow() throws -> GameFlow {
         levelGenerator: generator,
         levelComposer: levelComposer,
         gameScene: scene,
-        levelData: levelData,
+        levelData: .empty,
         eventPublisher: eventPublisher
     )
 }
