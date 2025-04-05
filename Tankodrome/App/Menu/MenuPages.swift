@@ -27,7 +27,7 @@ final class LandingPageDataSource: MenuPageActionHandler, MenuPageDataSource {
         MenuPageElement("Options", .open(.options)),
         MenuPageElement("", .empty),
         MenuPageElement("Exit", .exit),
-    ]    
+    ]
 }
 
 final class GameOverPageDataSource: MenuPageActionHandler, MenuPageDataSource {
@@ -61,5 +61,15 @@ final class PausePageDataSource: MenuPageActionHandler, MenuPageDataSource {
         MenuPageElement("Next Level", .newGame),
         MenuPageElement("", .empty),
         MenuPageElement("Exit", .exit),
+    ]
+}
+
+final class OptionsPageDataSource: MenuPageActionHandler, MenuPageDataSource {
+    let title = "Options"
+    
+    let elements = [
+        MenuPageElement("Not implemented yet", .empty),
+        MenuPageElement("", .empty),
+        MenuPageElement("Back", .open(.landing)),
     ]
 }

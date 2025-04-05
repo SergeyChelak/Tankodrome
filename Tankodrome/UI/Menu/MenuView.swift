@@ -43,7 +43,7 @@ struct MenuView: View {
         case .gameOver(let stats):
             GameOverPageDataSource(isWinner: stats.isWinner, callback: callback)
         case .options:
-            fatalError()
+            OptionsPageDataSource(callback: callback)
         case .pause:
             PausePageDataSource(callback: callback)
         }

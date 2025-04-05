@@ -28,6 +28,7 @@ final class MenuFlow: ObservableObject {
         let isWinner: Bool
     }
     
+    @Published
     private(set) var route: Route
     
     init(route: Route) {
@@ -45,11 +46,24 @@ final class MenuFlow: ObservableObject {
         case .exit:
             Darwin.exit(0)
         case .open(let route):
-            break
+            open(route)
         case .empty:
             break
         }
         print(action)
+    }
+    
+    private func open(_ route: Route) {
+        switch route {
+        case .landing:
+            self.route = .landing
+        case .gameOver: //(let gameStats):
+            fatalError()
+        case .options:
+            self.route = .options
+        case .pause:
+            fatalError()
+        }
     }
 }
 

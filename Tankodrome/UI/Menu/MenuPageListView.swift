@@ -13,6 +13,7 @@ struct MenuPageListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(dataSource.title)
+                .font(.system(size: 17))
             Divider()
                 .frame(maxWidth: 300)
             VStack(alignment: .leading, spacing: 8) {
