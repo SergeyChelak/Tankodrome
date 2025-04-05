@@ -7,6 +7,13 @@
 
 import Foundation
 
+protocol MenuFlowDelegate: AnyObject {
+    func newGame()
+    func resumeGame()
+    func replayLevel()
+    func closeApplication()
+}
+
 final class MenuFlow: ObservableObject {
     enum Route {
         case landing
@@ -31,6 +38,8 @@ final class MenuFlow: ObservableObject {
     @Published
     private(set) var route: Route
     
+    weak var delegate: MenuFlowDelegate?
+    
     init(route: Route) {
         self.route = route
     }
@@ -38,27 +47,26 @@ final class MenuFlow: ObservableObject {
     func handle(action: Action) {
         switch action {
         case .newGame:
-            break
+            delegate?.newGame()
         case .replay:
-            break
+            delegate?.replayLevel()
         case .resume:
-            break
+            delegate?.resumeGame()
         case .exit:
-            Darwin.exit(0)
+            delegate?.closeApplication()
         case .open(let route):
             open(route)
         case .empty:
             break
         }
-        print(action)
     }
     
     private func open(_ route: Route) {
         switch route {
         case .landing:
             self.route = .landing
-        case .gameOver: //(let gameStats):
-            fatalError()
+        case .gameOver(let gameStats):
+            self.route = .gameOver(gameStats)
         case .options:
             self.route = .options
         case .pause:

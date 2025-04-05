@@ -14,7 +14,7 @@ final class AppContext: ObservableObject {
         case menu(MenuFlow)
     }
     private var cancellables: Set<AnyCancellable> = []
-
+    
     @Published
     private(set) var flow: Flow
     
@@ -29,6 +29,8 @@ final class AppContext: ObservableObject {
         self.gameFlow = gameFlow
         self.flow = .menu(menuFlow)
         
+        self.menuFlow.delegate = self
+        
         // subscribe
         gameFlow
             .gameSceneEventPublisher()
@@ -38,13 +40,27 @@ final class AppContext: ObservableObject {
                 self?.handleGameState()
             }
             .store(in: &cancellables)
-  // TODO: remove
-//        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
-//            self.flow = .play(gameFlow)
-//        }
     }
     
     private func handleGameState() {
         //
+    }
+}
+
+extension AppContext: MenuFlowDelegate {
+    func newGame() {
+        self.flow = .play(gameFlow)
+    }
+    
+    func resumeGame() {
+        // TODO: ...
+    }
+    
+    func replayLevel() {
+        // TODO: ...
+    }
+    
+    func closeApplication() {
+        Darwin.exit(0)
     }
 }
