@@ -38,10 +38,10 @@ final class AppContext: ObservableObject {
                 self?.handleGameState()
             }
             .store(in: &cancellables)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
-            self.flow = .play(gameFlow)
-        }
+  // TODO: remove
+//        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
+//            self.flow = .play(gameFlow)
+//        }
     }
     
     private func handleGameState() {

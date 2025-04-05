@@ -17,13 +17,14 @@ struct MenuView: View {
                 .align(.leading)
             Spacer()
             ZStack {
-                contentView()
-                    .align(.leading)
-                
                 Image("main_logo")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .align(.trailing)
+
+                contentView()
+                    .padding(.leading, 40)
+                    .align(.leading)
             }
             Spacer()
             MenuFooterView()
@@ -32,17 +33,21 @@ struct MenuView: View {
         .fadeIn()
     }
     
-    @ViewBuilder
+//    @ViewBuilder
     private func contentView() -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Play")
-            Text("Continue")
-            Text("Options")
-            Text("")
-            Text("Exit")
+        let callback = flow.handle(action: )
+        
+        let dataSource: MenuPageDataSource = switch flow.route {
+        case .landing:
+            LandingPageDataSource(callback: callback)
+        case .gameOver(let stats):
+            GameOverPageDataSource(isWinner: stats.isWinner, callback: callback)
+        case .options:
+            fatalError()
+        case .pause:
+            PausePageDataSource(callback: callback)
         }
-        .font(.system(size: 35))
-        .padding(.leading, 40)
+        return MenuPageListView(dataSource: dataSource)
     }
 }
 
@@ -77,5 +82,5 @@ struct MenuFooterView: View {
 }
 
 #Preview {
-    MenuView(flow: MenuFlow())
+    MenuView(flow: MenuFlow(route: .landing))
 }

@@ -12,7 +12,12 @@ struct TankodromeApp: App {
     @StateObject
     private var viewModel = TankodromeAppViewModel()
     
-    private let viewFactory = ViewFactory()
+    private let viewFactory: AppViewFactory
+    
+    init() {
+        let gameViewFactory = GameViewFactory()
+        self.viewFactory = AppViewFactory(gameViewFactory: gameViewFactory)
+    }
     
     var body: some Scene {
         WindowGroup {

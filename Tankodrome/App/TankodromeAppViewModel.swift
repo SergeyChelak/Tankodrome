@@ -13,19 +13,21 @@ final class TankodromeAppViewModel: ObservableObject {
     
     func load() async {
         do {
+            // TODO: refactor...
             let gameFlow = try composeGameFlow()
-            await handle(gameFlow)
+            let menuFlow = composeMenuFlow()
+            let context = AppContext(
+                gameFlow: gameFlow,
+                menuFlow: menuFlow
+            )
+            await handle(context)
         } catch {
             await handleError(error)
         }
     }
     
     @MainActor
-    private func handle(_ gameFlow: GameFlow) async {
-        let context = AppContext(
-            gameFlow: gameFlow,
-            menuFlow: MenuFlow()
-        )
+    private func handle(_ context: AppContext) async {
         self.state = .ready(context)
     }
     

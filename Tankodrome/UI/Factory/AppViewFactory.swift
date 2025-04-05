@@ -7,10 +7,28 @@
 
 import SwiftUI
 
-protocol AppViewFactory {
-    func loadingView() -> ViewHolder
+final class AppViewFactory {
+    let gameViewFactory: GameViewFactory
     
-    func errorView(_ error: Error) -> ViewHolder
+    init(gameViewFactory: GameViewFactory) {
+        self.gameViewFactory = gameViewFactory
+    }
     
-    func rootView(_ context: AppContext) -> ViewHolder
+    func loadingView() -> ViewHolder {
+        let view = Text("Loading")
+        return ViewHolder(view)
+    }
+    
+    func errorView(_ error: Error) -> ViewHolder {
+        let view = Text(error.localizedDescription)
+        return ViewHolder(view)
+    }
+    
+    func rootView(_ context: AppContext) -> ViewHolder {
+        let view = RootView(
+            viewFactory: gameViewFactory,
+            context: context
+        )
+        return ViewHolder(view)
+    }
 }
