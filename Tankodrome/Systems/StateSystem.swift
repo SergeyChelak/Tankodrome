@@ -39,9 +39,8 @@ final class StateSystem: System {
         }
                 
         let stats = gameStats(context: context)
-        if stats.enemies == 0 || stats.health == 0.0 {
+        if stats.enemies == 0 || stats.health <= 0.0 {
             updateState(context: context, newState: .over)
-            return
         }
         
         let percentage = stats.maxHealth > 0
