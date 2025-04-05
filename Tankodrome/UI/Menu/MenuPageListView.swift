@@ -13,9 +13,12 @@ struct MenuPageListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(dataSource.title)
-                .font(.system(size: 17))
+                .font(.system(size: 19))
+                .italic()
             Divider()
+                .frame(height: 2.0)
                 .frame(maxWidth: 300)
+                .background(.white)
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(dataSource.elements.indices, id: \.self) { index in
                     let element = dataSource.elements[index]

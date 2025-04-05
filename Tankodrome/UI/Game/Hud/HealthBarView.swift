@@ -24,7 +24,7 @@ struct HealthBarView: View {
                 ZStack(alignment: .leading) {
                     // Transparent background with border
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 2)
 
                     // Only render visible part based on current zone
                     barGradient(width: geometry.size.width)
@@ -33,6 +33,7 @@ struct HealthBarView: View {
                             RoundedRectangle(cornerRadius: cornerRadius)
                                 .frame(width: geometry.size.width * value)
                         )
+                        .opacity(0.7)
                 }
             }
             .frame(height: barHeight)
