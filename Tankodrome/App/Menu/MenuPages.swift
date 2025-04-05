@@ -43,6 +43,7 @@ final class GameOverPageDataSource: MenuPageActionHandler, MenuPageDataSource {
     ]
     
     private let isWinner: Bool
+    
     init(
         isWinner: Bool,
         callback: @escaping MenuActionCallback
@@ -68,7 +69,7 @@ final class OptionsPageDataSource: MenuPageActionHandler, MenuPageDataSource {
     let title = "Options"
     
     let elements = [
-        MenuPageElement("Not implemented yet", .empty),
+        MenuPageElement("Not implemented", .empty),
         MenuPageElement("", .empty),
         MenuPageElement("Back", .open(.landing)),
     ]

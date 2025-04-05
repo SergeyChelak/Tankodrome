@@ -21,10 +21,12 @@ struct MenuView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .align(.trailing)
+                    
 
                 contentView()
                     .padding(.leading, 40)
-                    .align(.leading)
+                    .align(.top, .leading)
+                    .padding(.top, 70)
             }
             Spacer()
             MenuFooterView()
@@ -33,7 +35,6 @@ struct MenuView: View {
         .fadeIn()
     }
     
-//    @ViewBuilder
     private func contentView() -> some View {
         let callback = flow.handle(action: )
         
