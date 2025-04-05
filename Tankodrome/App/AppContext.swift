@@ -18,8 +18,8 @@ final class AppContext: ObservableObject {
     @Published
     private(set) var flow: Flow
     
-    let gameFlow: GameFlow
-    let menuFlow: MenuFlow
+    private let gameFlow: GameFlow
+    private let menuFlow: MenuFlow
     
     init(
         gameFlow: GameFlow,

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+// TODO: refactor as observable...
 final class GameFlow {
     private let levelGenerator: LevelGenerator
     private let levelComposer: LevelComposer

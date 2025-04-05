@@ -17,10 +17,11 @@ final class StateSystem: System {
     func levelDidSet(context: GameSceneContext) {
         updateState(context: context, newState: .play)
         
-        // fill with default values
+        let stats = gameStats(context: context)
+        // fill with default or initial values
         let hudData = HudData(
-            totalEnemies: 0,
-            enemiesLeft: 0,
+            totalEnemies: stats.enemies,
+            enemiesLeft: stats.enemies,
             playerHealth: 1.0
         )
         context.addComponent(HudDataComponent(value: hudData))
