@@ -77,6 +77,7 @@ final class GameFlow {
     }
     
     func resumeGame() {
+        self.gameScene.isPaused = false
         self.gameScene.pushSpecialInstruction(.resume)
     }
     
@@ -93,6 +94,7 @@ final class GameFlow {
         case .play:
             break
         case .pause:
+            self.gameScene.isPaused = true
             delegate?.gamePaused()
         case .over:
             delegate?.gameOver(GameStats(isWinner: isWinner))

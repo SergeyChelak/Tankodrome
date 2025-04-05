@@ -15,6 +15,8 @@ protocol System {
     func onContact(context: GameSceneContext, collision: Collision)
     
     func onPhysicsSimulated(context: GameSceneContext)
+    
+    func onFinishUpdate(context: GameSceneContext)
 }
 
 extension System {
@@ -31,6 +33,10 @@ extension System {
     }
     
     func onPhysicsSimulated(context: GameSceneContext) {
+        // no op
+    }
+    
+    func onFinishUpdate(context: GameSceneContext) {
         // no op
     }
 }

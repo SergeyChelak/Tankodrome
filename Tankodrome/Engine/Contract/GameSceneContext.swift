@@ -14,7 +14,7 @@ protocol GameSceneContext {
     func rayCast(from start: CGPoint, rayLength: CGFloat, angle: CGFloat) -> [Sprite]
     func spawn(_ sprite: Sprite)
     func kill(_ sprite: Sprite)
-    func popSpecialInstruction() -> SpecialInstruction?
+    var specialInstruction: SpecialInstruction? { get }
     func addComponent<T: Component>(_ component: T)
     func getComponent<T: Component>(of type: T.Type) -> T?
     func removeComponent<T: Component>(of type: T.Type)

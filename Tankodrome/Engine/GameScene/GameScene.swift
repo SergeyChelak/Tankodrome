@@ -24,7 +24,7 @@ class GameScene: SKScene {
     private var mapScaleFactor: CGFloat = 1
     
     private let aggregatedControllerState = AggregatedControllerState()
-    private var specialInstruction: SpecialInstruction?
+    private(set) var specialInstruction: SpecialInstruction?
     
     private var eventListener: SceneEventListener?
     
@@ -116,12 +116,16 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         super.update(currentTime)
-        deltaTime = currentTime - (previousTime ?? currentTime)
+        deltaTime = currentTime - (previousTime ?? 0.0)
+        guard deltaTime < 0.1 else {
+            self.previousTime = currentTime
+            return
+        }
         sprites = nodes()
         systems.forEach {
             $0.onUpdate(context: self)
         }
-        previousTime = currentTime
+        self.previousTime = currentTime
         eventListener?.onUpdate()
     }
     
@@ -137,6 +141,10 @@ class GameScene: SKScene {
     override func didFinishUpdate() {
         super.didFinishUpdate()
         
+        systems.forEach {
+            $0.onFinishUpdate(context: self)
+        }
+        
         addChildren(spawnList)
         spawnList.removeAll()
 
@@ -151,8 +159,9 @@ class GameScene: SKScene {
             .forEach {
                 $0.update()
             }
+        self.specialInstruction = nil
         eventListener?.onDidFinishUpdate()
-    }
+    }    
 }
 
 extension GameScene: SKPhysicsContactDelegate {
@@ -194,11 +203,5 @@ extension GameScene: GameSceneContext {
     
     func kill(_ sprite: Sprite) {
         killList.append(sprite)
-    }
-    
-    func popSpecialInstruction() -> SpecialInstruction? {
-        let value = self.specialInstruction
-        self.specialInstruction = nil
-        return value
     }
 }

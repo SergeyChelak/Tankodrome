@@ -27,9 +27,8 @@ final class StateSystem: System {
         context.addComponent(HudDataComponent(value: hudData))
     }
     
-    // TODO: split as two functions?
-    func onUpdate(context: GameSceneContext) {
-        if let instruction = context.popSpecialInstruction() {
+    func onFinishUpdate(context: GameSceneContext) {
+        if let instruction = context.specialInstruction {
             switch instruction {
             case .terminate:
                 updateState(context: context, newState: .pause)
