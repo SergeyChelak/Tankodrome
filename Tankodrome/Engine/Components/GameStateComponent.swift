@@ -9,6 +9,6 @@ import Foundation
 
 final class GameStateComponent: ValueWrapper<GameState>, Component { }
 
-enum GameState: Equatable {
-    case win, lose, play, pause
+enum GameState {
+    case play, pause, over
 }

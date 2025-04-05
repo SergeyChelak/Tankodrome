@@ -7,14 +7,8 @@
 
 import Foundation
 
-final class GameViewFactory {
-    func gameView(flow: GameFlow) -> ViewHolder {
-        let viewModel = GameViewModel(gameFlow: flow)
-        let view = GameView(viewModel: viewModel)
-        return ViewHolder(view)
-    }
+protocol GameViewFactory {
+    func gameView(flow: GameFlow) -> ViewHolder
     
-    func menuView(_ handler: MainMenuHandler) -> ViewHolder {
-        ViewHolder(MainMenuView(handler: handler))
-    }
+    func menuView(flow: MenuFlow) -> ViewHolder
 }

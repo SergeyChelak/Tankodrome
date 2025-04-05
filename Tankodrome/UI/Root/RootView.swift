@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct RootView: View {
-    // TODO: set outside
-    let viewFactory = GameViewFactory()
+    let viewFactory: GameViewFactory
     @StateObject
-    var viewModel: RootViewModel
+    var context: AppContext
+    //var viewModel: RootViewModel
     
     var body: some View {
         ZStack {
@@ -23,13 +23,11 @@ struct RootView: View {
     }
     
     private var contentViewHolder: ViewHolder {
-        switch viewModel.state {
-        case .play:
-            viewFactory.gameView(flow: viewModel.gameFlow)
-        case .mainMenu:
-            viewFactory.menuView(viewModel)
-        default:
-            ViewHolder(Text("Need to implement..."))
+        switch context.flow {
+        case .play(let flow):
+            viewFactory.gameView(flow: flow)
+        case .menu(let flow):
+            viewFactory.menuView(flow: flow)
         }
     }
 }

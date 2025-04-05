@@ -29,16 +29,16 @@ final class GameFlow {
         self.eventPublisher = eventPublisher
     }
         
-    func nextLevel() throws {
+    func _nextLevel() throws {
         let data = try levelGenerator.generate()
         updateLevelData(data)
     }
     
-    func replayLevel() throws {
+    func _replayLevel() throws {
         updateLevelData(self.levelData)
     }
     
-    func updateLevelData(_ data: LevelData) {
+    private func updateLevelData(_ data: LevelData) {
         let level = levelComposer.level(from: data)
         self.levelData = data
         self.gameScene.setLevel(level)
@@ -46,6 +46,10 @@ final class GameFlow {
     
     func gameSceneEventPublisher() -> AnyPublisher<SceneEvent, Never> {
         eventPublisher.publisher
+    }
+    
+    var gameState: GameState? {
+        gameScene.getComponent(of: GameStateComponent.self)?.value
     }
 }
 

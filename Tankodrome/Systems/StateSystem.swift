@@ -8,11 +8,21 @@
 import Foundation
 
 final class StateSystem: System {
+    private struct Stats {
+        let health: CGFloat
+        let maxHealth: CGFloat
+        let enemies: Int
+    }
+    
     func levelDidSet(context: GameSceneContext) {
         updateState(context: context, newState: .play)
         
         // fill with default values
-        let hudData = HudData(playerHealth: 1.0)
+        let hudData = HudData(
+            totalEnemies: 0,
+            enemiesLeft: 0,
+            playerHealth: 1.0
+        )
         context.addComponent(HudDataComponent(value: hudData))
     }
     
@@ -28,6 +38,22 @@ final class StateSystem: System {
             return
         }
                 
+        let stats = gameStats(context: context)
+        if stats.enemies == 0 || stats.health == 0.0 {
+            updateState(context: context, newState: .over)
+            return
+        }
+        
+        let percentage = stats.maxHealth > 0
+        ? stats.health / stats.maxHealth
+        : 0
+        updateHudHealth(
+            context: context,
+            health: percentage
+        )
+    }
+    
+    private func gameStats(context: GameSceneContext) -> Stats {
         let sprites = context.sprites
         var npcCount = 0
         var playerHealth: HealthComponent?
@@ -44,17 +70,13 @@ final class StateSystem: System {
             }
         }
         
-        if npcCount == 0 {
-            updateState(context: context, newState: .win)
-            return
-        }
+        let health = (playerHealth?.value ?? 0.0).max(0.0)
         
-        guard let playerHealth, playerHealth.value > 0.0 else {
-            updateState(context: context, newState: .lose)
-            updateHudHealth(context: context, health: 0.0)
-            return
-        }
-        updateHudHealth(context: context, health: playerHealth.value / playerHealth.max)
+        return Stats(
+            health: health,
+            maxHealth: playerHealth?.max ?? 0.0,
+            enemies: npcCount
+        )
     }
     
     private func updateState(context: GameSceneContext, newState: GameState) {

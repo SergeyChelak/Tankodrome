@@ -12,7 +12,7 @@ struct TankodromeApp: App {
     @StateObject
     private var viewModel = TankodromeAppViewModel()
     
-    private let viewFactory = AppViewFactory()
+    private let viewFactory = ViewFactory()
     
     var body: some Scene {
         WindowGroup {
@@ -35,7 +35,7 @@ struct TankodromeApp: App {
         case .failed(let error):
             viewFactory.errorView(error)
         case .ready(let appContext):
-            viewFactory.gameView(appContext)
+            viewFactory.rootView(appContext)
         }
     }
 }

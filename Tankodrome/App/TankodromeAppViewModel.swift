@@ -23,7 +23,8 @@ final class TankodromeAppViewModel: ObservableObject {
     @MainActor
     private func handle(_ gameFlow: GameFlow) async {
         let context = AppContext(
-            gameFlow: gameFlow
+            gameFlow: gameFlow,
+            menuFlow: MenuFlow()
         )
         self.state = .ready(context)
     }
