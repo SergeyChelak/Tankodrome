@@ -13,6 +13,7 @@ struct Level {
     let sprites: [Sprite]
     let contours: [SKNode]
     let sceneComponents: [Component]
+    let camera: SKCameraNode
     
     struct Landscape {
         let tileMap: SKTileMapNode

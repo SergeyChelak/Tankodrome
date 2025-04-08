@@ -1,5 +1,5 @@
 //
-//  Sprite.swift
+//  Nodes.swift
 //  Tankodrome
 //
 //  Created by Sergey on 23.02.2025.
@@ -10,3 +10,4 @@ import SpriteKit
 
 typealias Sprite = SKSpriteNode
 typealias Node = SKNode & ComponentContainable
+typealias Camera = SKCameraNode

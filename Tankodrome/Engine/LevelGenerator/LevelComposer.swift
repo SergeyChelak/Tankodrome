@@ -35,9 +35,8 @@ final class LevelComposer {
             landscape: landscape,
             sprites: sprites,
             contours: contours,
-            sceneComponents: [
-                ScaleComponent(value: 3.0)
-            ]
+            sceneComponents: [],
+            camera: createCamera(landscape.levelRect)
         )
     }
     
@@ -154,5 +153,14 @@ final class LevelComposer {
         }
         
         return sprites
+    }
+    
+    private func createCamera(_ levelRect: CGRect) -> SKCameraNode {
+        let camera = SKCameraNode()
+        camera.addComponents(
+            ScaleComponent(value: 3.0),
+            LevelBoundsComponent(value: levelRect)
+        )
+        return camera
     }
 }

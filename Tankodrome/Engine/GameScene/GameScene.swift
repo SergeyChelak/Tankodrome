@@ -9,9 +9,6 @@ import Foundation
 import SpriteKit
 
 class GameScene: SKScene {
-    private let viewportCamera = SKCameraNode()
-    private var levelRect: CGRect = .zero
-    
     private var previousTime: TimeInterval?
     public private(set) var deltaTime: TimeInterval = 0.0
     
@@ -20,8 +17,6 @@ class GameScene: SKScene {
     
     private var spawnList: [Sprite] = []
     private var killList: [Sprite] = []
-    
-    private var mapScaleFactor: CGFloat = 1
     
     private let aggregatedControllerState = AggregatedControllerState()
     private(set) var specialInstruction: SpecialInstruction?
@@ -45,14 +40,13 @@ class GameScene: SKScene {
     @MainActor
     func setLevel(_ level: Level) async {
         removeAllChildren()
-        self.camera = nil
+        self.camera = level.camera
+        addChild(level.camera)
         addComponents(level.sceneComponents)
         let landscape = level.landscape
-        levelRect = landscape.levelRect
         addChild(landscape.tileMap)
         addChildren(level.contours)
         addChildren(level.sprites)
-        setupCamera()
         systems.forEach {
             $0.levelDidSet(context: self)
         }
@@ -81,39 +75,9 @@ class GameScene: SKScene {
     
     override func didMove(to view: SKView) {
         super.didMove(to: view)
-        setupCamera()
         physicsWorld.contactDelegate = self
     }
-    
-    private func setupCamera() {
-        defer {
-            alignCameraPosition()
-        }
-        self.camera = viewportCamera
-        if let scale = getComponent(of: ScaleComponent.self)?.value {
-            mapScaleFactor = scale
-        }
-        viewportCamera.setScale(mapScaleFactor)
-        viewportCamera.removeFromParent()
-        addChild(viewportCamera)
-    }
-    
-    private func alignCameraPosition() {
-        guard let camera,
-              let position = nodes(with: PlayerMarker.self).first?.position else {
-            return
-        }
-        var x = position.x
-        x = max(x, mapScaleFactor * size.width * 0.5)
-        x = min(x, levelRect.width - mapScaleFactor * size.width * 0.5)
-        
-        var y = position.y
-        y = max(y, mapScaleFactor * size.height * 0.5)
-        y = min(y, levelRect.height - mapScaleFactor * size.height * 0.5)
-        let cameraPosition = CGPoint(x: x, y: y)
-        camera.position = cameraPosition
-    }
-    
+            
     override func update(_ currentTime: TimeInterval) {
         super.update(currentTime)
         deltaTime = currentTime - (previousTime ?? 0.0)
@@ -134,7 +98,6 @@ class GameScene: SKScene {
         for system in systems  {
             system.onPhysicsSimulated(context: self)
         }
-        alignCameraPosition()
         eventListener?.onDidSimulatePhysics()
     }
     
@@ -151,11 +114,8 @@ class GameScene: SKScene {
         killList.forEach { $0.removeFromParent() }
         killList.removeAll()
         
-        [
-            nodes() as [Updatable],
-            viewportCamera.nodes() as [Updatable]
-        ]
-            .flatMap { $0 }
+
+        (nodes() as [Updatable])
             .forEach {
                 $0.update()
             }

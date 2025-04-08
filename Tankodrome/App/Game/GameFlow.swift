@@ -77,8 +77,10 @@ final class GameFlow {
     }
     
     func resumeGame() {
-        self.gameScene.isPaused = false
-        self.gameScene.pushSpecialInstruction(.resume)
+        Task { @MainActor in
+            self.gameScene.isPaused = false
+            self.gameScene.pushSpecialInstruction(.resume)
+        }
     }
     
     func gameSceneEventPublisher() -> AnyPublisher<SceneEvent, Never> {
@@ -136,6 +138,7 @@ func composeGameFlow() throws -> GameFlow {
 fileprivate func createGameScene() -> GameScene {
     let scene = GameScene()
     scene.register(
+        CameraSystem(),
         ControllerSystem(),
         NpcSystem(
             fieldOfView: .pi,
