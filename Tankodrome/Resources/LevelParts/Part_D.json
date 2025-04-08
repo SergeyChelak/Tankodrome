@@ -71,7 +71,7 @@
                  "visible":true,
                  "width":0,
                  "x":512,
-                 "y":278.456140350877
+                 "y":278.456
                 }, 
                 {
                  "height":0,
@@ -82,8 +82,8 @@
                  "type":"point",
                  "visible":true,
                  "width":0,
-                 "x":765.005847953216,
-                 "y":832.374269005848
+                 "x":765.006,
+                 "y":832.374
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -121,7 +121,7 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"..\/Landscape.tsx"
+         "source":"..\/..\/..\/..\/tankodrome-level\/Landscape.tsx"
         }],
  "tilewidth":128,
  "type":"map",

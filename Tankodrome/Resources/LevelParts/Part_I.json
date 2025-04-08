@@ -81,8 +81,8 @@
                  "type":"point",
                  "visible":true,
                  "width":0,
-                 "x":670.690058479532,
-                 "y":196.116959064327
+                 "x":670.69,
+                 "y":196.117
                 }, 
                 {
                  "height":0,
@@ -93,8 +93,8 @@
                  "type":"point",
                  "visible":true,
                  "width":0,
-                 "x":706.619883040936,
-                 "y":673.684210526316
+                 "x":706.62,
+                 "y":673.684
                 }, 
                 {
                  "height":0,
@@ -105,8 +105,8 @@
                  "type":"point",
                  "visible":true,
                  "width":0,
-                 "x":185.637426900585,
-                 "y":670.690058479532
+                 "x":185.637,
+                 "y":670.69
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -144,7 +144,7 @@
  "tilesets":[
         {
          "firstgid":1,
-         "source":"..\/Landscape.tsx"
+         "source":"..\/..\/..\/..\/tankodrome-level\/Landscape.tsx"
         }],
  "tilewidth":128,
  "type":"map",

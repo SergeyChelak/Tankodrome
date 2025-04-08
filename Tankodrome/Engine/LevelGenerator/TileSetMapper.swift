@@ -15,15 +15,15 @@ protocol TileMapper {
 // TODO: split responsibilities
 final class TileSetMapper {
     private let tileSetSources: [String: TileMapper] = [
-        "../Landscape.tsx" : LandscapeTileMapper()
+        "Landscape.tsx" : LandscapeTileMapper()
     ]
     
     func tileSetName(for tileSet: TiledMap.TileSet) -> String? {
-        tileSetSources[tileSet.source]?.name
+        tileSetSources[tileSet.sourceFileName]?.name
     }
     
     func tileGroupName(for tileSet: TiledMap.TileSet, id: Int) -> String? {
-        tileSetSources[tileSet.source]?.groupName(for: id)
+        tileSetSources[tileSet.sourceFileName]?.groupName(for: id)
     }
 }
 
@@ -38,5 +38,12 @@ final class LandscapeTileMapper: TileMapper {
             print("[WARN] unexpected tile id \(id)")
             return nil
         }
+    }
+}
+
+extension TiledMap.TileSet {
+    var sourceFileName: String {
+        URL(fileURLWithPath: source)
+            .lastPathComponent
     }
 }
