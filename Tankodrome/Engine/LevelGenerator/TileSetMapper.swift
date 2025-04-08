@@ -41,7 +41,7 @@ final class LandscapeTileMapper: TileMapper {
     }
 }
 
-extension TiledMap.TileSet {
+fileprivate extension TiledMap.TileSet {
     var sourceFileName: String {
         URL(fileURLWithPath: source)
             .lastPathComponent
