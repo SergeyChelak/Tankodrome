@@ -9,13 +9,16 @@ import Foundation
 
 struct LevelData {
     typealias LandscapeGrid = Matrix.ArrayWrapper<String>
+    protocol Positionable {
+        var blockPosition: Matrix.Position { get }
+    }
     
-    struct ContourObject {
+    struct ContourObject: Positionable {
         let blockPosition: Matrix.Position
         let rectangle: CGRect
     }
     
-    struct BlockPoint {
+    struct BlockPoint: Positionable {
         let blockPosition: Matrix.Position
         let point: CGPoint
     }

@@ -35,12 +35,14 @@ final class LevelComposer {
         let landscape = createLandscape(data.landscapeGrid)
         let contours = createContours(data, levelRect: landscape.levelRect)
         let sprites = createSprites(data, levelRect: landscape.levelRect)
+        let decorations = createDecorations(data, levelRect: landscape.levelRect)
         return Level(
             landscape: landscape,
             sprites: sprites,
             contours: contours,
             sceneComponents: [],
-            camera: createCamera(landscape.levelRect)
+            camera: createCamera(landscape.levelRect),
+            decorations: decorations
         )
     }
     
@@ -83,17 +85,14 @@ final class LevelComposer {
                 .addComponent(BorderMarker())
                 .build()
         ]
-
-        let blockSize = data.mapBlockSize.cgSizeValue * tileSize
-                
+        let converter = BlockPositionConverter(
+            levelData: data,
+            levelRect: levelRect,
+            tileSize: tileSize
+        )
         let contours = data.contourObjects
-            .map { (obj: LevelData.ContourObject) -> CGRect in
-                let offset = CGPoint(
-                    x: blockSize.width * CGFloat(obj.blockPosition.col),
-                    y: blockSize.height * CGFloat(obj.blockPosition.row)
-                )
-                let origin = obj.rectangle.origin + offset
-                return CGRect(origin: origin, size: obj.rectangle.size)
+            .map {
+                converter.absoluteRectangle($0)
             }
             .map {
                 RectangleContourBuilder(bodyRectangle: $0)
@@ -108,17 +107,16 @@ final class LevelComposer {
         return nodes
     }
     
+    private func createDecorations(_ data: LevelData, levelRect: CGRect) -> [Sprite] {
+        []
+    }
+    
     private func createSprites(_ data: LevelData, levelRect: CGRect) -> [Sprite] {
-        let blockSize = data.mapBlockSize.cgSizeValue * tileSize
-        let calculatePosition = { (sp: LevelData.BlockPoint) -> CGPoint in
-            let offset = CGPoint(
-                x: blockSize.width * CGFloat(sp.blockPosition.col),
-                y: blockSize.height * CGFloat(sp.blockPosition.row)
-            )
-            var result = offset + sp.point
-            result.y = levelRect.size.height - result.y
-            return result
-        }
+        let converter = BlockPositionConverter(
+            levelData: data,
+            levelRect: levelRect,
+            tileSize: tileSize
+        )
         var sprites: [Sprite] = []
         for value in data.gameActors {
             let sprite = switch value {
@@ -134,7 +132,7 @@ final class LevelComposer {
                     .addComponent(VelocityComponent(value: 0.0, limit: data.velocity))
                     .addComponent(RotationSpeedComponent(value: data.rotationSpeed))
                     .addComponent(AccelerationComponent(value: data.acceleration))
-                    .position(calculatePosition(data.spawnPoint))
+                    .position(converter.absolutePoint(data.spawnPoint))
                     .build()
             case .npcTank(let data):
                 Tank.Builder
@@ -148,7 +146,7 @@ final class LevelComposer {
                     .addComponent(VelocityComponent(value: 0.0, limit: data.velocity))
                     .addComponent(RotationSpeedComponent(value: data.rotationSpeed))
                     .addComponent(AccelerationComponent(value: data.acceleration))
-                    .position(calculatePosition(data.spawnPoint))
+                    .position(converter.absolutePoint(data.spawnPoint))
                     .build()
             }
             sprites.append(sprite)

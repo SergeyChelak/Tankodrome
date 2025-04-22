@@ -47,6 +47,7 @@ class GameScene: SKScene {
         addChild(landscape.tileMap)
         addChildren(level.contours)
         addChildren(level.sprites)
+        addChildren(level.decorations)
         systems.forEach {
             $0.levelDidSet(context: self)
         }
