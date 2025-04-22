@@ -33,7 +33,10 @@ final class LandscapeTileMapper: TileMapper {
     func groupName(for id: Int) -> String? {
         switch id {
         case 1: return "Decor_Tile_B_05"
-        case 4: return "Ground_Tile_01_C"
+        case 4: return [
+            "Ground_Tile_01_C",
+            "Ground_Tile_02_C"
+        ].randomElement()
         default:
             print("[WARN] unexpected tile id \(id)")
             return nil
