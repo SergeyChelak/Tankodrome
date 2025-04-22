@@ -108,7 +108,21 @@ final class LevelComposer {
     }
     
     private func createDecorations(_ data: LevelData, levelRect: CGRect) -> [Sprite] {
-        []
+        let converter = BlockPositionConverter(
+            levelData: data,
+            levelRect: levelRect,
+            tileSize: tileSize
+        )
+        
+        let buildDecoration = { (decorationData: LevelData.DecorationData) -> Sprite in
+            let sprite = DecorationSprite()
+            sprite.setup(decorationData)
+            sprite.position = converter.absolutePoint(decorationData.position)
+            return sprite
+        }
+        
+        return data.decorations
+            .map(buildDecoration)
     }
     
     private func createSprites(_ data: LevelData, levelRect: CGRect) -> [Sprite] {
