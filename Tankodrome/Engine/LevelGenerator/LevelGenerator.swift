@@ -64,13 +64,14 @@ final class LevelGenerator {
         
         let landscapeGrid = try fillLandscape(source: waveFunctionCollapse)
         let contourObjects = try contours(source: waveFunctionCollapse)
-        let spawnPoints = collectSpawnPoints(source: waveFunctionCollapse)
-        let actors = setupActors(spawnPoints)
+        let spawnPoints = collectPoints(source: waveFunctionCollapse) { $0.spawnPointsLayer() }
+        let decorationPoints = collectPoints(source: waveFunctionCollapse) { $0.decorationsLayer() }
         return LevelData(
             mapBlockSize: mapBlockSize,
             landscapeGrid: landscapeGrid,
             contourObjects: contourObjects,
-            gameActors: actors
+            gameActors: setupActors(spawnPoints),
+            decorations: setupDecorations(decorationPoints)
         )
     }
     
@@ -143,14 +144,17 @@ final class LevelGenerator {
         return contourObjects
     }
     
-    private func collectSpawnPoints(source: TileDataSource) -> [LevelData.SpawnPoint] {
+    private func collectPoints(
+        source: TileDataSource,
+        layerExtractor: @escaping (TiledMap) -> TiledMap.Layer?
+    ) -> [LevelData.BlockPoint] {
         let blockSize = source.size
-        var spawnPoints: [LevelData.SpawnPoint] = []
+        var spawnPoints: [LevelData.BlockPoint] = []
         for row in 0..<blockSize.rows {
             for col in 0..<blockSize.cols {
                 guard let id = source.tileId(row: row, col: col),
                       let map = dataSource.maps[id],
-                      let layer = map.spawnPointsLayer(),
+                      let layer = layerExtractor(map),
                       let objects = layer.objects else {
                     continue
                 }
@@ -161,7 +165,7 @@ final class LevelGenerator {
                         return CGPoint(x: $0.x, y: $0.y)
                     }
                     .map {
-                        LevelData.SpawnPoint(
+                        LevelData.BlockPoint(
                             blockPosition: blockPosition,
                             point: $0
                         )
@@ -172,7 +176,7 @@ final class LevelGenerator {
         return spawnPoints
     }
     
-    private func setupActors(_ points: [LevelData.SpawnPoint]) -> [LevelData.GameActor] {
+    private func setupActors(_ points: [LevelData.BlockPoint]) -> [LevelData.GameActor] {
         let indices = (0..<points.count)
                 .map { $0 }
                 .shuffled()
@@ -189,6 +193,16 @@ final class LevelGenerator {
             actors.append(val)
         }
         return actors
+    }
+    
+    private func setupDecorations(_ points: [LevelData.BlockPoint]) -> [LevelData.DecorationData] {
+        let indices = (0..<points.count)
+                .map { $0 }
+                .shuffled()
+        let quantity = indices.count / 3
+        return indices[...quantity]
+            .map { points[$0] }
+            .map(createDecoration)
     }
 }
 
@@ -277,7 +291,7 @@ fileprivate func wfcTiledMapper(_ data: (String, TiledMap)) throws -> WaveFuncti
     )
 }
 
-fileprivate func createActorPlayer(_ point: LevelData.SpawnPoint) -> LevelData.GameActor {
+fileprivate func createActorPlayer(_ point: LevelData.BlockPoint) -> LevelData.GameActor {
     let data = LevelData.TankData(
         spawnPoint: point,
         phase: .random(in: 0..<360).degreesToRadians(),
@@ -291,10 +305,10 @@ fileprivate func createActorPlayer(_ point: LevelData.SpawnPoint) -> LevelData.G
     return .player(data)
 }
 
-fileprivate func createActorNPC(_ point: LevelData.SpawnPoint) -> LevelData.GameActor {
+fileprivate func createActorNPC(_ point: LevelData.BlockPoint) -> LevelData.GameActor {
     let data = LevelData.TankData(
         spawnPoint: point,
-        phase: .random(in: 0..<360).degreesToRadians(),
+        phase: randomAngle(),
         color: .blue,
         weapon: .medium,
         health: 100,
@@ -303,4 +317,19 @@ fileprivate func createActorNPC(_ point: LevelData.SpawnPoint) -> LevelData.Game
         rotationSpeed: .pi * 0.5
     )
     return .npcTank(data)
+}
+
+fileprivate func createDecoration(_ position: LevelData.BlockPoint) -> LevelData.DecorationData {
+    let decorations = Decoration.allCases
+    let decoration = decorations.randomElement() ?? decorations[0]
+    return .init(
+        decoration: decoration,
+        position: position,
+        rotation: randomAngle(),
+        scale: 1.0
+    )
+}
+
+private func randomAngle() -> CGFloat {
+    .random(in: 0..<360).degreesToRadians()
 }

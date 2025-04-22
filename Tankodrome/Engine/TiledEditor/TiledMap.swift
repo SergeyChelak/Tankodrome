@@ -39,6 +39,10 @@ extension TiledMap {
     func spawnPointsLayer() -> Layer? {
         layer(with: "spawn_points")
     }
+    
+    func decorationsLayer() -> Layer? {
+        layer(with: "decoration_points")
+    }
 
     private func layer(with name: String) -> Layer? {
         layers.first {

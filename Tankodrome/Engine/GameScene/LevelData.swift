@@ -15,13 +15,13 @@ struct LevelData {
         let rectangle: CGRect
     }
     
-    struct SpawnPoint {
+    struct BlockPoint {
         let blockPosition: Matrix.Position
         let point: CGPoint
     }
     
     struct TankData {
-        let spawnPoint: SpawnPoint
+        let spawnPoint: BlockPoint
         let phase: CGFloat
         let color: Tank.Builder.Color
         let weapon: WeaponModel
@@ -36,15 +36,24 @@ struct LevelData {
         case npcTank(TankData)
     }
     
+    struct DecorationData {
+        let decoration: Decoration
+        let position: BlockPoint
+        let rotation: CGFloat
+        let scale: CGFloat
+    }
+    
     let mapBlockSize: Matrix.Size
     let landscapeGrid: LandscapeGrid
     let contourObjects: [ContourObject]
     let gameActors: [GameActor]
+    let decorations: [DecorationData]
     
     static let empty = LevelData(
         mapBlockSize: .zero(),
         landscapeGrid: .empty(),
         contourObjects: [],
-        gameActors: []
+        gameActors: [],
+        decorations: []
     )
 }

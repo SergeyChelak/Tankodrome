@@ -27,6 +27,10 @@ final class LevelComposer {
         }()
     }
     
+    private var tileSize: CGSize {
+        tileSetData.tileSet.defaultTileSize
+    }
+    
     func level(from data: LevelData) -> Level {
         let landscape = createLandscape(data.landscapeGrid)
         let contours = createContours(data, levelRect: landscape.levelRect)
@@ -80,7 +84,6 @@ final class LevelComposer {
                 .build()
         ]
 
-        let tileSize = tileSetData.tileSet.defaultTileSize
         let blockSize = data.mapBlockSize.cgSizeValue * tileSize
                 
         let contours = data.contourObjects
@@ -106,9 +109,8 @@ final class LevelComposer {
     }
     
     private func createSprites(_ data: LevelData, levelRect: CGRect) -> [Sprite] {
-        let tileSize = tileSetData.tileSet.defaultTileSize
         let blockSize = data.mapBlockSize.cgSizeValue * tileSize
-        let calculatePosition = { (sp: LevelData.SpawnPoint) -> CGPoint in
+        let calculatePosition = { (sp: LevelData.BlockPoint) -> CGPoint in
             let offset = CGPoint(
                 x: blockSize.width * CGFloat(sp.blockPosition.col),
                 y: blockSize.height * CGFloat(sp.blockPosition.row)
