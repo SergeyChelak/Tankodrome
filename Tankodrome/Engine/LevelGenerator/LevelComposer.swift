@@ -117,37 +117,30 @@ final class LevelComposer {
             levelRect: levelRect,
             tileSize: tileSize
         )
+        
+        let buildTank = { (tankData: LevelData.TankData, isNPC: Bool) -> Tank in
+            Tank.Builder
+                .random()
+                .color(tankData.color)
+                .phase(tankData.phase)
+                .addComponent(isNPC ? NpcMarker() : PlayerMarker())
+                .addComponent(ControllerComponent())
+                .addComponent(WeaponComponent(model: tankData.weapon))
+                .addComponent(HealthComponent(value: tankData.health))
+                .addComponent(VelocityComponent(value: 0.0, limit: tankData.velocity))
+                .addComponent(RotationSpeedComponent(value: tankData.rotationSpeed))
+                .addComponent(AccelerationComponent(value: tankData.acceleration))
+                .position(converter.absolutePoint(tankData.spawnPoint))
+                .build()
+        }
+        
         var sprites: [Sprite] = []
         for value in data.gameActors {
             let sprite = switch value {
             case .player(let data):
-                Tank.Builder
-                    .random()
-                    .color(data.color)
-                    .phase(data.phase)
-                    .addComponent(PlayerMarker())
-                    .addComponent(ControllerComponent())
-                    .addComponent(WeaponComponent(model: data.weapon))
-                    .addComponent(HealthComponent(value: data.health))
-                    .addComponent(VelocityComponent(value: 0.0, limit: data.velocity))
-                    .addComponent(RotationSpeedComponent(value: data.rotationSpeed))
-                    .addComponent(AccelerationComponent(value: data.acceleration))
-                    .position(converter.absolutePoint(data.spawnPoint))
-                    .build()
+                buildTank(data, false)
             case .npcTank(let data):
-                Tank.Builder
-                    .random()
-                    .color(data.color)
-                    .phase(data.phase)
-                    .addComponent(NpcMarker())
-                    .addComponent(ControllerComponent())
-                    .addComponent(WeaponComponent(model: data.weapon))
-                    .addComponent(HealthComponent(value: data.health))
-                    .addComponent(VelocityComponent(value: 0.0, limit: data.velocity))
-                    .addComponent(RotationSpeedComponent(value: data.rotationSpeed))
-                    .addComponent(AccelerationComponent(value: data.acceleration))
-                    .position(converter.absolutePoint(data.spawnPoint))
-                    .build()
+                buildTank(data, true)
             }
             sprites.append(sprite)
         }
