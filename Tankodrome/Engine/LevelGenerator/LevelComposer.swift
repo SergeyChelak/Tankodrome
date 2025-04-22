@@ -116,8 +116,7 @@ final class LevelComposer {
         
         let buildDecoration = { (decorationData: LevelData.DecorationData) -> Sprite in
             let sprite = DecorationSprite()
-            sprite.setup(decorationData)
-            sprite.position = converter.absolutePoint(decorationData.position)
+            sprite.setup(decorationData, converter)
             return sprite
         }
         
