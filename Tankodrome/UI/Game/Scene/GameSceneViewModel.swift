@@ -6,14 +6,24 @@
 //
 
 import Foundation
+import Combine
 import SwiftUI
 import SpriteKit
 
 class GameSceneViewModel: ObservableObject {
+    private var cancellables: Set<AnyCancellable> = []
     private let gameFlow: GameFlow
+    private let inputController: InputController
     
-    init(gameFlow: GameFlow) {
+    init(
+        gameFlow: GameFlow,
+        inputController: InputController
+    ) {
         self.gameFlow = gameFlow
+        self.inputController = inputController
+        inputController.publisher
+            .sink(receiveValue: handleControlEvent(_:))
+            .store(in: &cancellables)
     }
     
     private var scene: GameScene {
@@ -33,6 +43,14 @@ class GameSceneViewModel: ObservableObject {
         )
         let event: ControlEvent = .key(data)
         handleControlEvent(event)
+    }
+    
+    func onAppear() {
+        inputController.controllerNeeded()
+    }
+    
+    func onDisappear() {
+        inputController.controllerNotNeeded()
     }
 }
 

@@ -33,22 +33,33 @@ final class ControllerSystem: System {
 extension ControllerComponent.State {
     static func from(_ controllerState: ControllerState) -> Self {
         var state = ControllerComponent.State()
-#if os(OSX)
-        let input = controllerState.keyboardPressState
-        state.isAcceleratePressed = input.isUpArrowPressed || input.isWPressed
-        state.isDeceleratePressed = input.isDownArrowPressed || input.isSPressed
-        state.isTurnLeftPressed = input.isLeftArrowPressed || input.isAPressed
-        state.isTurnRightPressed = input.isRightArrowPressed || input.isDPressed
-        state.isShootPressed = input.isSpacePressed
-#endif
-#if os(iOS)
-        let input = controllerState.gamepadPressState
-        state.isAcceleratePressed = input.yValue > 0
-        state.isDeceleratePressed = input.yValue < 0
-        state.isTurnLeftPressed = input.xValue < 0
-        state.isTurnRightPressed = input.xValue > 0
-        state.isShootPressed = input.isBPressed
-#endif
+        state.apply(controllerState.keyboardPressState)
+        state.apply(controllerState.gamepadPressState)
         return state
+    }
+}
+
+fileprivate extension ControllerComponent.State {
+    mutating func apply(_ input: KeyboardState) {
+        isAcceleratePressed |= input.isUpArrowPressed || input.isWPressed
+        isDeceleratePressed |= input.isDownArrowPressed || input.isSPressed
+        isTurnLeftPressed |= input.isLeftArrowPressed || input.isAPressed
+        isTurnRightPressed |= input.isRightArrowPressed || input.isDPressed
+        isShootPressed |= input.isSpacePressed
+    }
+    
+    mutating func apply(_ input: GamepadState) {
+        isAcceleratePressed |= input.yValue > 0
+        isDeceleratePressed |= input.yValue < 0
+        isTurnLeftPressed |= input.xValue < 0
+        isTurnRightPressed |= input.xValue > 0
+        isShootPressed |= input.isBPressed
+
+    }
+}
+
+fileprivate extension Bool {
+    static func |= (lhs: inout Bool, rhs: Bool) {
+        lhs = lhs || rhs
     }
 }

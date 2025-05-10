@@ -24,7 +24,7 @@ enum ControlEvent {
     }
     
     enum GamepadButton {
-        case a, b, x, y
+        case a, b, x, y, menu
     }
     
     struct GamepadDirectionData {

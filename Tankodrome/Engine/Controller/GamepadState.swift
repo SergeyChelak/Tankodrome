@@ -30,6 +30,8 @@ final class GamepadState {
             isXPressed = data.isPressed
         case .y:
             isYPressed = data.isPressed
+        case .menu:
+            break
         }
     }
 }

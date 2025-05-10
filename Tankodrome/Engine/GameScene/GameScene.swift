@@ -71,6 +71,11 @@ class GameScene: SKScene {
                 return .terminate
             }
         }
+        if case(.gamepadButton(let data)) = event {
+            if data.button == .menu && data.isPressed {
+                return .terminate
+            }
+        }
         return nil
     }
     

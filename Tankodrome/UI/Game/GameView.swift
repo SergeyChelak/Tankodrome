@@ -9,19 +9,13 @@ import SwiftUI
 import SpriteKit
 
 struct GameView: View {
-    @StateObject
-    var viewModel: GameViewModel
+    let sceneViewHolder: ViewHolder
+    let hudViewHolder: ViewHolder
 
     var body: some View {
-        GeometryReader { proxy in
-            contentView(proxy.size)
-        }
-    }
-    
-    private func contentView(_ size: CGSize) -> some View {
         ZStack {
-            composeGameScene(viewModel.gameFlow)
-            composeHudView(viewModel.gameFlow)
+            sceneViewHolder.view
+            hudViewHolder.view
         }
         .fadeIn()
     }

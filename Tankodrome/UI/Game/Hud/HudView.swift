@@ -7,11 +7,6 @@
 
 import SwiftUI
 
-func composeHudView(_ gameFlow: GameFlow) -> some View {
-    let viewModel = HudViewModel(gameFlow: gameFlow)
-    return HudView(viewModel: viewModel)
-}
-
 struct HudView: View {
     @StateObject
     var viewModel: HudViewModel

@@ -8,15 +8,7 @@
 import SpriteKit
 import SwiftUI
 
-func composeGameScene(_ gameFlow: GameFlow) -> some View {
-    let viewModel = GameSceneViewModel(gameFlow: gameFlow)
-    return GameSceneView(viewModel: viewModel)
-}
-
 struct GameSceneView: View {
-#if os(iOS)
-    private let controller = VirtualController()
-#endif
     @StateObject
     var viewModel: GameSceneViewModel
     
@@ -40,14 +32,12 @@ struct GameSceneView: View {
         }
         .setFocused()
 #endif
-#if os(iOS)
         .onAppear {
-            controller.connect(to: viewModel)
+            viewModel.onAppear()
         }
         .onDisappear {
-            controller.disconnect()
+            viewModel.onDisappear()
         }
-#endif
     }
 }
 
