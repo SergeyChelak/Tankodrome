@@ -36,7 +36,7 @@ struct MenuView: View {
     }
     
     private func contentView() -> some View {
-        let callback = flow.handle(action: )
+        let callback = flow.handle(action:)
         
         let dataSource: MenuPageDataSource = switch flow.route {
         case .landing:
@@ -53,17 +53,19 @@ struct MenuView: View {
 }
 
 struct MenuHeaderView: View {
+    @Environment(\.themeProvider) var themeProvider
     let title: String
     
     var body: some View {
         Text(title.uppercased())
             .font(.system(size: 55))
-            .foregroundStyle(.white)
-            .shadow(color: .black, radius: 12)
+            .foregroundStyle(themeProvider.menuHeader)
+            .shadow(color: themeProvider.commonShadow, radius: 12)
     }
 }
 
 struct MenuFooterView: View {
+    @Environment(\.themeProvider) var themeProvider
     var body: some View {
         HStack {
             Button(
@@ -73,11 +75,13 @@ struct MenuFooterView: View {
                         Image(systemName: "heart.fill")
                             .foregroundStyle(.red)
                         Text("Support project")
+                            .foregroundStyle(themeProvider.menuFooterText)
                     }
                 }
             )
             Spacer()
             Text("Version 0.1")
+                .foregroundStyle(themeProvider.menuFooterText)
         }
     }
 }

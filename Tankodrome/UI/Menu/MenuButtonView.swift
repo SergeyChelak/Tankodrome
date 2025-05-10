@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MenuButtonView: View {
+    @Environment(\.themeProvider) var themeProvider
     let title: String
     let callback: () -> Void
     @State
@@ -16,9 +17,10 @@ struct MenuButtonView: View {
     var body: some View {
         Text(title)
             .font(.system(size: 35))
+            .foregroundStyle(themeProvider.menuHeader)
             .contentShape(Rectangle())
             .shadow(
-                color: .black,
+                color: themeProvider.commonShadow,
                 radius: isHovering ? 12.0 : 1.0
             )
             .onHover {

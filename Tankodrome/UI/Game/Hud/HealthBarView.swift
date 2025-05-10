@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HealthBarView: View {
+    @Environment(\.themeProvider) var themeProvider
     let value: CGFloat // [0...1]
 
     private let barHeight: CGFloat = 20.0
@@ -40,8 +41,11 @@ struct HealthBarView: View {
             
             Text("\(Int(value * 100))%")
                 .font(.headline)
-                .foregroundColor(.white)
-                .shadow(color: .black, radius: 2)
+                .foregroundColor(themeProvider.hudButtonTint)
+                .shadow(
+                    color: themeProvider.commonShadow,
+                    radius: 2
+                )
         }
         .frame(width: barWidth)
     }

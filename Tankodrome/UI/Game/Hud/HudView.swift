@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HudView: View {
+    @Environment(\.themeProvider) var themeProvider
     @StateObject
     var viewModel: HudViewModel
     
@@ -19,7 +20,8 @@ struct HudView: View {
             // TODO: iOS only
             Image(systemName: "pause.circle.fill")
                 .font(.largeTitle)
-                .shadow(color: .black, radius: 2.0)
+                .foregroundStyle(themeProvider.hudButtonTint)
+                .shadow(color: themeProvider.commonShadow, radius: 2.0)
                 .onTapGesture(perform: viewModel.onPauseTap)
                 .align(.top, .trailing)
         }
