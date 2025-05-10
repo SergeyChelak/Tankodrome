@@ -27,7 +27,7 @@ This is a research and exploration project aimed at:
 - 🌳 Add environmental and visual decorations to enrich game scenes.
 - 🛡️ Introduce different types of NPCs with varied behavior.
 - 🧱 Expand the set of level building blocks for greater gameplay variety.
-- 🎮 Add support for **gamepad controllers** across all platforms.
+- 🎮 ~~Add support for **gamepad controllers** across all platforms.~~
 
 ## 🚧 Project Status
 
