@@ -26,7 +26,10 @@ struct MenuView: View {
                 contentView()
                     .padding(.leading, 40)
                     .align(.top, .leading)
+                // TODO: design a better approach
+#if os(OSX)
                     .padding(.top, 70)
+#endif
             }
             Spacer()
             MenuFooterView()
