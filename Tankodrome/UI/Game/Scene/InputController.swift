@@ -24,6 +24,7 @@ final class InputController {
         return GCVirtualController(configuration: configuration)
     }()
 #endif
+    private var isControllerNeeded = false
     private let eventEmitter = PassthroughSubject<ControlEvent, Never>()
     var publisher: AnyPublisher<ControlEvent, Never> {
         eventEmitter.eraseToAnyPublisher()
@@ -72,6 +73,9 @@ final class InputController {
 
 #if os(iOS)
     private func connectVirtualController() {
+        guard isControllerNeeded else {
+            return
+        }
         virtualController.connect() { [weak self] error in
             if error != nil {
                 // TODO: handle error
@@ -81,12 +85,14 @@ final class InputController {
                   let controller = self.virtualController.controller else {
                 return
             }
+            print("Virtual controller connected")
             self.registerController(controller)
         }
     }
     
     private func disconnectVirtualController() {
         virtualController.disconnect()
+        print("Virtual controller disconnected")
     }
 #endif
     
@@ -127,6 +133,7 @@ final class InputController {
     }
     
     func controllerNeeded() {
+        isControllerNeeded = true
         guard let controller = GCController.controllers().first else {
 #if os(iOS)
             connectVirtualController()
@@ -137,6 +144,7 @@ final class InputController {
     }
     
     func controllerNotNeeded() {
+        isControllerNeeded = false
 #if os(iOS)
         disconnectVirtualController()
 #endif
