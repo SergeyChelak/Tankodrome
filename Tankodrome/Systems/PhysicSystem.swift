@@ -102,10 +102,16 @@ final class PhysicSystem: System {
                 context.kill(tank)
             }
         ]
-        let actions = SKAction.group([
+        
+        let group: [SKAction] = [
+            .playSoundFileNamed(
+                "explosion",
+                waitForCompletion: false
+            ),
             .sequence(disappearActions),
             .fadeOut(withDuration: time)
-        ])
+        ]
+        let actions = SKAction.group(group)
         tank.run(actions)
     }
     

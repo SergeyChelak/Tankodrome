@@ -9,6 +9,11 @@ import Foundation
 import SpriteKit
 
 final class AttackSystem: System {
+    private let shootSounds = [
+        "shoot_1.wav",
+        "shoot_2.wav"
+    ]
+    
     func onUpdate(context: any GameSceneContext) {
         let deltaTime = context.deltaTime
         context.sprites.forEach {
@@ -40,8 +45,18 @@ final class AttackSystem: System {
         node.zRotation = angle
         let offset: CGVector = .rotated(radians: angle) * sprite.size.height * 0.5 * 1.5
         node.position = sprite.position + offset.point()
+        
+        var group: [SKAction] = []
+        if let sound = shootSounds.randomElement() {
+            let soundAction: SKAction = .playSoundFileNamed(
+                sound,
+                waitForCompletion: false
+            )
+            group.append(soundAction)
+        }
         let movement: SKAction = .move(by: .rotated(radians: angle), duration: 1.0 / model.speed)
-        node.run(.repeatForever(movement))
+        group.append(.repeatForever(movement))
+        node.run(.group(group))        
         context.spawn(node)
     }
 }
