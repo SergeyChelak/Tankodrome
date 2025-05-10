@@ -85,14 +85,12 @@ final class InputController {
                   let controller = self.virtualController.controller else {
                 return
             }
-            print("Virtual controller connected")
             self.registerController(controller)
         }
     }
     
     private func disconnectVirtualController() {
         virtualController.disconnect()
-        print("Virtual controller disconnected")
     }
 #endif
     
