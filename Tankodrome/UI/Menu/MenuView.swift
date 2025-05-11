@@ -10,6 +10,7 @@ import SwiftUI
 struct MenuView: View {
     @StateObject
     var flow: MenuFlow
+    let sfx = MenuSFXPlayer()
     
     var body: some View {
         VStack {
@@ -36,6 +37,12 @@ struct MenuView: View {
         }
         .padding()
         .fadeIn()
+        .onAppear {
+            sfx.start(flow.route)
+        }
+        .onDisappear {
+            sfx.stop()
+        }
     }
     
     private func contentView() -> some View {
