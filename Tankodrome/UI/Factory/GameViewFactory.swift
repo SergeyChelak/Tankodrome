@@ -8,8 +8,8 @@
 import Foundation
 
 final class GameViewFactory {
-    let inputController: InputController
-    let menuViewFactory: MenuViewFactory
+    private let inputController: InputController
+    private let menuViewFactory: MenuViewFactory
     
     init(
         inputController: InputController,

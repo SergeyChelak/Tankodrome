@@ -29,6 +29,8 @@ final class MenuFlow: ObservableObject {
         case exit
         case open(Route)
         case empty
+        case toggleSfx
+        case toggleMusic
     }
         
     @Published
@@ -52,6 +54,10 @@ final class MenuFlow: ObservableObject {
             delegate?.closeApplication()
         case .open(let route):
             open(route)
+        case .toggleSfx:
+            fatalError()
+        case .toggleMusic:
+            fatalError()
         case .empty:
             break
         }

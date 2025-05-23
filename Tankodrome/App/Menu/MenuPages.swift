@@ -69,7 +69,8 @@ final class OptionsPageDataSource: MenuPageActionHandler, MenuPageDataSource {
     let title = "Options"
     
     let elements = [
-        MenuPageElement("Not implemented", .empty),
+        MenuPageElement("SFX enabled", .toggleSfx),
+        MenuPageElement("Music enabled", .toggleMusic),
         MenuPageElement("", .empty),
         MenuPageElement("Back", .open(.landing)),
     ]
