@@ -11,7 +11,6 @@ struct RootView: View {
     let viewFactory: GameViewFactory
     @StateObject
     var context: AppContext
-    //var viewModel: RootViewModel
     
     var body: some View {
         ZStack {
