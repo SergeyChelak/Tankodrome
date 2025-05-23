@@ -25,6 +25,7 @@ struct MenuView: View {
                     .align(.trailing)
                 menuViewFactory.menuView(
                     for: flow.route,
+                    parentRoute: flow.prevRoute,
                     callback: flow.handle(action:)
                 )
                 .view

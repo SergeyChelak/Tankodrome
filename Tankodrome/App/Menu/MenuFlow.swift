@@ -34,7 +34,12 @@ final class MenuFlow: ObservableObject {
     }
         
     @Published
-    private(set) var route: Route
+    private(set) var route: Route {
+        willSet {
+            prevRoute = route
+        }
+    }
+    private(set) var prevRoute: Route?
     private let appSettings: AppSettings
     
     weak var delegate: MenuFlowDelegate?

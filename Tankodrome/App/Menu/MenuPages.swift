@@ -58,8 +58,8 @@ final class PausePageDataSource: MenuPageActionHandler, MenuPageDataSource {
     
     let elements = [
         MenuPageElement("Continue", .resume),
-        MenuPageElement("Restart", .replay),
         MenuPageElement("Next Level", .newGame),
+        MenuPageElement("Options", .open(.options)),
         MenuPageElement("", .empty),
         MenuPageElement("Exit", .exit),
     ]
@@ -67,13 +67,16 @@ final class PausePageDataSource: MenuPageActionHandler, MenuPageDataSource {
 
 final class OptionsPageDataSource: MenuPageActionHandler, MenuPageDataSource {
     private let settings: AppSettings
+    private let parent: MenuFlow.Route?
     let title = "Options"
     
     init(
         callback: @escaping MenuActionCallback,
+        parent: MenuFlow.Route?,
         settings: AppSettings
     ) {
         self.settings = settings
+        self.parent = parent
         super.init(callback: callback)
     }
     
@@ -82,7 +85,7 @@ final class OptionsPageDataSource: MenuPageActionHandler, MenuPageDataSource {
             sfxOption(),
             musicOption(),
             MenuPageElement("", .empty),
-            MenuPageElement("Back", .open(.landing)),
+            MenuPageElement("Back", .open(parent ?? .landing)),
         ]
     }
     

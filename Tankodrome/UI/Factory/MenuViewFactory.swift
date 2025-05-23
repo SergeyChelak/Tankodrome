@@ -21,6 +21,7 @@ final class MenuViewFactory {
     
     func menuView(
         for route: MenuFlow.Route,
+        parentRoute: MenuFlow.Route?,
         callback: @escaping MenuActionCallback
     ) -> ViewHolder {
         let dataSource: MenuPageDataSource = switch route {
@@ -34,6 +35,7 @@ final class MenuViewFactory {
         case .options:
             OptionsPageDataSource(
                 callback: callback,
+                parent: parentRoute,
                 settings: settings
             )
         case .pause:
