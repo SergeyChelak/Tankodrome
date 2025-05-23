@@ -35,11 +35,16 @@ final class MenuFlow: ObservableObject {
         
     @Published
     private(set) var route: Route
+    private let appSettings: AppSettings
     
     weak var delegate: MenuFlowDelegate?
     
-    init(route: Route) {
+    init(
+        route: Route,
+        appSettings: AppSettings
+    ) {
         self.route = route
+        self.appSettings = appSettings
     }
     
     func handle(action: Action) {
@@ -55,9 +60,9 @@ final class MenuFlow: ObservableObject {
         case .open(let route):
             open(route)
         case .toggleSfx:
-            fatalError()
+            appSettings.sfxEnabled = !appSettings.sfxEnabled
         case .toggleMusic:
-            fatalError()
+            appSettings.musicEnabled = !appSettings.musicEnabled
         case .empty:
             break
         }
@@ -78,6 +83,9 @@ final class MenuFlow: ObservableObject {
 }
 
 // TODO: return protocol
-func composeMenuFlow() -> MenuFlow {
-    MenuFlow(route: .landing)
+func composeMenuFlow(appSettings: AppSettings) -> MenuFlow {
+    MenuFlow(
+        route: .landing,
+        appSettings: appSettings
+    )
 }

@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct TankodromeApp: App {
     @StateObject
-    private var viewModel = TankodromeAppViewModel()
+    private var viewModel: TankodromeAppViewModel
     
     private let viewFactory: AppViewFactory
     
@@ -26,6 +26,8 @@ struct TankodromeApp: App {
             menuViewFactory: menuViewFactory
         )
         self.viewFactory = AppViewFactory(gameViewFactory: gameViewFactory)
+        
+        self._viewModel = StateObject(wrappedValue: TankodromeAppViewModel(appSettings: settings))
     }
     
     var body: some Scene {

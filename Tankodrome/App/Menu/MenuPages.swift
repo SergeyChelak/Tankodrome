@@ -66,12 +66,33 @@ final class PausePageDataSource: MenuPageActionHandler, MenuPageDataSource {
 }
 
 final class OptionsPageDataSource: MenuPageActionHandler, MenuPageDataSource {
+    private let settings: AppSettings
     let title = "Options"
     
-    let elements = [
-        MenuPageElement("SFX enabled", .toggleSfx),
-        MenuPageElement("Music enabled", .toggleMusic),
-        MenuPageElement("", .empty),
-        MenuPageElement("Back", .open(.landing)),
-    ]
+    init(
+        callback: @escaping MenuActionCallback,
+        settings: AppSettings
+    ) {
+        self.settings = settings
+        super.init(callback: callback)
+    }
+    
+    var elements: [MenuPageElement] {
+        [
+            sfxOption(),
+            musicOption(),
+            MenuPageElement("", .empty),
+            MenuPageElement("Back", .open(.landing)),
+        ]
+    }
+    
+    private func sfxOption() -> MenuPageElement {
+        let title = settings.sfxEnabled ? "SFX enabled" : "SFX disabled"
+        return MenuPageElement(title, .toggleSfx)
+    }
+    
+    private func musicOption() -> MenuPageElement {
+        let title = settings.musicEnabled ? "Music enabled" : "Music disabled"
+        return MenuPageElement(title, .toggleMusic)
+    }
 }

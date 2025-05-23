@@ -27,9 +27,15 @@ final class MenuViewFactory {
         case .landing:
             LandingPageDataSource(callback: callback)
         case .gameOver(let stats):
-            GameOverPageDataSource(isWinner: stats.isWinner, callback: callback)
+            GameOverPageDataSource(
+                isWinner: stats.isWinner,
+                callback: callback
+            )
         case .options:
-            OptionsPageDataSource(callback: callback)
+            OptionsPageDataSource(
+                callback: callback,
+                settings: settings
+            )
         case .pause:
             PausePageDataSource(callback: callback)
         }

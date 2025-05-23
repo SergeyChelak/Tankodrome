@@ -71,7 +71,6 @@ final class MenuPageListViewModel: ObservableObject {
 #endif
         cancellable = inputController.publisher
             .sink { [weak self] in self?.handleInputEvent($0) }
-
     }
 }
 
