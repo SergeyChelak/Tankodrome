@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MenuView: View {
+    let menuViewFactory: MenuViewFactory
     @StateObject
     var flow: MenuFlow
     let sfx = MenuSFXPlayer()
@@ -22,11 +23,13 @@ struct MenuView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .align(.trailing)
-                    
-
-                contentView()
-                    .padding(.leading, 40)
-                    .align(.top, .leading)
+                menuViewFactory.menuView(
+                    for: flow.route,
+                    callback: flow.handle(action:)
+                )
+                .view
+                .padding(.leading, 40)
+                .align(.top, .leading)
                 // TODO: design a better approach
 #if os(OSX)
                     .padding(.top, 70)
@@ -43,22 +46,6 @@ struct MenuView: View {
         .onDisappear {
             sfx.stop()
         }
-    }
-    
-    private func contentView() -> some View {
-        let callback = flow.handle(action:)
-        
-        let dataSource: MenuPageDataSource = switch flow.route {
-        case .landing:
-            LandingPageDataSource(callback: callback)
-        case .gameOver(let stats):
-            GameOverPageDataSource(isWinner: stats.isWinner, callback: callback)
-        case .options:
-            OptionsPageDataSource(callback: callback)
-        case .pause:
-            PausePageDataSource(callback: callback)
-        }
-        return MenuPageListView(dataSource: dataSource)
     }
 }
 
@@ -97,5 +84,8 @@ struct MenuFooterView: View {
 }
 
 #Preview {
-    MenuView(flow: MenuFlow(route: .landing))
+    MenuView(
+        menuViewFactory: MenuViewFactory(settings: AppSettings()),
+        flow: MenuFlow(route: .landing)
+    )
 }

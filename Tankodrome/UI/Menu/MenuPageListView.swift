@@ -9,11 +9,12 @@ import SwiftUI
 
 struct MenuPageListView: View {
     @Environment(\.themeProvider) var themeProvider
-    let dataSource: MenuPageDataSource
+    @ObservedObject
+    var viewModel: MenuPageListViewModel
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(dataSource.title)
+            Text(viewModel.title)
                 .font(.system(size: 19))
                 .foregroundStyle(themeProvider.menuSectionTitle)
                 .italic()
@@ -22,18 +23,28 @@ struct MenuPageListView: View {
                 .frame(maxWidth: 300)
                 .background(themeProvider.menuDivider)
             VStack(alignment: .leading, spacing: 8) {
-                ForEach(dataSource.elements.indices, id: \.self) { index in
-                    let element = dataSource.elements[index]
+                ForEach(viewModel.elements.indices, id: \.self) { index in
+                    let element = viewModel.elements[index]
                     MenuButtonView(title: element.name) {
-                        dataSource.handle(action: element.action)
+                        viewModel.handle(element)
                     }
+                    .onHover { isHovering in
+                        viewModel.onHover(index, isHovered: isHovering)
+                    }
+                    .shadow(
+                        color: themeProvider.commonShadow,
+                        radius: viewModel.isSelected(index) ? 12.0 : 1.0
+                    )
                 }
             }
         }
     }
 }
 #Preview {
-    MenuPageListView(
+    let vm = MenuPageListViewModel(
         dataSource: LandingPageDataSource() { _ in }
+    )
+    return MenuPageListView(
+        viewModel: vm
     )
 }

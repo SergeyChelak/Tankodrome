@@ -9,9 +9,14 @@ import Foundation
 
 final class GameViewFactory {
     let inputController: InputController
+    let menuViewFactory: MenuViewFactory
     
-    init(inputController: InputController) {
+    init(
+        inputController: InputController,
+        menuViewFactory: MenuViewFactory
+    ) {
         self.inputController = inputController
+        self.menuViewFactory = menuViewFactory
     }
     
     func gameView(flow: GameFlow) -> ViewHolder {
@@ -37,9 +42,11 @@ final class GameViewFactory {
         return ViewHolder(view)
     }
 
-    
     func menuView(flow: MenuFlow) -> ViewHolder {
-        let view = MenuView(flow: flow)
+        let view = MenuView(
+            menuViewFactory: menuViewFactory,
+            flow: flow
+        )
         return ViewHolder(view)
     }
 }

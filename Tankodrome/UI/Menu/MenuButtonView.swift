@@ -19,13 +19,6 @@ struct MenuButtonView: View {
             .font(.system(size: 35))
             .foregroundStyle(themeProvider.menuHeader)
             .contentShape(Rectangle())
-            .shadow(
-                color: themeProvider.commonShadow,
-                radius: isHovering ? 12.0 : 1.0
-            )
-            .onHover {
-                self.isHovering = $0
-            }
             .onTapGesture(perform: callback)
     }
 }
