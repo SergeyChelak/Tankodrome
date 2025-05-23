@@ -11,7 +11,7 @@ import SwiftUI
 import SpriteKit
 
 class GameSceneViewModel: ObservableObject {
-    private var cancellables: Set<AnyCancellable> = []
+    private var cancellable: AnyCancellable?
     private let gameFlow: GameFlow
     private let inputController: InputController
     
@@ -21,9 +21,6 @@ class GameSceneViewModel: ObservableObject {
     ) {
         self.gameFlow = gameFlow
         self.inputController = inputController
-        inputController.publisher
-            .sink(receiveValue: handleControlEvent(_:))
-            .store(in: &cancellables)
     }
     
     private var scene: GameScene {
@@ -36,6 +33,9 @@ class GameSceneViewModel: ObservableObject {
     }
 
     func onAppear() {
+        self.cancellable = inputController.publisher
+            .sink(receiveValue: handleControlEvent(_:))
+
         if inputController.setupController() {
             return
         }
@@ -45,7 +45,7 @@ class GameSceneViewModel: ObservableObject {
     }
     
     func onDisappear() {
-        // TODO: remove?
+        self.cancellable = nil
 #if os(iOS)
         inputController.setVirtualControllerNeeded(false)
 #endif
