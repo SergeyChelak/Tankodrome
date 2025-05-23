@@ -34,8 +34,9 @@ class GameSceneViewModel: ObservableObject {
 
     func onAppear() {
         self.cancellable = inputController.publisher
-            .sink(receiveValue: handleControlEvent(_:))
-
+            .sink { [weak self] in
+                self?.handleControlEvent($0)
+            }
         if inputController.setupController() {
             return
         }
@@ -46,6 +47,9 @@ class GameSceneViewModel: ObservableObject {
     
     func onDisappear() {
         self.cancellable = nil
+    }
+    
+    deinit {
 #if os(iOS)
         inputController.setVirtualControllerNeeded(false)
 #endif

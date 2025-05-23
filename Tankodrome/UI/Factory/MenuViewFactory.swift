@@ -8,9 +8,14 @@
 import Foundation
 
 final class MenuViewFactory {
+    private let inputController: InputController
     private let settings: AppSettings
     
-    init(settings: AppSettings) {
+    init(
+        inputController: InputController,
+        settings: AppSettings
+    ) {
+        self.inputController = inputController
         self.settings = settings
     }
     
@@ -28,7 +33,10 @@ final class MenuViewFactory {
         case .pause:
             PausePageDataSource(callback: callback)
         }
-        let viewModel = MenuPageListViewModel(dataSource: dataSource)
+        let viewModel = MenuPageListViewModel(
+            inputController: inputController,
+            dataSource: dataSource
+        )
         let view = MenuPageListView(viewModel: viewModel)
         return ViewHolder(view)
     }

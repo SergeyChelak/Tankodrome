@@ -84,8 +84,12 @@ struct MenuFooterView: View {
 }
 
 #Preview {
-    MenuView(
-        menuViewFactory: MenuViewFactory(settings: AppSettings()),
+    let factory = MenuViewFactory(
+        inputController: InputController(),
+        settings: AppSettings()
+    )
+    return MenuView(
+        menuViewFactory: factory,
         flow: MenuFlow(route: .landing)
     )
 }

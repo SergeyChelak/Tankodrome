@@ -17,7 +17,10 @@ struct TankodromeApp: App {
     init() {
         let inputController = InputController()
         let settings = AppSettings()
-        let menuViewFactory = MenuViewFactory(settings: settings)
+        let menuViewFactory = MenuViewFactory(
+            inputController: inputController,
+            settings: settings
+        )
         let gameViewFactory = GameViewFactory(
             inputController: inputController,
             menuViewFactory: menuViewFactory

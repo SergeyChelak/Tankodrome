@@ -26,7 +26,7 @@ struct MenuPageListView: View {
                 ForEach(viewModel.elements.indices, id: \.self) { index in
                     let element = viewModel.elements[index]
                     MenuButtonView(title: element.name) {
-                        viewModel.handle(element)
+                        viewModel.handle(index)
                     }
                     .onHover { isHovering in
                         viewModel.onHover(index, isHovered: isHovering)
@@ -38,10 +38,12 @@ struct MenuPageListView: View {
                 }
             }
         }
+        
     }
 }
 #Preview {
     let vm = MenuPageListViewModel(
+        inputController: InputController(),
         dataSource: LandingPageDataSource() { _ in }
     )
     return MenuPageListView(
