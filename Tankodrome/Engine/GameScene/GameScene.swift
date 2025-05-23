@@ -39,6 +39,7 @@ class GameScene: SKScene {
     
     @MainActor
     func setLevel(_ level: Level) async {
+        aggregatedControllerState.reset()
         removeAllChildren()
         self.camera = level.camera
         addChild(level.camera)
