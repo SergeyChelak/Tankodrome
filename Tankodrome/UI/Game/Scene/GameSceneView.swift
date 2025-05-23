@@ -25,13 +25,6 @@ struct GameSceneView: View {
             debugOptions: [.showsFPS, .showsPhysics, .showsNodeCount]
         )
         .ignoresSafeArea()
-#if os(OSX)
-        .onKeyPress(phases: .all) { press in
-            viewModel.onKeyPress(press)
-            return .handled
-        }
-        .setFocused()
-#endif
         .onAppear {
             viewModel.onAppear()
         }

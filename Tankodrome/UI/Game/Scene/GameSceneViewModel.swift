@@ -35,22 +35,20 @@ class GameSceneViewModel: ObservableObject {
         return scene
     }
 
-    func onKeyPress(_ keyPress: KeyPress) {
-        let isPressed = keyPress.phase == .down || keyPress.phase == .repeat
-        let data = ControlEvent.KeyData(
-            isPressed: isPressed,
-            keyEquivalent: keyPress.key
-        )
-        let event: ControlEvent = .key(data)
-        handleControlEvent(event)
-    }
-    
     func onAppear() {
-        inputController.controllerNeeded()
+        if inputController.setupController() {
+            return
+        }
+#if os(iOS)
+        inputController.setVirtualControllerNeeded(true)
+#endif
     }
     
     func onDisappear() {
-        inputController.controllerNotNeeded()
+        // TODO: remove?
+#if os(iOS)
+        inputController.setVirtualControllerNeeded(false)
+#endif
     }
 }
 

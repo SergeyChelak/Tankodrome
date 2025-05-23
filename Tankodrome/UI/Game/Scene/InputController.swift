@@ -23,8 +23,8 @@ final class InputController {
         ]
         return GCVirtualController(configuration: configuration)
     }()
+    private var isVirtualControllerNeeded = false
 #endif
-    private var isControllerNeeded = false
     private let eventEmitter = PassthroughSubject<ControlEvent, Never>()
     var publisher: AnyPublisher<ControlEvent, Never> {
         eventEmitter.eraseToAnyPublisher()
@@ -45,6 +45,13 @@ final class InputController {
                 self?.handleControllerDidDisconnect(notification)
             }
             .store(in: &cancellables)
+        
+        center.publisher(for: .GCKeyboardDidConnect)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                self?.handleKeyboardDidDisconnect(notification)
+            }
+            .store(in: &cancellables)
     }
     
     private func handleControllerDidConnect(_ notification: Notification) {
@@ -59,7 +66,6 @@ final class InputController {
         registerController(gameController)
     }
 
-    @objc
     private func handleControllerDidDisconnect(_ notification: Notification) {
         guard let _ = notification.object as? GCController else {
             return
@@ -70,10 +76,36 @@ final class InputController {
         }
 #endif
     }
+    
+    private func handleKeyboardDidDisconnect(_ notification: Notification) {
+        guard let keyboard = notification.object as? GCKeyboard,
+              let keyboardInput = keyboard.keyboardInput else {
+            return
+        }
+        let keys: [GCKeyCode] = [
+            .escape,
+            .spacebar,
+            .leftArrow,
+            .rightArrow,
+            .upArrow,
+            .downArrow,
+            .keyW,
+            .keyA,
+            .keyS,
+            .keyD
+        ]
+        keys.forEach { [weak self] keyCode in
+            keyboardInput.button(forKeyCode: keyCode)?.valueChangedHandler = {
+                (_ button: GCDeviceButtonInput, _ value: Float, _ pressed: Bool) -> Void in
+                let data = ControlEvent.KeyData(isPressed: pressed, keyCode: keyCode)
+                self?.eventEmitter.send(.key(data))
+            }
+        }
+    }
 
 #if os(iOS)
     private func connectVirtualController() {
-        guard isControllerNeeded else {
+        guard isVirtualControllerNeeded else {
             return
         }
         virtualController.connect() { [weak self] error in
@@ -129,22 +161,26 @@ final class InputController {
             self?.eventEmitter.send(.gamepadButton(data))
         }
     }
-    
-    func controllerNeeded() {
-        isControllerNeeded = true
-        guard let controller = GCController.controllers().first else {
+
 #if os(iOS)
-            connectVirtualController()
-#endif
+    func setVirtualControllerNeeded(_ isNeeded: Bool) {
+        isVirtualControllerNeeded = isNeeded
+        guard isNeeded else {
+            disconnectVirtualController()
             return
         }
-        registerController(controller)
+        
+        if nil == GCController.controllers().first {
+            connectVirtualController()
+        }
     }
-    
-    func controllerNotNeeded() {
-        isControllerNeeded = false
-#if os(iOS)
-        disconnectVirtualController()
 #endif
+    
+    func setupController() -> Bool {
+        guard let controller = GCController.controllers().first else {
+            return false
+        }
+        registerController(controller)
+        return true
     }
 }

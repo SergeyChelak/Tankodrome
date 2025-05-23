@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import GameController
 
 final class KeyboardState {
     private(set) var isUpArrowPressed = false
@@ -20,7 +21,7 @@ final class KeyboardState {
     private(set) var isDPressed = false
     
     func update(_ data: ControlEvent.KeyData) {
-        switch data.keyEquivalent {
+        switch data.keyCode {
         case .downArrow:
             isDownArrowPressed = data.isPressed
         case .upArrow:
@@ -29,17 +30,17 @@ final class KeyboardState {
             isLeftArrowPressed = data.isPressed
         case .rightArrow:
             isRightArrowPressed = data.isPressed
-        case .space:
+        case .spacebar:
             isSpacePressed = data.isPressed
         case .escape:
             isEscapePressed = data.isPressed
-        case "w":
+        case .keyW:
             isWPressed = data.isPressed
-        case "a":
+        case .keyA:
             isAPressed = data.isPressed
-        case "s":
+        case .keyS:
             isSPressed = data.isPressed
-        case "d":
+        case .keyD:
             isDPressed = data.isPressed
         default:
             break

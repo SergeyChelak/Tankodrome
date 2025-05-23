@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import GameController
 
 enum ControlEvent {
     case key(KeyData)
@@ -15,7 +16,7 @@ enum ControlEvent {
     
     struct KeyData {
         let isPressed: Bool
-        let keyEquivalent: KeyEquivalent
+        let keyCode: GCKeyCode
     }
     
     struct GamepadButtonState {
@@ -34,10 +35,10 @@ enum ControlEvent {
 }
 
 extension ControlEvent.KeyData {
-    func isPressed(_ key: KeyEquivalent) -> Bool {
+    func isPressed(_ key: GCKeyCode) -> Bool {
         guard isPressed else {
             return false
         }
-        return self.keyEquivalent == key
+        return self.keyCode == key
     }
 }
