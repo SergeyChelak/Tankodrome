@@ -9,27 +9,28 @@ import Foundation
 import AVFoundation
 
 final class SFXPlayer {
-    private var player = AVAudioPlayer()
+    private let volume: Float
+    private var player: AVAudioPlayer?
     
-    func play(filename: String, type: String, loops: Int = 1) {
+    init(volume: Float) {
+        self.volume = volume
+    }
+    
+    func play(filename: String, type: String, loops: Int = 1) throws {
         stop()
         guard let path = Bundle.main.path(forResource: filename, ofType: type) else {
-            // TODO: handle error
-            return
+            throw NSError()
         }
         let url = URL(fileURLWithPath: path)
-        do {
-            player = try AVAudioPlayer(contentsOf: url)
-        } catch {
-            print("Playback error: \(error)")
-            return
-        }
+        let player = try AVAudioPlayer(contentsOf: url)
+        player.volume = volume
         player.numberOfLoops = loops
         player.prepareToPlay()
         player.play()
+        self.player = player
     }
     
     func stop() {
-        player.stop()
+        player?.stop()
     }
 }
