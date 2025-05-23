@@ -24,9 +24,9 @@ final class LandingPageDataSource: MenuPageActionHandler, MenuPageDataSource {
     
     let elements = [
         MenuPageElement("New Game", .newGame),
-        MenuPageElement("Options", .open(.options)),
-        MenuPageElement("", .empty),
-        MenuPageElement("Exit", .exit),
+        .options,
+        .empty,
+        .exit,
     ]
 }
 
@@ -38,8 +38,8 @@ final class GameOverPageDataSource: MenuPageActionHandler, MenuPageDataSource {
     let elements = [
         MenuPageElement("Next Level", .newGame),
         MenuPageElement("Play Again", .replay),
-        MenuPageElement("", .empty),
-        MenuPageElement("Exit", .exit),
+        .empty,
+        .exit,
     ]
     
     private let isWinner: Bool
@@ -59,9 +59,9 @@ final class PausePageDataSource: MenuPageActionHandler, MenuPageDataSource {
     let elements = [
         MenuPageElement("Continue", .resume),
         MenuPageElement("Next Level", .newGame),
-        MenuPageElement("Options", .open(.options)),
-        MenuPageElement("", .empty),
-        MenuPageElement("Exit", .exit),
+        .options,
+        .empty,
+        .exit
     ]
 }
 
@@ -84,7 +84,7 @@ final class OptionsPageDataSource: MenuPageActionHandler, MenuPageDataSource {
         [
             sfxOption(),
             musicOption(),
-            MenuPageElement("", .empty),
+            .empty,
             MenuPageElement("Back", .open(parent ?? .landing)),
         ]
     }
@@ -98,4 +98,10 @@ final class OptionsPageDataSource: MenuPageActionHandler, MenuPageDataSource {
         let title = settings.musicEnabled ? "Music enabled" : "Music disabled"
         return MenuPageElement(title, .toggleMusic)
     }
+}
+
+fileprivate extension MenuPageElement {
+    static let empty = MenuPageElement("", .empty)
+    static let options = MenuPageElement("Options", .open(.options))
+    static let exit = MenuPageElement("Exit", .exit)
 }
