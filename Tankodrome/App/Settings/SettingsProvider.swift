@@ -1,14 +1,13 @@
 //
-//  AppSettings.swift
+//  SettingsProvider.swift
 //  Tankodrome
 //
 //  Created by Sergey on 23.05.2025.
 //
 
-import Combine
 import Foundation
 
-final class AppSettings {
+final class SettingsProvider {
     @UserDefault(key: "app.sound.sfx.enabled", defaultValue: true)
     var sfxEnabled: Bool
     

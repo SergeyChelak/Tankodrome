@@ -11,12 +11,11 @@ import SwiftUI
 struct TankodromeApp: App {
     @StateObject
     private var viewModel: TankodromeAppViewModel
-    
     private let viewFactory: AppViewFactory
     
     init() {
         let inputController = InputController()
-        let settings = AppSettings()
+        let settings = composeAppSettings()
         let menuViewFactory = MenuViewFactory(
             inputController: inputController,
             settings: settings
@@ -26,7 +25,6 @@ struct TankodromeApp: App {
             menuViewFactory: menuViewFactory
         )
         self.viewFactory = AppViewFactory(gameViewFactory: gameViewFactory)
-        
         self._viewModel = StateObject(wrappedValue: TankodromeAppViewModel(appSettings: settings))
     }
     

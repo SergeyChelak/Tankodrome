@@ -85,7 +85,7 @@ struct MenuFooterView: View {
 }
 
 #Preview {
-    let settings = AppSettings()
+    let settings = composeAppSettings()
     let factory = MenuViewFactory(
         inputController: InputController(),
         settings: settings

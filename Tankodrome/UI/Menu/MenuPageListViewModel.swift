@@ -11,18 +11,21 @@ import Foundation
 final class MenuPageListViewModel: ObservableObject {
     private let dataSource: MenuPageDataSource
     private let inputController: InputController
-    private var cancellable: AnyCancellable?
+    private let settings: AppSettings
+    private var cancellables: Set<AnyCancellable> = []
     @Published
     private(set) var selectedIndex: Int = 0
     
     init(
         inputController: InputController,
-        dataSource: MenuPageDataSource
+        dataSource: MenuPageDataSource,
+        settings: AppSettings
     ) {
         self.inputController = inputController
         self.dataSource = dataSource
+        self.settings = settings
         
-        setupController()
+        setupObservables()
     }
     
     var title: String {
@@ -65,12 +68,19 @@ final class MenuPageListViewModel: ObservableObject {
         }
     }
     
-    private func setupController() {
+    private func setupObservables() {
 #if os(iOS)
         inputController.setVirtualControllerNeeded(false)
 #endif
-        cancellable = inputController.publisher
+        inputController.publisher
             .sink { [weak self] in self?.handleInputEvent($0) }
+            .store(in: &cancellables)
+        
+        settings.publisher
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 }
 

@@ -44,7 +44,8 @@ struct MenuPageListView: View {
 #Preview {
     let vm = MenuPageListViewModel(
         inputController: InputController(),
-        dataSource: LandingPageDataSource() { _ in }
+        dataSource: LandingPageDataSource() { _ in },
+        settings: composeAppSettings()
     )
     return MenuPageListView(
         viewModel: vm

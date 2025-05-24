@@ -43,7 +43,8 @@ final class MenuViewFactory {
         }
         let viewModel = MenuPageListViewModel(
             inputController: inputController,
-            dataSource: dataSource
+            dataSource: dataSource,
+            settings: settings
         )
         let view = MenuPageListView(viewModel: viewModel)
         return ViewHolder(view)
