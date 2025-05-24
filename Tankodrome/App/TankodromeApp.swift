@@ -45,7 +45,13 @@ struct TankodromeApp: App {
 #if os(OSX)
             .task {
                 // suppress keyboard bell sound
-                NSEvent.addLocalMonitorForEvents(matching: .keyDown) { _ in nil }
+                NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+                    // pass cmd + q to exit
+                    if event.modifierFlags.contains(.command) && event.characters == "q" {
+                        return event
+                    }
+                    return nil
+                }
             }
             .onDisappear {
                 NSApplication.shared.terminate(nil)
