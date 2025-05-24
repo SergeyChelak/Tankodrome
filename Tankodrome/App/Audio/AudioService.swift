@@ -9,124 +9,115 @@ import AVFoundation
 import Foundation
 
 func composeAudioService() -> AudioService {
-    AudioService(
-        maxSfxChannels: 16,
-        sfxVolume: 0.6,
-        musicVolume: 0.6
-    )
+    AudioService(maxNodeCount: 16)
 }
 
 final class AudioService: AudioPlaybackService {
-    typealias Volume = Float
+    private let maxNodeCount: Int
+    private let audioEngine = AVAudioEngine()
+    private let mixer = AVAudioMixerNode()
+    private let bgMusicPlayer = AVAudioPlayerNode()
     
-    private let sfxPlayerProcessQueue = DispatchQueue(label: "sfxPlayerProcessQueue")
-    private var channels: [AVAudioPlayer]
-    private var backgroundMusicPlayer: AVAudioPlayer?
+    private var preloadedBuffers: [String: AVAudioPCMBuffer] = [:]
     
-    private let sfxVolume: Volume
-    private let musicVolume: Volume
-    
-    init(
-        maxSfxChannels: Int,
-        sfxVolume: Volume,
-        musicVolume: Volume
-    ) {
-        self.sfxVolume = sfxVolume
-        self.musicVolume = musicVolume
-        self.channels = [AVAudioPlayer].init(
-            repeating: AVAudioPlayer(),
-            count: maxSfxChannels
-        )
-    }
-    
-    func setSfxEnabled(_ isEnabled: Bool) {
-        let volume = isEnabled ? sfxVolume : 0.0
-        sfxPlayerProcessQueue.async { [weak self] in
-            self?.updateSfxVolume(volume)
+    init(maxNodeCount: Int) {
+        self.maxNodeCount = maxNodeCount
+        audioEngine.attach(mixer)
+        audioEngine.connect(mixer, to: audioEngine.outputNode, format: nil)
+        // TODO: refactor
+        // start the engine before setting up the player nodes
+        do {
+            audioEngine.prepare()
+            try audioEngine.start()
+        } catch {
+            print("[ERROR] failed to start audio engine: \(error)")
         }
+        audioEngine.attach(bgMusicPlayer)
+        audioEngine.connect(bgMusicPlayer, to: mixer, format: nil)
     }
-    
-    func setMusicEnabled(_ isEnabled: Bool) {
-        updateMusicVolume(isEnabled ? musicVolume : 0.0)
-    }
-    
-    private func updateSfxVolume(_ volume: Volume) {
-        channels.forEach { $0.volume = volume }
-    }
-
-    private func updateMusicVolume(_ volume: Volume) {
-        channels.forEach { $0.volume = volume }
-    }
-    
-    func playSfx(filename: String, type: String) {
+ 
+    // TODO: perform on queue
+    func preload(filename: String, type: String) -> String? {
+        let key = "\(filename).\(type)"
         guard let url: URL = .with(filename: filename, type: type) else {
-            print("[ERROR] failed create url for \(filename).\(type)")
-            return
+            print("[ERROR] failed create url for key")
+            return nil
         }
-        sfxPlayerProcessQueue.async { [weak self] in
-            guard let self else {
-                return
-            }
-            let success = self.poolSfxPlayer(resource: url)
-            if !success {
-                print("[WARN] failed to pool player for \(filename).\(type)")
-            }
-        }
-    }
-    
-    private func poolSfxPlayer(resource: URL) -> Bool {
-        for i in 0..<channels.count {
-            if channels[i].isPlaying {
-                continue
-            }
-            do {
-                channels[i] = try playerByPlaying(
-                    resource: resource,
-                    volume: sfxVolume,
-                    loops: 1
-                )
-                return true
-            } catch {
-                print("[ERROR] failed to start sfx for \(resource) with error: \(error)")
-                break
-            }
-        }
-        return false
-    }
-    
-    func playMusic(filename: String, type: String, infiniteLoops: Bool) {
-        stopMusic()
-        guard let url: URL = .with(filename: filename, type: type) else {
-            print("[ERROR] failed create url for \(filename).\(type)")
-            return
+        if preloadedBuffers[key] != nil {
+            return key
         }
         do {
-            backgroundMusicPlayer = try playerByPlaying(
-                resource: url,
-                volume: musicVolume,
-                loops: infiniteLoops ? -1 : 1)
+            let file = try AVAudioFile(forReading: url)
+            let pcmFormat = file.processingFormat
+            let frameCount = AVAudioFrameCount(file.length)
+            guard let buffer = AVAudioPCMBuffer(
+                pcmFormat: pcmFormat,
+                frameCapacity: frameCount
+            ) else {
+                print("[ERROR] failed to create buffer during preloading")
+                return nil
+            }
+            try file.read(into: buffer)
+            preloadedBuffers[key] = buffer
         } catch {
-            print("[ERROR] failed to start music for \(filename).\(type) with error: \(error)")
+            print("[ERROR] preload error: \(error)")
         }
+        return key
+    }
+    
+    private func playPreloaded(key: String?) {
+        guard let key,
+              let buffer = preloadedBuffers[key] else {
+            print("[ERROR] no preloaded data for key: \(String(describing: key))")
+            return
+        }
+        let audioPlayer = AVAudioPlayerNode()
+        audioEngine.attach(audioPlayer)
+        audioEngine.connect(audioPlayer, to: mixer, format: nil)
+        
+        audioPlayer.scheduleBuffer(buffer, at: nil) { [weak self] in
+            guard let self else { return }
+            DispatchQueue.global().async {
+                audioPlayer.stop()
+                self.audioEngine.detach(audioPlayer)
+            }
+        }
+        audioPlayer.play()
+    }
+        
+
+    func playSfx(filename: String, type: String) {
+        guard audioEngine.attachedNodes.count < maxNodeCount else {
+            return
+        }
+        
+        guard let key = preload(filename: filename, type: type) else {
+            print("[ERROR] no preloaded data for music file \(filename).\(type)")
+            return
+        }
+        DispatchQueue.global().async { [weak self] in
+            self?.playPreloaded(key: key)
+        }
+    }
+        
+    func playMusic(filename: String, type: String, infiniteLoops: Bool) {
+        stopMusic()
+        guard let key = preload(filename: filename, type: type),
+              let buffer = preloadedBuffers[key] else {
+            print("[ERROR] no preloaded data for music file \(filename).\(type)")
+            return
+        }
+        bgMusicPlayer.scheduleBuffer(
+            buffer,
+            at: nil,
+            options: infiniteLoops ? [.loops] : []
+        )
+        bgMusicPlayer.play()
     }
     
     func stopMusic() {
-        backgroundMusicPlayer?.stop()
-        backgroundMusicPlayer = nil
+        bgMusicPlayer.stop()
     }
-}
-
-fileprivate func playerByPlaying(
-    resource: URL,
-    volume: AudioService.Volume,
-    loops: Int
-) throws -> AVAudioPlayer {
-    let player = try AVAudioPlayer(contentsOf: resource)
-    player.volume = volume
-    player.numberOfLoops = loops
-    player.prepareToPlay()
-    player.play()
-    return player
 }
 
 fileprivate extension URL {

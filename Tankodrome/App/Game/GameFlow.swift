@@ -105,7 +105,7 @@ final class GameFlow {
 
 }
 
-func composeGameFlow() throws -> GameFlow {
+func composeGameFlow(audioService: AudioPlaybackService) throws -> GameFlow {
     let tiledDataSource = TiledDataSource()
     try tiledDataSource.load()
 
@@ -120,7 +120,9 @@ func composeGameFlow() throws -> GameFlow {
         tileSetMapper: tileSetMapper
     )
     
-    let scene = createGameScene()
+    let scene = createGameScene(
+        audioService: audioService
+    )
     
     let eventPublisher = BridgePublisher()
     scene.setEventListener(eventPublisher)
@@ -135,7 +137,9 @@ func composeGameFlow() throws -> GameFlow {
 }
 
 
-fileprivate func createGameScene() -> GameScene {
+fileprivate func createGameScene(
+    audioService: AudioPlaybackService?
+) -> GameScene {
     let scene = GameScene()
     scene.register(
         CameraSystem(),
@@ -151,6 +155,9 @@ fileprivate func createGameScene() -> GameScene {
         PhysicSystem(),
         StateSystem()
     )
+    if let audioService {
+        scene.addComponent(SfxComponent(value: audioService))
+    }
     return scene
 }
 

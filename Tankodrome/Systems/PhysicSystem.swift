@@ -90,6 +90,8 @@ final class PhysicSystem: System {
     }
     
     private func explodeTank(_ tank: Sprite, context: GameSceneContext) {
+        let sfxPlayer = context.getComponent(of: SfxComponent.self)?.value
+        
         tank.physicsBody = nil
         if let node = explodeEmitter() {
             node.zPosition = 1000
@@ -104,10 +106,9 @@ final class PhysicSystem: System {
         ]
         
         let group: [SKAction] = [
-            .playSoundFileNamed(
-                "explosion",
-                waitForCompletion: false
-            ),
+            SKAction.run {
+                sfxPlayer?.playSfx(filename: "explosion", type: "wav")
+            },
             .sequence(disappearActions),
             .fadeOut(withDuration: time)
         ]

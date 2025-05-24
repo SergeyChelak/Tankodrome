@@ -25,7 +25,9 @@ final class TankodromeAppViewModel: ObservableObject {
     func load() async {
         do {
             // TODO: refactor...
-            let gameFlow = try composeGameFlow()
+            let gameFlow = try composeGameFlow(
+                audioService: audioService
+            )
             let menuFlow = composeMenuFlow()
             let context = AppContext(
                 appSettings: appSettings,

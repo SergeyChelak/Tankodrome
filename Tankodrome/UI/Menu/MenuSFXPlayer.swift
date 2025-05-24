@@ -42,7 +42,7 @@ final class MenuSFXPlayer {
     private func playBattleMarch() {
         service.playMusic(
             filename: "battle_march",
-            type: "mp3",
+            type: "wav",
             infiniteLoops: true
         )
     }
@@ -50,7 +50,7 @@ final class MenuSFXPlayer {
     private func playLose() {
         service.playMusic(
             filename: "game_over",
-            type: "mp3",
+            type: "wav",
             infiniteLoops: false
         )
     }

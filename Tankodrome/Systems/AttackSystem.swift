@@ -10,8 +10,8 @@ import SpriteKit
 
 final class AttackSystem: System {
     private let shootSounds = [
-        "shoot_1.wav",
-        "shoot_2.wav"
+        "shoot_1",
+        "shoot_2"
     ]
     
     func onUpdate(context: any GameSceneContext) {
@@ -46,12 +46,13 @@ final class AttackSystem: System {
         let offset: CGVector = .rotated(radians: angle) * sprite.size.height * 0.5 * 1.5
         node.position = sprite.position + offset.point()
         
+        let sfxPlayer = context.getComponent(of: SfxComponent.self)?.value
+        
         var group: [SKAction] = []
         if let sound = shootSounds.randomElement() {
-            let soundAction: SKAction = .playSoundFileNamed(
-                sound,
-                waitForCompletion: false
-            )
+            let soundAction: SKAction = .run {
+                sfxPlayer?.playSfx(filename: sound, type: "wav")
+            } 
             group.append(soundAction)
         }
         let movement: SKAction = .move(by: .rotated(radians: angle), duration: 1.0 / model.speed)
