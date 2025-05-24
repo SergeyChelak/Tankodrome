@@ -5,6 +5,7 @@
 //  Created by Sergey on 03.04.2025.
 //
 
+import Combine
 import Foundation
 
 struct GameStats {
@@ -17,6 +18,7 @@ final class AppContext: ObservableObject {
         case menu(MenuFlow)
         // TODO: add flow for error state
     }
+    private var cancellables: Set<AnyCancellable> = []
     
     private let appSettings: AppSettings
     private let audioService: AudioService
@@ -41,6 +43,18 @@ final class AppContext: ObservableObject {
         
         self.menuFlow.delegate = self
         self.gameFlow.delegate = self
+        
+        updateAudioSettings()
+        appSettings.publisher
+            .sink { [weak self] _ in
+                self?.updateAudioSettings()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateAudioSettings() {
+        audioService.setSfxEnabled(appSettings.sfxEnabled)
+        audioService.setMusicEnabled(appSettings.musicEnabled)
     }
 }
 
@@ -87,6 +101,7 @@ extension AppContext: MenuFlowDelegate {
     }
     
     func closeApplication() {
+        print("Exited!")
         Darwin.exit(0)
     }
     

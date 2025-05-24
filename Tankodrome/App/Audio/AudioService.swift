@@ -9,10 +9,15 @@ import AVFoundation
 import Foundation
 
 func composeAudioService() -> AudioService {
-    AudioService(maxNodeCount: 16)
+    AudioService(
+        maxNodeCount: 16,
+        sfxVolume: 0.5,
+        musicVolume: 0.5
+    )
 }
 
 final class AudioService: AudioPlaybackService {
+    typealias Volume = Float
     private let maxNodeCount: Int
     private let audioEngine = AVAudioEngine()
     private let mixer = AVAudioMixerNode()
@@ -20,8 +25,18 @@ final class AudioService: AudioPlaybackService {
     
     private var preloadedBuffers: [String: AVAudioPCMBuffer] = [:]
     
-    init(maxNodeCount: Int) {
+    private let sfxVolume: Volume
+    private var isSfxEnabled: Bool = true
+    private let musicVolume: Volume
+    
+    init(
+        maxNodeCount: Int,
+        sfxVolume: Volume,
+        musicVolume: Volume
+    ) {
         self.maxNodeCount = maxNodeCount
+        self.sfxVolume = sfxVolume
+        self.musicVolume = musicVolume
         audioEngine.attach(mixer)
         audioEngine.connect(mixer, to: audioEngine.outputNode, format: nil)
         // TODO: refactor
@@ -35,9 +50,17 @@ final class AudioService: AudioPlaybackService {
         audioEngine.attach(bgMusicPlayer)
         audioEngine.connect(bgMusicPlayer, to: mixer, format: nil)
     }
+    
+    func setSfxEnabled(_ isEnabled: Bool) {
+        self.isSfxEnabled = isEnabled
+    }
+    
+    func setMusicEnabled(_ isEnabled: Bool) {
+        bgMusicPlayer.volume = isEnabled ? musicVolume : 0.0
+    }
  
     // TODO: perform on queue
-    func preload(filename: String, type: String) -> String? {
+    private func preload(filename: String, type: String) -> String? {
         let key = "\(filename).\(type)"
         guard let url: URL = .with(filename: filename, type: type) else {
             print("[ERROR] failed create url for key")
@@ -82,6 +105,7 @@ final class AudioService: AudioPlaybackService {
                 self.audioEngine.detach(audioPlayer)
             }
         }
+        audioPlayer.volume = isSfxEnabled ? sfxVolume : 0.0
         audioPlayer.play()
     }
         
