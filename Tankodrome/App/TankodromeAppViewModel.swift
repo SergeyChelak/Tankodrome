@@ -12,17 +12,24 @@ final class TankodromeAppViewModel: ObservableObject {
     private(set) var state: AppState = .loading
     
     private let appSettings: AppSettings
+    private let audioService: AudioService
     
-    init(appSettings: AppSettings) {
+    init(
+        appSettings: AppSettings,
+        audioService: AudioService
+    ) {
         self.appSettings = appSettings
+        self.audioService = audioService
     }
     
     func load() async {
         do {
             // TODO: refactor...
             let gameFlow = try composeGameFlow()
-            let menuFlow = composeMenuFlow(appSettings: appSettings)
+            let menuFlow = composeMenuFlow()
             let context = AppContext(
+                appSettings: appSettings,
+                audioService: audioService,
                 gameFlow: gameFlow,
                 menuFlow: menuFlow
             )

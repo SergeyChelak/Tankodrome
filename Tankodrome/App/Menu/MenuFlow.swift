@@ -12,6 +12,8 @@ protocol MenuFlowDelegate: AnyObject {
     func resumeGame()
     func replayLevel()
     func closeApplication()
+    func toggleSfxOption()
+    func toggleMusicOption()
 }
 
 final class MenuFlow: ObservableObject {
@@ -40,16 +42,11 @@ final class MenuFlow: ObservableObject {
         }
     }
     private(set) var prevRoute: Route?
-    private let appSettings: AppSettings
     
     weak var delegate: MenuFlowDelegate?
     
-    init(
-        route: Route,
-        appSettings: AppSettings
-    ) {
+    init(route: Route) {
         self.route = route
-        self.appSettings = appSettings
     }
     
     func handle(action: Action) {
@@ -65,9 +62,9 @@ final class MenuFlow: ObservableObject {
         case .open(let route):
             open(route)
         case .toggleSfx:
-            appSettings.sfxEnabled = !appSettings.sfxEnabled
+            delegate?.toggleSfxOption()
         case .toggleMusic:
-            appSettings.musicEnabled = !appSettings.musicEnabled
+            delegate?.toggleMusicOption()
         case .empty:
             break
         }
@@ -88,9 +85,8 @@ final class MenuFlow: ObservableObject {
 }
 
 // TODO: return protocol
-func composeMenuFlow(appSettings: AppSettings) -> MenuFlow {
+func composeMenuFlow() -> MenuFlow {
     MenuFlow(
-        route: .landing,
-        appSettings: appSettings
+        route: .landing
     )
 }

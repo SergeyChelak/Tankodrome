@@ -90,7 +90,7 @@ struct MenuFooterView: View {
         inputController: InputController(),
         settings: settings
     )
-    let flow = MenuFlow(route: .landing, appSettings: settings)
+    let flow = MenuFlow(route: .landing)
     return MenuView(
         menuViewFactory: factory,
         flow: flow

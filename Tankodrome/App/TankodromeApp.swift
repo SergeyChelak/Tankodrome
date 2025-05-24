@@ -24,8 +24,19 @@ struct TankodromeApp: App {
             inputController: inputController,
             menuViewFactory: menuViewFactory
         )
-        self.viewFactory = AppViewFactory(gameViewFactory: gameViewFactory)
-        self._viewModel = StateObject(wrappedValue: TankodromeAppViewModel(appSettings: settings))
+        self.viewFactory = AppViewFactory(
+            gameViewFactory: gameViewFactory
+        )
+        let audioService = AudioService(
+            maxSfxChannels: 16,
+            sfxVolume: 0.6,
+            musicVolume: 0.6
+        )
+        let viewModel = TankodromeAppViewModel(
+            appSettings: settings,
+            audioService: audioService
+        )
+        self._viewModel = StateObject(wrappedValue: viewModel)
     }
     
     var body: some Scene {
