@@ -16,21 +16,18 @@ struct TankodromeApp: App {
     init() {
         let inputController = InputController()
         let settings = composeAppSettings()
+        let audioService = composeAudioService()
         let menuViewFactory = MenuViewFactory(
             inputController: inputController,
             settings: settings
         )
         let gameViewFactory = GameViewFactory(
             inputController: inputController,
-            menuViewFactory: menuViewFactory
+            menuViewFactory: menuViewFactory,
+            audioPlaybackService: audioService
         )
         self.viewFactory = AppViewFactory(
             gameViewFactory: gameViewFactory
-        )
-        let audioService = AudioService(
-            maxSfxChannels: 16,
-            sfxVolume: 0.6,
-            musicVolume: 0.6
         )
         let viewModel = TankodromeAppViewModel(
             appSettings: settings,

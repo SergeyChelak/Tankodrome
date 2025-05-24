@@ -8,7 +8,11 @@
 import Foundation
 
 final class MenuSFXPlayer {
-    private let player = SFXPlayer(volume: 0.5)
+    private let service: AudioPlaybackService
+    
+    init(service: AudioPlaybackService) {
+        self.service = service
+    }
     
     func start(_ route: MenuFlow.Route) {
         switch route {
@@ -24,7 +28,7 @@ final class MenuSFXPlayer {
     }
     
     func stop() {
-        player.stop()
+        service.stopMusic()
     }
     
     private func playForGameOver(stats: GameStats) {
@@ -36,19 +40,18 @@ final class MenuSFXPlayer {
     }
     
     private func playBattleMarch() {
-        play(filename: "battle_march", type: "mp3", loops: -1)
+        service.playMusic(
+            filename: "battle_march",
+            type: "mp3",
+            infiniteLoops: true
+        )
     }
     
     private func playLose() {
-        play(filename: "game_over", type: "mp3")
-    }
-    
-    // TODO: temporary ignore error as this is not main feature
-    private func play(filename: String, type: String, loops: Int = 1) {
-        do {
-            try player.play(filename: filename, type: type, loops: loops)
-        } catch {
-            print("[Error] menu player error: \(error)")
-        }
+        service.playMusic(
+            filename: "game_over",
+            type: "mp3",
+            infiniteLoops: false
+        )
     }
 }

@@ -8,10 +8,20 @@
 import SwiftUI
 
 struct MenuView: View {
-    let menuViewFactory: MenuViewFactory
+    private let menuViewFactory: MenuViewFactory
     @StateObject
-    var flow: MenuFlow
-    let sfx = MenuSFXPlayer()
+    private var flow: MenuFlow
+    private let sfx: MenuSFXPlayer
+    
+    init(
+        menuViewFactory: MenuViewFactory,
+        flow: MenuFlow,
+        audioPlaybackService: AudioPlaybackService
+    ) {
+        self.menuViewFactory = menuViewFactory
+        self._flow = StateObject(wrappedValue: flow)
+        self.sfx = MenuSFXPlayer(service: audioPlaybackService)
+    }
     
     var body: some View {
         VStack {
@@ -93,6 +103,7 @@ struct MenuFooterView: View {
     let flow = MenuFlow(route: .landing)
     return MenuView(
         menuViewFactory: factory,
-        flow: flow
+        flow: flow,
+        audioPlaybackService: composeAudioService()
     )
 }

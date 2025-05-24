@@ -10,13 +10,16 @@ import Foundation
 final class GameViewFactory {
     private let inputController: InputController
     private let menuViewFactory: MenuViewFactory
+    private let audioPlaybackService: AudioPlaybackService
     
     init(
         inputController: InputController,
-        menuViewFactory: MenuViewFactory
+        menuViewFactory: MenuViewFactory,
+        audioPlaybackService: AudioPlaybackService
     ) {
         self.inputController = inputController
         self.menuViewFactory = menuViewFactory
+        self.audioPlaybackService = audioPlaybackService
     }
     
     func gameView(flow: GameFlow) -> ViewHolder {
@@ -45,7 +48,8 @@ final class GameViewFactory {
     func menuView(flow: MenuFlow) -> ViewHolder {
         let view = MenuView(
             menuViewFactory: menuViewFactory,
-            flow: flow
+            flow: flow,
+            audioPlaybackService: audioPlaybackService
         )
         return ViewHolder(view)
     }

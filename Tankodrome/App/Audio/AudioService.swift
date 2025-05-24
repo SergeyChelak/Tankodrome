@@ -8,7 +8,15 @@
 import AVFoundation
 import Foundation
 
-final class AudioService {
+func composeAudioService() -> AudioService {
+    AudioService(
+        maxSfxChannels: 16,
+        sfxVolume: 0.6,
+        musicVolume: 0.6
+    )
+}
+
+final class AudioService: AudioPlaybackService {
     typealias Volume = Float
     
     private let sfxPlayerProcessQueue = DispatchQueue(label: "sfxPlayerProcessQueue")
@@ -86,7 +94,7 @@ final class AudioService {
         return false
     }
     
-    func playMusic(filename: String, type: String, infiniteLoops: Bool = true) {
+    func playMusic(filename: String, type: String, infiniteLoops: Bool) {
         stopMusic()
         guard let url: URL = .with(filename: filename, type: type) else {
             print("[ERROR] failed create url for \(filename).\(type)")
