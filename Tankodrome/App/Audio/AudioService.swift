@@ -89,6 +89,9 @@ final class AudioService: AudioPlaybackService {
     }
     
     private func playPreloaded(key: String?) {
+        guard isSfxEnabled else {
+            return
+        }
         guard let key,
               let buffer = preloadedBuffers[key] else {
             print("[ERROR] no preloaded data for key: \(String(describing: key))")
@@ -105,7 +108,7 @@ final class AudioService: AudioPlaybackService {
                 self.audioEngine.detach(audioPlayer)
             }
         }
-        audioPlayer.volume = isSfxEnabled ? sfxVolume : 0.0
+        audioPlayer.volume = sfxVolume
         audioPlayer.play()
     }
         
