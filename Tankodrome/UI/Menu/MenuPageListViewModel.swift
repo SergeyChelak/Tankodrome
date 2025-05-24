@@ -27,7 +27,7 @@ final class MenuPageListViewModel: ObservableObject {
         
         setupObservables()
     }
-    
+        
     var title: String {
         dataSource.title
     }
@@ -72,6 +72,7 @@ final class MenuPageListViewModel: ObservableObject {
 #if os(iOS)
         inputController.setVirtualControllerNeeded(false)
 #endif
+        cancellables = []
         inputController.publisher
             .sink { [weak self] in self?.handleInputEvent($0) }
             .store(in: &cancellables)
@@ -81,6 +82,14 @@ final class MenuPageListViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+    }
+    
+    func onAppear() {
+        setupObservables()
+    }
+    
+    func onDisappear() {
+        cancellables = []
     }
 }
 

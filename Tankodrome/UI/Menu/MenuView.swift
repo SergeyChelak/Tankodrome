@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MenuView: View {
     private let menuViewFactory: MenuViewFactory
-    @StateObject
+    @ObservedObject
     private var flow: MenuFlow
     private let sfx: MenuSFXPlayer
     
@@ -19,7 +19,7 @@ struct MenuView: View {
         audioPlaybackService: AudioPlaybackService
     ) {
         self.menuViewFactory = menuViewFactory
-        self._flow = StateObject(wrappedValue: flow)
+        self._flow = ObservedObject(wrappedValue: flow)
         self.sfx = MenuSFXPlayer(service: audioPlaybackService)
     }
     

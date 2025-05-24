@@ -38,7 +38,8 @@ struct MenuPageListView: View {
                 }
             }
         }
-        
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 }
 #Preview {
