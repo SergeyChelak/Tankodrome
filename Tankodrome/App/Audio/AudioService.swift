@@ -20,7 +20,7 @@ final class AudioService: AudioPlaybackService {
     typealias Volume = Float
     private let maxNodeCount: Int
     private let audioEngine = AVAudioEngine()
-    private let mixer = AVAudioMixerNode()
+    private weak var mixer: AVAudioMixerNode?
     private let bgMusicPlayer = AVAudioPlayerNode()
     
     private var preloadedBuffers: [String: AVAudioPCMBuffer] = [:]
@@ -37,6 +37,7 @@ final class AudioService: AudioPlaybackService {
         self.maxNodeCount = maxNodeCount
         self.sfxVolume = sfxVolume
         self.musicVolume = musicVolume
+        let mixer = AVAudioMixerNode()
         audioEngine.attach(mixer)
         audioEngine.connect(mixer, to: audioEngine.outputNode, format: nil)
         // TODO: refactor
@@ -49,6 +50,7 @@ final class AudioService: AudioPlaybackService {
         }
         audioEngine.attach(bgMusicPlayer)
         audioEngine.connect(bgMusicPlayer, to: mixer, format: nil)
+        self.mixer = mixer
     }
     
     func setSfxEnabled(_ isEnabled: Bool) {
@@ -92,7 +94,8 @@ final class AudioService: AudioPlaybackService {
         guard isSfxEnabled else {
             return
         }
-        guard let key,
+        guard let mixer,
+              let key,
               let buffer = preloadedBuffers[key] else {
             print("[ERROR] no preloaded data for key: \(String(describing: key))")
             return

@@ -34,6 +34,16 @@ struct TankodromeApp: App {
             audioService: audioService
         )
         self._viewModel = StateObject(wrappedValue: viewModel)
+#if os(OSX)
+        // suppress keyboard bell sound
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            // pass cmd + q to exit
+            if event.modifierFlags.contains(.command) && event.characters == "q" {
+                return event
+            }
+            return nil
+        }
+#endif
     }
     
     var body: some Scene {
@@ -43,16 +53,6 @@ struct TankodromeApp: App {
                 await viewModel.load()
             }
 #if os(OSX)
-            .task {
-                // suppress keyboard bell sound
-                NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-                    // pass cmd + q to exit
-                    if event.modifierFlags.contains(.command) && event.characters == "q" {
-                        return event
-                    }
-                    return nil
-                }
-            }
             .onDisappear {
                 NSApplication.shared.terminate(nil)
             }
