@@ -5,6 +5,7 @@
 //  Created by Sergey on 26.02.2025.
 //
 
+import GameController
 import Foundation
 
 final class ControllerSystem: System {
@@ -15,7 +16,6 @@ final class ControllerSystem: System {
     }
         
     func onPhysicsSimulated(context: any GameSceneContext) {
-        let state = ControllerComponent.State.from(context.controllerState)
         context
             .sprites
             .compactMap { (sprite: Sprite) -> ControllerComponent? in
@@ -25,36 +25,48 @@ final class ControllerSystem: System {
                 return sprite.getComponent(of: ControllerComponent.self)
             }
             .forEach {
-                $0.value = state
+                for event in context.inputEvents {
+                    $0.value.apply(event)
+                }
             }
     }
 }
 
-extension ControllerComponent.State {
-    static func from(_ controllerState: ControllerState) -> Self {
-        var state = ControllerComponent.State()
-        state.apply(controllerState.keyboardPressState)
-        state.apply(controllerState.gamepadPressState)
-        return state
-    }
-}
-
 fileprivate extension ControllerComponent.State {
-    mutating func apply(_ input: KeyboardState) {
-        isAcceleratePressed |= input.isUpArrowPressed || input.isWPressed
-        isDeceleratePressed |= input.isDownArrowPressed || input.isSPressed
-        isTurnLeftPressed |= input.isLeftArrowPressed || input.isAPressed
-        isTurnRightPressed |= input.isRightArrowPressed || input.isDPressed
-        isShootPressed |= input.isSpacePressed
+    mutating func apply(_ event: ControlEvent) {
+        switch event {
+        case .key(let keyData):
+            apply(keyData)
+        case .gamepadDirection(let data):
+            apply(data)
+        case .gamepadButton(let data):
+            apply(data)
+        }
     }
     
-    mutating func apply(_ input: GamepadState) {
-        isAcceleratePressed |= input.yValue > 0
-        isDeceleratePressed |= input.yValue < 0
-        isTurnLeftPressed |= input.xValue < 0
-        isTurnRightPressed |= input.xValue > 0
-        isShootPressed |= input.isBPressed
-
+    mutating func apply(_ data: ControlEvent.KeyData) {
+        let update = { (value: inout Bool, codes: Set<GCKeyCode>, keyData: ControlEvent.KeyData) in
+            guard codes.contains(keyData.keyCode) else {
+                return
+            }
+            value = data.isPressed
+        }
+        update(&isAcceleratePressed, [.upArrow, .keyW], data)
+        update(&isDeceleratePressed, [.downArrow, .keyS], data)
+        update(&isTurnLeftPressed, [.leftArrow, .keyA], data)
+        update(&isTurnRightPressed, [.rightArrow, .keyD], data)
+        update(&isShootPressed, [.spacebar], data)
+    }
+    
+    mutating func apply(_ data: ControlEvent.GamepadDirectionData) {
+        isAcceleratePressed = data.yValue > 0
+        isDeceleratePressed = data.yValue < 0
+        isTurnLeftPressed = data.xValue < 0
+        isTurnRightPressed = data.xValue > 0
+    }
+    
+    mutating func apply(_ data: ControlEvent.GamepadButtonState) {
+        isShootPressed = data.button == .b && data.isPressed
     }
 }
 

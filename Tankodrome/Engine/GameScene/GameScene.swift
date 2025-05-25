@@ -18,7 +18,7 @@ class GameScene: SKScene {
     private var spawnList: [Sprite] = []
     private var killList: [Sprite] = []
     
-    private let aggregatedControllerState = AggregatedControllerState()
+    private(set) var inputEvents: [ControlEvent] = []
     private(set) var specialInstruction: SpecialInstruction?
     
     private var eventListener: SceneEventListener?
@@ -39,7 +39,7 @@ class GameScene: SKScene {
     
     @MainActor
     func setLevel(_ level: Level) async {
-        aggregatedControllerState.reset()
+        inputEvents.removeAll()
         removeAllChildren()
         self.camera = level.camera
         addChild(level.camera)
@@ -59,7 +59,7 @@ class GameScene: SKScene {
             pushSpecialInstruction(instruction)
             return
         }
-        aggregatedControllerState.update(event)
+        inputEvents.append(event)
     }
     
     func pushSpecialInstruction(_ instruction: SpecialInstruction) {
@@ -126,6 +126,7 @@ class GameScene: SKScene {
             .forEach {
                 $0.update()
             }
+        self.inputEvents.removeAll()
         self.specialInstruction = nil
         eventListener?.onDidFinishUpdate()
     }    
@@ -148,10 +149,6 @@ extension GameScene: SKPhysicsContactDelegate {
 }
 
 extension GameScene: GameSceneContext {
-    var controllerState: ControllerState {
-        aggregatedControllerState
-    }
-
     func rayCast(from start: CGPoint, rayLength: CGFloat, angle: CGFloat) -> [Sprite] {
         let end = start + .rotated(radians: angle) * rayLength
         var nodes: [Sprite] = []
