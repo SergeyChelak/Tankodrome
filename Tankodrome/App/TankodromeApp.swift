@@ -43,6 +43,8 @@ struct TankodromeApp: App {
             }
             return nil
         }
+        
+        @NSApplicationDelegateAdaptor(TankodromeAppDelegate.self) var appDelegate
 #endif
     }
     
@@ -52,12 +54,16 @@ struct TankodromeApp: App {
             .task {
                 await viewModel.load()
             }
-#if os(OSX)
+    #if os(OSX)
             .onDisappear {
-                NSApplication.shared.terminate(nil)
+                Darwin.exit(0)
             }
-#endif
+    #endif
         }
+    #if os(OSX)
+        .windowStyle(.hiddenTitleBar)
+        .commandsRemoved()
+    #endif
     }
     
     private var contentView: ViewHolder {
@@ -71,3 +77,14 @@ struct TankodromeApp: App {
         }
     }
 }
+
+#if os(OSX)
+fileprivate final class TankodromeAppDelegate: NSObject, NSApplicationDelegate {
+    @MainActor func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApplication
+            .shared
+            .windows
+            .forEach { $0.hideAllElements() }
+    }
+}
+#endif
