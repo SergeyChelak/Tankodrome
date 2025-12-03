@@ -81,25 +81,10 @@ final class InputController {
         guard let keyboard = notification.object as? GCKeyboard,
               let keyboardInput = keyboard.keyboardInput else {
             return
-        }
-        let keys: [GCKeyCode] = [
-            .escape,
-            .spacebar,
-            .leftArrow,
-            .rightArrow,
-            .upArrow,
-            .downArrow,
-            .keyW,
-            .keyA,
-            .keyS,
-            .keyD
-        ]
-        keys.forEach { [weak self] keyCode in
-            keyboardInput.button(forKeyCode: keyCode)?.valueChangedHandler = {
-                (_ button: GCDeviceButtonInput, _ value: Float, _ pressed: Bool) -> Void in
-                let data = ControlEvent.KeyData(isPressed: pressed, keyCode: keyCode)
-                self?.eventEmitter.send(.key(data))
-            }
+        }        
+        keyboardInput.keyChangedHandler = { [weak self] _, _, keyCode, isPressed in
+            let data = ControlEvent.KeyData(isPressed: isPressed, keyCode: keyCode)
+            self?.eventEmitter.send(.key(data))
         }
     }
 
