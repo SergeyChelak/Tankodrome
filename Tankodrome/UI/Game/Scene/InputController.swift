@@ -49,7 +49,7 @@ final class InputController {
         center.publisher(for: .GCKeyboardDidConnect)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
-                self?.handleKeyboardDidDisconnect(notification)
+                self?.handleKeyboardDidConnect(notification)
             }
             .store(in: &cancellables)
     }
@@ -77,7 +77,7 @@ final class InputController {
 #endif
     }
     
-    private func handleKeyboardDidDisconnect(_ notification: Notification) {
+    private func handleKeyboardDidConnect(_ notification: Notification) {
         guard let keyboard = notification.object as? GCKeyboard,
               let keyboardInput = keyboard.keyboardInput else {
             return
