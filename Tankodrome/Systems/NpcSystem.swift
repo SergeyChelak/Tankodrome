@@ -43,6 +43,12 @@ final class NpcSystem: System {
     private let stuckDuration: TimeInterval = 0.6   // blocked this long ⇒ escape maneuver
     private let escapeDuration: TimeInterval = 0.6  // how long to back-up-and-turn when wedged
     private let cullMargin: CGFloat = 256           // AI stays active this far beyond the view
+    // Smoothing time constants — these turn the discontinuous steering signals
+    // (binary whisker hits, neighbours moving, blocked/clear flips) into eased
+    // motion instead of visible twitching.
+    private let headingSmoothingTau: TimeInterval = 0.15 // low-pass on the desired heading
+    private let speedSmoothingTau: TimeInterval = 0.2    // ramp toward the target speed
+    private let brakeTau: TimeInterval = 0.08            // ramp down when blocked ahead
 
     private var nextFlankSlot = 0
 
@@ -162,6 +168,7 @@ final class NpcSystem: System {
         controller.value.isShootPressed = false
         controller.value.isTurnLeftPressed = false
         controller.value.isTurnRightPressed = false
+        controller.value.turnThrottle = nil
     }
 
     // MARK: - Decision
@@ -363,10 +370,12 @@ final class NpcSystem: System {
     }
 
     /// Blends goal-seeking with separation from nearby NPCs and a soft wall push into
-    /// one desired heading, turns toward it (adaptive deadband → no jitter), and — the
-    /// key robustness rule — NEVER drives forward into a wall or another tank. When
-    /// forward is blocked it rotates in place to find an opening; if it stays wedged,
-    /// it triggers a short back-up-and-turn escape so it can't get permanently stuck.
+    /// one desired heading (low-pass filtered so the binary steering inputs can't
+    /// snap it), turns toward it with a proportional command that eases onto the
+    /// heading, and — the key robustness rule — NEVER drives forward into a wall or
+    /// another tank. When forward is blocked it brakes and rotates to find an
+    /// opening; if it stays wedged, it triggers a short back-up-and-turn escape so
+    /// it can't get permanently stuck.
     private func steer(
         npc: Sprite,
         brain: AiComponent,
@@ -398,32 +407,49 @@ final class NpcSystem: System {
         direction = direction + separationVector(for: npc, neighbors: neighbors) * separationWeight
         direction = direction + wallAvoidanceVector(for: npc, context: context) * wallAvoidWeight
         // If the forces cancel out, keep the current facing rather than snapping.
-        let desiredAngle = direction.squaredDistance() > 1e-4 ? direction.atan2() : npc.zRotation
-
-        // Turn toward the heading (adaptive deadband kills overshoot chatter).
-        let diff = npc.zRotation.signedAngleDifference(desiredAngle)
-        if diff.abs() > Swift.max(0.03, rotationStep(for: npc, deltaTime: deltaTime)) {
-            if diff > 0 {
-                controller.value.isTurnRightPressed = true
-            } else {
-                controller.value.isTurnLeftPressed = true
-            }
+        var desiredAngle = direction.squaredDistance() > 1e-4 ? direction.atan2() : npc.zRotation
+        // Low-pass the heading: whisker hits toggling and neighbours moving make the
+        // raw steering direction jump from one decision to the next; blending it
+        // over ~headingSmoothingTau turns those jumps into curves.
+        if let previous = brain.desiredHeading {
+            let alpha = CGFloat(1.0 - exp(-deltaTime / headingSmoothingTau))
+            desiredAngle = previous - previous.signedAngleDifference(desiredAngle) * alpha
         }
+        brain.desiredHeading = desiredAngle
 
-        // Hard rule: don't move into what's directly ahead. Track how long we're
-        // blocked and escape if it persists.
+        let diff = npc.zRotation.signedAngleDifference(desiredAngle)
+        controller.value.turnThrottle = turnThrottle(for: npc, diff: diff, horizon: deltaTime)
+
+        // Hard rule: don't keep driving into what's directly ahead. Brake fast (but
+        // smoothly), track how long we're blocked, and escape if it persists.
         if isBlockedAhead(npc: npc, context: context) {
-            velocity.value = 0
+            velocity.value *= CGFloat(exp(-deltaTime / brakeTau))
             brain.stuckTimer += deltaTime
             if brain.stuckTimer > stuckDuration {
                 brain.escapeTimer = escapeDuration
                 brain.stuckTimer = 0
+                brain.desiredHeading = nil // re-evaluate fresh after backing out
             }
         } else {
             brain.stuckTimer = 0
             let alignment = Swift.max(0, cos(diff))
-            velocity.value = speedFactor * velocity.limit * (minMoveSpeedFactor + (1 - minMoveSpeedFactor) * alignment)
+            let targetSpeed = speedFactor * velocity.limit * (minMoveSpeedFactor + (1 - minMoveSpeedFactor) * alignment)
+            let blend = CGFloat(1.0 - exp(-deltaTime / speedSmoothingTau))
+            velocity.value += (targetSpeed - velocity.value) * blend
         }
+    }
+
+    /// Proportional turn command in -1...1: saturated (full rate) while far from
+    /// the desired heading, easing out near it so the rotation lands exactly on
+    /// target instead of bang-bang oscillating around a deadband. `horizon` is how
+    /// long the command will be held (the time until the next decision).
+    private func turnThrottle(for npc: Sprite, diff: CGFloat, horizon: TimeInterval) -> CGFloat {
+        let maxStep = rotationStep(for: npc, deltaTime: Swift.max(horizon, 1.0 / 240.0))
+        guard maxStep > 1e-6 else {
+            return 0
+        }
+        // Positive diff = facing counterclockwise of the target ⇒ turn clockwise.
+        return (-diff / maxStep).max(-1).min(1)
     }
 
     /// True if a wall or another tank sits within the forward look-ahead. Projectiles
@@ -438,18 +464,10 @@ final class NpcSystem: System {
     }
 
     private func aim(npc: Sprite, at point: CGPoint, controller: ControllerComponent, deltaTime: TimeInterval) {
+        // Proportional control converges exactly onto the target angle — no
+        // deadband, so no pop-pause-pop stepping while tracking a moving player.
         let diff = npc.zRotation.signedAngleDifference((point - npc.position).atan2())
-        // Keep the deadband under the firing tolerance so the tank settles on-target,
-        // but no smaller than a rotation step to avoid overshoot chatter.
-        let deadband = Swift.min(Swift.max(rotationStep(for: npc, deltaTime: deltaTime), 0.02), aimTolerance * 0.8)
-        guard diff.abs() > deadband else {
-            return
-        }
-        if diff > 0 {
-            controller.value.isTurnRightPressed = true
-        } else {
-            controller.value.isTurnLeftPressed = true
-        }
+        controller.value.turnThrottle = turnThrottle(for: npc, diff: diff, horizon: deltaTime)
     }
 
     /// Sum of repulsion from NPCs inside the separation radius — stronger the closer

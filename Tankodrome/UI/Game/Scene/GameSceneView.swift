@@ -22,7 +22,10 @@ struct GameSceneView: View {
         SpriteView(
             scene: viewModel.scene(with: size),
             options: [.ignoresSiblingOrder],
-            debugOptions: [.showsFPS, .showsPhysics, .showsNodeCount]
+            // .showsPhysics redraws every body outline each frame — on a generated
+            // map with hundreds of contour bodies it costs real frame time and
+            // makes the frame pacing (and therefore motion) visibly uneven.
+            debugOptions: [.showsFPS, .showsNodeCount]
         )
         .ignoresSafeArea()
         .onAppear {

@@ -12,7 +12,10 @@ extension Tank: Updatable {
         guard let component = getComponent(of: VelocityComponent.self) else {
             return
         }
-        let isAnimated = component.value != 0.0
+        // Treat near-zero speed as standing: the AI brakes by decaying velocity
+        // (*= 0.9), which never reaches exactly 0, and the track animation must
+        // not keep flickering on a tank that is visually standing still.
+        let isAnimated = component.value.abs() > 1.0
         tracks.setTrackAnimated(isAnimated)
     }
 }

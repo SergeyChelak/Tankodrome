@@ -43,6 +43,10 @@ final class AiComponent: Component {
     /// Current wander destination while patrolling.
     var wanderGoal: CGPoint?
 
+    /// Low-pass-filtered steering heading (see `NpcSystem.steer`) — smooths the
+    /// discontinuous raw steering forces so the hull doesn't twitch.
+    var desiredHeading: CGFloat?
+
     /// Stable squad slot used to spread NPCs onto different flank approaches and to
     /// desync their firing so they don't volley in unison.
     var flankSlot: Int = 0
