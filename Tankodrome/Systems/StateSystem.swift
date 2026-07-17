@@ -46,9 +46,10 @@ final class StateSystem: System {
         let percentage = stats.maxHealth > 0
         ? stats.health / stats.maxHealth
         : 0
-        updateHudHealth(
+        updateHud(
             context: context,
-            health: percentage
+            health: percentage,
+            enemiesLeft: stats.enemies
         )
     }
     
@@ -82,12 +83,13 @@ final class StateSystem: System {
         context.addComponent(GameStateComponent(value: newState))
     }
     
-    private func updateHudHealth(context: GameSceneContext, health: CGFloat) {
+    private func updateHud(context: GameSceneContext, health: CGFloat, enemiesLeft: Int) {
         guard let component = context.getComponent(of: HudDataComponent.self) else {
             return
         }
         var data = component.value
         data.playerHealth = health
+        data.enemiesLeft = enemiesLeft
         component.value = data
     }
 }
