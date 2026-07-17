@@ -15,7 +15,7 @@ final class LevelGenerator {
     
     private let waveFunctionCollapse = WaveFunctionCollapse(
         cellCollapsePicker: cellCollapsePicker(_:_:),
-        cellConstructor: cellConstructor(index:size:options:)
+        cellConstructor: cellConstructor(index:size:options:tileMap:)
     )
     
     private let dataSource: MapsDataSource
@@ -206,15 +206,52 @@ final class LevelGenerator {
     }
 }
 
-func cellConstructor(index: Int, size: Matrix.Size, options: Set<TileId>) -> WaveFunctionCollapse.Cell {
-    let pos = Matrix.Position.from(index: index, of: size)
-    let row = pos.row
-    let col = pos.col
-    let isEdge = row == 0 || col == 0 || row == size.rows - 1 || col == size.cols - 1
-    return WaveFunctionCollapse.Cell(
-        priority: isEdge ? 1 : 0,
-        options: options
-    )
+// TODO: create constant storage?
+private let solidWall: TileId = "A"
+
+private func isPerimeter(_ position: Matrix.Position, in size: Matrix.Size) -> Bool {
+    position.row == 0
+    || position.col == 0
+    || position.row == size.rows - 1
+    || position.col == size.cols - 1
+}
+
+/// A perimeter tile must present a solid wall on every edge that faces outside
+/// the grid, otherwise actors could move out of the game scene. Interior tiles
+/// are always allowed.
+private func fitsPerimeter(
+    _ tile: WaveFunctionCollapse.Tile,
+    at position: Matrix.Position,
+    in size: Matrix.Size
+) -> Bool {
+    let isSolid = { (edge: WaveFunctionCollapse.Tile.Options) in
+        edge.allSatisfy { $0 == solidWall }
+    }
+    if position.col == 0, !isSolid(tile.left) { return false }
+    if position.col == size.cols - 1, !isSolid(tile.right) { return false }
+    if position.row == 0, !isSolid(tile.up) { return false }
+    if position.row == size.rows - 1, !isSolid(tile.down) { return false }
+    return true
+}
+
+func cellConstructor(
+    index: Int,
+    size: Matrix.Size,
+    options: Set<TileId>,
+    tileMap: [TileId: WaveFunctionCollapse.Tile]
+) -> WaveFunctionCollapse.Cell {
+    let position = Matrix.Position.from(index: index, of: size)
+    guard isPerimeter(position, in: size) else {
+        return WaveFunctionCollapse.Cell(priority: 0, options: options)
+    }
+    // Constrain perimeter cells up front so they can *only* ever collapse to a
+    // wall-facing tile. Propagation only removes options, so this guarantee
+    // holds regardless of collapse order, propagation or backtracking.
+    let walls = options.filter { id in
+        guard let tile = tileMap[id] else { return false }
+        return fitsPerimeter(tile, at: position, in: size)
+    }
+    return WaveFunctionCollapse.Cell(priority: 1, options: walls)
 }
 
 func cellCollapsePicker(_ context: CellCollapsePickerContext, _ indices: Set<Int>) -> CellCollapse? {
@@ -224,44 +261,19 @@ func cellCollapsePicker(_ context: CellCollapsePickerContext, _ indices: Set<Int
             Matrix.Position.from(index: $0, of: size)
         }
         .filter {
-            let row = $0.row
-            let col = $0.col
-            return row == 0 || col == 0 || row == size.rows - 1 || col == size.cols - 1
+            isPerimeter($0, in: size)
         }
-    
+
     if let position = edgePositions.randomElement() {
-        // TODO: create constant storage?
-        let solidWall = "A"
-        
-        let row = position.row
-        let col = position.col
-                
         let options = context.cell(at: position)
             .options
             .compactMap { (value: String) -> WaveFunctionCollapse.Tile? in
                 context.tile(for: value)
             }
             .filter { tile in
-                col == 0
-                ? tile.left.allSatisfy { $0 == solidWall }
-                : true
+                fitsPerimeter(tile, at: position, in: size)
             }
-            .filter { tile in
-                col == size.cols - 1
-                ? tile.right.allSatisfy { $0 == solidWall }
-                : true
-            }
-            .filter { tile in
-                row == 0
-                ? tile.up.allSatisfy { $0 == solidWall }
-                : true
-            }
-            .filter { tile in
-                row == size.rows - 1
-                ? tile.down.allSatisfy { $0 == solidWall }
-                : true
-            }
-        
+
         if let option = options.randomElement() {
             return (position.index(in: size), option.name)
         }

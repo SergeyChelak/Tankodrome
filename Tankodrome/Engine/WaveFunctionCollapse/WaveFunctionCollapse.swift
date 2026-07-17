@@ -17,7 +17,7 @@ final class WaveFunctionCollapse {
     typealias Position = Matrix.Position
     
     typealias CellCollapsePicker = (CellCollapsePickerContext, Set<Int>) -> CellCollapse?
-    typealias CellConstructor = (Int, Size, Set<TileId>) -> Cell
+    typealias CellConstructor = (Int, Size, Set<TileId>, [TileId: Tile]) -> Cell
     
     private(set) var size: Size = .zero()
     private var grid: Grid = .empty()
@@ -84,7 +84,7 @@ final class WaveFunctionCollapse {
         let options = Set(tileMap.keys)
         let array = (0..<size.count)
             .map { index in
-                cellConstructor(index, size, options)
+                cellConstructor(index, size, options, tileMap)
             }
         return Grid(content: array, size: size)
     }
@@ -260,6 +260,11 @@ extension WaveFunctionCollapse: CellCollapsePickerContext {
     }
 }
 
-func defaultCellConstructor(index: Int, size: Matrix.Size, options: Set<TileId>) -> WaveFunctionCollapse.Cell {
+func defaultCellConstructor(
+    index: Int,
+    size: Matrix.Size,
+    options: Set<TileId>,
+    tileMap: [TileId: WaveFunctionCollapse.Tile]
+) -> WaveFunctionCollapse.Cell {
     WaveFunctionCollapse.Cell(options: options)
 }
