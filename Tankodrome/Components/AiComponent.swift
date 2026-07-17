@@ -35,6 +35,11 @@ final class AiComponent: Component {
     var stuckTimer: TimeInterval = 0
     var escapeTimer: TimeInterval = 0
 
+    // Staggered decision throttle: time accumulated since this NPC last re-decided
+    // its steering. Holding the command between decisions decorrelates mutual
+    // reactions and prevents two NPCs livelocking against each other.
+    var sinceDecision: TimeInterval = 0
+
     /// Current wander destination while patrolling.
     var wanderGoal: CGPoint?
 

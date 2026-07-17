@@ -25,6 +25,9 @@ final class NpcSystem: System {
     // Memory / navigation
     private let memoryDuration: TimeInterval
     private let repathInterval: TimeInterval
+    // Staggered movement decisions (seconds). Engaging NPCs override this and decide
+    // every frame so their aim stays crisp.
+    private let decisionInterval: TimeInterval = 0.06
 
     // Tuning constants (steering feel).
     private let patrolSpeedFactor: CGFloat = 0.25
@@ -80,11 +83,27 @@ final class NpcSystem: System {
             guard let brain = brain(for: npc) else {
                 continue
             }
-            resetControllerState(for: npc)
             if let activeRegion, !activeRegion.contains(npc.position) {
+                resetControllerState(for: npc)
                 npc.getComponent(of: VelocityComponent.self)?.value = 0
+                brain.sinceDecision = 0
                 continue
             }
+
+            brain.sinceDecision += deltaTime
+            let canSeeTarget = target.map { canSee($0, from: npc, context: context) } ?? false
+
+            // Engaging NPCs decide every frame (crisp aim); the rest re-decide on a
+            // throttled, staggered cadence and hold their command in between. That
+            // stops two NPCs from mutually re-reacting each frame (the livelock) and
+            // smooths motion. Passing the real elapsed time keeps timers correct.
+            guard canSeeTarget || brain.sinceDecision >= decisionInterval else {
+                continue
+            }
+            let elapsed = brain.sinceDecision
+            brain.sinceDecision = 0
+
+            resetControllerState(for: npc)
             think(
                 npc: npc,
                 brain: brain,
@@ -92,7 +111,8 @@ final class NpcSystem: System {
                 nav: nav,
                 squad: squad,
                 neighbors: npcs,
-                deltaTime: deltaTime,
+                canSeeTarget: canSeeTarget,
+                deltaTime: elapsed,
                 context: context
             )
         }
@@ -126,6 +146,9 @@ final class NpcSystem: System {
         brain.flankSlot = nextFlankSlot
         brain.isRegistered = true
         brain.repathTimer = TimeInterval(nextFlankSlot % 8) * 0.05 // desync repaths
+        // Stagger the first decision across NPCs so they never all decide on the
+        // same frame — this is what decorrelates their mutual reactions.
+        brain.sinceDecision = decisionInterval * TimeInterval(nextFlankSlot % 6) / 6.0
         nextFlankSlot += 1
         npc.addComponent(brain)
         return brain
@@ -151,11 +174,10 @@ final class NpcSystem: System {
         nav: NavGrid?,
         squad: SquadComponent?,
         neighbors: [Sprite],
+        canSeeTarget: Bool,
         deltaTime: TimeInterval,
         context: GameSceneContext
     ) {
-        let canSeeTarget = target.map { canSee($0, from: npc, context: context) } ?? false
-
         if canSeeTarget, let target {
             brain.lastKnownTargetPosition = target.position
             brain.memoryTimer = memoryDuration
