@@ -236,8 +236,6 @@ struct NavGrid {
 private struct MinHeap {
     private var elements: [(index: Int, priority: CGFloat)] = []
 
-    var isEmpty: Bool { elements.isEmpty }
-
     mutating func push(index: Int, priority: CGFloat) {
         elements.append((index, priority))
         siftUp(from: elements.count - 1)

@@ -190,21 +190,6 @@ extension GameScene: SKPhysicsContactDelegate {
 }
 
 extension GameScene: GameSceneContext {
-    func rayCast(from start: CGPoint, rayLength: CGFloat, angle: CGFloat) -> [Sprite] {
-        let end = start + .rotated(radians: angle) * rayLength
-        var hits: [(node: Sprite, distance: CGFloat)] = []
-        physicsWorld.enumerateBodies(alongRayStart: start, end: end) { body, point, _, _ in
-            guard let node = body.node as? Sprite else {
-                return
-            }
-            hits.append((node, start.squaredDistance(to: point)))
-        }
-        // Nearest-first so callers can reason about occlusion.
-        return hits
-            .sorted { $0.distance < $1.distance }
-            .map { $0.node }
-    }
-
     func nearestHit(from start: CGPoint, to end: CGPoint, excluding: Sprite?) -> Sprite? {
         var nearest: Sprite?
         var nearestDistance = CGFloat.greatestFiniteMagnitude

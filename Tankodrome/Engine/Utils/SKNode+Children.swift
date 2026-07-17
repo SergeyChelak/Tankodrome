@@ -9,10 +9,6 @@ import Foundation
 import SpriteKit
 
 extension SKNode {
-    func addChildren(_ nodes: SKNode...) {
-        nodes.forEach { addChild($0) }
-    }
-    
     func addChildren(_ nodes: [SKNode]) {
         nodes.forEach { addChild($0) }
     }

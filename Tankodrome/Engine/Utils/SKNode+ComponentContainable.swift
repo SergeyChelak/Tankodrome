@@ -48,15 +48,6 @@ extension SKNode: ComponentContainable {
     }
 }
 
-extension SKNode {
-    func nodes<T: Component>(with type: T.Type) -> [Sprite] {
-        nodes()
-            .filter {
-                $0.hasComponent(of: type)
-            }
-    }
-}
-
 fileprivate func identifier<T: Component>(of type: T.Type) -> ComponentIdentifier {
     "#component#" + String(describing: type.self)
 }

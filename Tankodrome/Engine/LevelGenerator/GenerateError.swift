@@ -8,14 +8,11 @@
 import Foundation
 
 enum GenerateError: Error {
-    case unknownBodyType(String)
-    case invalidConnectorValue(String)
     case invalidState
     case unableCollapse
     case timeout
     case tileSetNotSpecified
     case multipleOrEmptyTileSet
-    case unexpectedError(String)
     case missingLayer(String)
     case missingTile
 }

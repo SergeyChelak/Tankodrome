@@ -35,10 +35,6 @@ final class WaveFunctionCollapse {
     }
     
     // MARK: setup
-    func setSize(rows: Int, cols: Int) {
-        self.setSize(Size(rows: rows, cols: cols))
-    }
-    
     func setSize(_ size: Size) {
         self.size = size
     }
