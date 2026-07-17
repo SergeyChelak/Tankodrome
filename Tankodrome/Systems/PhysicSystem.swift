@@ -68,11 +68,11 @@ final class PhysicSystem: System {
     
     private func collide(projectileA: Sprite, projectileB: Sprite, context: GameSceneContext) {
         // collision of 2 projectiles
-        explodeProjectile(projectileA, sceneContext: context) {
-            projectileB.removeFromParent()
+        explodeProjectile(projectileA, sceneContext: context) { [weak projectileB] in
+            projectileB?.removeFromParent()
         }
     }
-    
+
     private func explodeProjectile(
         _ projectile: Sprite,
         sceneContext: GameSceneContext,
@@ -82,9 +82,17 @@ final class PhysicSystem: System {
             node.zPosition = 1000
             projectile.addChild(node)
         }
+        // Capture the node weakly: the action is attached to the node itself, so a
+        // strong capture would form a node → action → node retain cycle and leak the
+        // node if it's removed from the scene before the action completes.
         let actions = [
             SKAction.wait(forDuration: 0.05),
-            SKAction.run { sceneContext.kill(projectile) }
+            SKAction.run { [weak projectile] in
+                guard let projectile else {
+                    return
+                }
+                sceneContext.kill(projectile)
+            }
         ]
         projectile.run(.sequence(actions), completion: completion)
     }
@@ -98,9 +106,14 @@ final class PhysicSystem: System {
             tank.addChild(node)
         }
         let time = 0.6
+        // Weak capture for the same reason as in explodeProjectile: the action runs
+        // on the tank itself, so a strong capture would leak the node.
         let disappearActions = [
             SKAction.wait(forDuration: time),
-            SKAction.run {
+            SKAction.run { [weak tank] in
+                guard let tank else {
+                    return
+                }
                 context.kill(tank)
             }
         ]
