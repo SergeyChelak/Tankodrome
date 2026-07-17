@@ -36,6 +36,7 @@ final class AttackSystem: System {
         // setup projectile node
         let model = weaponComponent.model
         let node = Projectile.Builder()
+            .model(model)
             .addComponent(VelocityComponent(value: model.speed))
             .addComponent(ProjectileMarker())
             .addComponent(DamageComponent(value: model.damage))
