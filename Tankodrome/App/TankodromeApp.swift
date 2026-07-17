@@ -12,7 +12,11 @@ struct TankodromeApp: App {
     @StateObject
     private var viewModel: TankodromeAppViewModel
     private let viewFactory: AppViewFactory
-    
+#if os(OSX)
+    @NSApplicationDelegateAdaptor(TankodromeAppDelegate.self)
+    private var appDelegate
+#endif
+
     init() {
         let inputController = InputController()
         let settings = composeAppSettings()
@@ -43,8 +47,6 @@ struct TankodromeApp: App {
             }
             return nil
         }
-        
-        @NSApplicationDelegateAdaptor(TankodromeAppDelegate.self) var appDelegate
 #endif
     }
     
