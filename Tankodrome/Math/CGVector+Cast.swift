@@ -11,8 +11,4 @@ extension CGVector {
     func point() -> CGPoint {
         CGPoint(x: self.dx, y: self.dy)
     }
-    
-    func _size() -> CGSize {
-        CGSize(width: self.dx, height: self.dy)
-    }
 }

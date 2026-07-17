@@ -35,24 +35,12 @@ extension CGFloat {
     func degreesToRadians() -> Self {
         self * .pi / 180.0
     }
-    
-    func radiansToDegrees() -> Self {
-        self * 180.0 / .pi
-    }
 }
 
 // MARK: angle processing
 extension CGFloat {
     static let doublePi = 2.0 * .pi
-    
-    func normalizeToPositiveRadians() -> Self {
-        var val = self.truncatingRemainder(dividingBy: Self.doublePi)
-        if val < 0.0 {
-            val += 2.0 * .pi
-        }
-        return val
-    }
-    
+
     func signedAngleDifference(_ other: Self) -> Self {
         var difference = (self - other).truncatingRemainder(dividingBy: Self.doublePi)
         if difference > .pi {
