@@ -29,10 +29,16 @@ final class NpcSystem: System {
     // Tuning constants (steering feel).
     private let patrolSpeedFactor: CGFloat = 0.25
     private let chaseSpeedFactor: CGFloat = 0.7
-    private let moveTurnThreshold: CGFloat = 0.08   // rad — deadband before we bother steering
-    private let pivotTurnThreshold: CGFloat = 0.8   // rad — turn sharper than this ⇒ pivot in place
-    private let avoidanceProbeFactor: CGFloat = 1.8 // whisker length in tank-sizes
-    private let avoidanceSpread: CGFloat = 0.5      // rad — side whisker angle
+    private let minMoveSpeedFactor: CGFloat = 0.35  // speed kept while turning — no hard stop
+    private let defaultRotationSpeed: CGFloat = 3.0 // fallback rad/s if a tank has none
+    private let avoidanceProbeFactor: CGFloat = 2.2 // wall whisker length in tank-sizes
+    private let avoidanceSpread: CGFloat = 0.6      // rad — side whisker angle
+    private let separationRadiusFactor: CGFloat = 2.6 // NPC-NPC spacing in tank-sizes
+    private let separationWeight: CGFloat = 1.7     // strength of anti-crowding push
+    private let wallAvoidWeight: CGFloat = 1.5      // strength of the wall push
+    private let forwardProbeFactor: CGFloat = 1.6   // "don't ram" look-ahead in tank-sizes
+    private let stuckDuration: TimeInterval = 0.6   // blocked this long ⇒ escape maneuver
+    private let escapeDuration: TimeInterval = 0.6  // how long to back-up-and-turn when wedged
     private let cullMargin: CGFloat = 256           // AI stays active this far beyond the view
 
     private var nextFlankSlot = 0
@@ -68,8 +74,9 @@ final class NpcSystem: System {
         // NPCs well outside the camera view are skipped entirely: no perception,
         // no navigation, no firing. They idle until the player comes near.
         let activeRegion = activeRegion(context: context)
+        let npcs = context.sprites.filter { $0.hasComponent(of: NpcMarker.self) }
 
-        for npc in context.sprites where npc.hasComponent(of: NpcMarker.self) {
+        for npc in npcs {
             guard let brain = brain(for: npc) else {
                 continue
             }
@@ -84,6 +91,7 @@ final class NpcSystem: System {
                 target: target,
                 nav: nav,
                 squad: squad,
+                neighbors: npcs,
                 deltaTime: deltaTime,
                 context: context
             )
@@ -142,6 +150,7 @@ final class NpcSystem: System {
         target: Sprite?,
         nav: NavGrid?,
         squad: SquadComponent?,
+        neighbors: [Sprite],
         deltaTime: TimeInterval,
         context: GameSceneContext
     ) {
@@ -172,10 +181,10 @@ final class NpcSystem: System {
         }
 
         switch brain.state {
-        case .attack: attack(npc: npc, brain: brain, target: target, deltaTime: deltaTime, context: context)
-        case .chase:  chase(npc: npc, brain: brain, nav: nav, deltaTime: deltaTime, context: context)
+        case .attack: attack(npc: npc, brain: brain, target: target, neighbors: neighbors, deltaTime: deltaTime, context: context)
+        case .chase:  chase(npc: npc, brain: brain, nav: nav, neighbors: neighbors, deltaTime: deltaTime, context: context)
         case .search: search(npc: npc)
-        case .patrol: patrol(npc: npc, brain: brain, nav: nav, deltaTime: deltaTime, context: context)
+        case .patrol: patrol(npc: npc, brain: brain, nav: nav, neighbors: neighbors, deltaTime: deltaTime, context: context)
         }
     }
 
@@ -185,6 +194,7 @@ final class NpcSystem: System {
         npc: Sprite,
         brain: AiComponent,
         target: Sprite?,
+        neighbors: [Sprite],
         deltaTime: TimeInterval,
         context: GameSceneContext
     ) {
@@ -197,12 +207,12 @@ final class NpcSystem: System {
         let squareDistance = toTarget.squaredDistance()
 
         if squareDistance > squareAttackRange {
-            // Close the distance, steering around any walls on the way.
-            steerWithAvoidance(npc: npc, toward: target.position, speedFactor: chaseSpeedFactor, context: context)
+            // Close the distance, steering around walls and away from allies.
+            steer(npc: npc, brain: brain, toward: target.position, speedFactor: chaseSpeedFactor, neighbors: neighbors, deltaTime: deltaTime, context: context)
         } else {
             // In range: hold position and aim precisely at the target.
             velocity.value *= 0.9
-            aim(npc: npc, at: target.position, controller: controller)
+            aim(npc: npc, at: target.position, controller: controller, deltaTime: deltaTime)
         }
 
         // Firing gate — shared by both branches. Only fire when the aim has settled
@@ -224,6 +234,7 @@ final class NpcSystem: System {
         npc: Sprite,
         brain: AiComponent,
         nav: NavGrid?,
+        neighbors: [Sprite],
         deltaTime: TimeInterval,
         context: GameSceneContext
     ) {
@@ -233,7 +244,7 @@ final class NpcSystem: System {
         // While still far, spread onto a flank so the squad approaches from several
         // sides instead of stacking single-file into each other's line of fire.
         let approach = flankedGoal(goal, npc: npc, brain: brain, nav: nav)
-        navigate(npc: npc, brain: brain, to: approach, nav: nav, speedFactor: chaseSpeedFactor, deltaTime: deltaTime, context: context)
+        navigate(npc: npc, brain: brain, to: approach, nav: nav, speedFactor: chaseSpeedFactor, neighbors: neighbors, deltaTime: deltaTime, context: context)
     }
 
     private func search(npc: Sprite) {
@@ -250,12 +261,13 @@ final class NpcSystem: System {
         npc: Sprite,
         brain: AiComponent,
         nav: NavGrid?,
+        neighbors: [Sprite],
         deltaTime: TimeInterval,
         context: GameSceneContext
     ) {
         guard let nav else {
-            // No navigation grid: creep forward and let whisker avoidance steer.
-            steerWithAvoidance(npc: npc, toward: pointAhead(from: npc, distance: 200), speedFactor: patrolSpeedFactor, context: context)
+            // No navigation grid: creep forward and let steering handle avoidance.
+            steer(npc: npc, brain: brain, toward: pointAhead(from: npc, distance: 200), speedFactor: patrolSpeedFactor, neighbors: neighbors, deltaTime: deltaTime, context: context)
             return
         }
         if brain.wanderGoal == nil || reached(brain.wanderGoal!, by: npc) {
@@ -265,7 +277,7 @@ final class NpcSystem: System {
         guard let wander = brain.wanderGoal else {
             return
         }
-        navigate(npc: npc, brain: brain, to: wander, nav: nav, speedFactor: patrolSpeedFactor, deltaTime: deltaTime, context: context)
+        navigate(npc: npc, brain: brain, to: wander, nav: nav, speedFactor: patrolSpeedFactor, neighbors: neighbors, deltaTime: deltaTime, context: context)
     }
 
     // MARK: - Perception
@@ -302,11 +314,12 @@ final class NpcSystem: System {
         to goal: CGPoint,
         nav: NavGrid?,
         speedFactor: CGFloat,
+        neighbors: [Sprite],
         deltaTime: TimeInterval,
         context: GameSceneContext
     ) {
         guard let nav else {
-            steerWithAvoidance(npc: npc, toward: goal, speedFactor: speedFactor, context: context)
+            steer(npc: npc, brain: brain, toward: goal, speedFactor: speedFactor, neighbors: neighbors, deltaTime: deltaTime, context: context)
             return
         }
         // Pathfinding is strictly time-throttled: recompute at most once per
@@ -325,48 +338,90 @@ final class NpcSystem: System {
             brain.pathIndex += 1
         }
         let waypoint = brain.pathIndex < brain.path.count ? brain.path[brain.pathIndex] : goal
-        steerWithAvoidance(npc: npc, toward: waypoint, speedFactor: speedFactor, context: context)
+        steer(npc: npc, brain: brain, toward: waypoint, speedFactor: speedFactor, neighbors: neighbors, deltaTime: deltaTime, context: context)
     }
 
-    /// Turns toward `point`, but if a wall is close ahead, overrides the heading to
-    /// steer around it. Speed is written directly (pivots in place for sharp turns).
-    private func steerWithAvoidance(
+    /// Blends goal-seeking with separation from nearby NPCs and a soft wall push into
+    /// one desired heading, turns toward it (adaptive deadband → no jitter), and — the
+    /// key robustness rule — NEVER drives forward into a wall or another tank. When
+    /// forward is blocked it rotates in place to find an opening; if it stays wedged,
+    /// it triggers a short back-up-and-turn escape so it can't get permanently stuck.
+    private func steer(
         npc: Sprite,
-        toward point: CGPoint,
+        brain: AiComponent,
+        toward goal: CGPoint,
         speedFactor: CGFloat,
+        neighbors: [Sprite],
+        deltaTime: TimeInterval,
         context: GameSceneContext
     ) {
         guard let controller = npc.getComponent(of: ControllerComponent.self),
               let velocity = npc.getComponent(of: VelocityComponent.self) else {
             return
         }
-        let desired = (point - npc.position).atan2()
-        let heading = avoidanceHeading(for: npc, context: context) ?? desired
-        applyMovement(npc: npc, controller: controller, velocity: velocity, heading: heading, speedFactor: speedFactor)
-    }
 
-    private func applyMovement(
-        npc: Sprite,
-        controller: ControllerComponent,
-        velocity: VelocityComponent,
-        heading: CGFloat,
-        speedFactor: CGFloat
-    ) {
-        let diff = npc.zRotation.signedAngleDifference(heading)
-        if diff.abs() > moveTurnThreshold {
+        // Wedge escape takes priority: reverse while turning a slot-determined way
+        // (neighbouring tanks pick opposite directions and separate).
+        if brain.escapeTimer > 0 {
+            brain.escapeTimer -= deltaTime
+            velocity.value = -0.3 * velocity.limit // back straight out of the wedge
+            if brain.flankSlot % 2 == 0 {
+                controller.value.isTurnLeftPressed = true
+            } else {
+                controller.value.isTurnRightPressed = true
+            }
+            return
+        }
+
+        var direction = normalized(goal - npc.position)
+        direction = direction + separationVector(for: npc, neighbors: neighbors) * separationWeight
+        direction = direction + wallAvoidanceVector(for: npc, context: context) * wallAvoidWeight
+        // If the forces cancel out, keep the current facing rather than snapping.
+        let desiredAngle = direction.squaredDistance() > 1e-4 ? direction.atan2() : npc.zRotation
+
+        // Turn toward the heading (adaptive deadband kills overshoot chatter).
+        let diff = npc.zRotation.signedAngleDifference(desiredAngle)
+        if diff.abs() > Swift.max(0.03, rotationStep(for: npc, deltaTime: deltaTime)) {
             if diff > 0 {
                 controller.value.isTurnRightPressed = true
             } else {
                 controller.value.isTurnLeftPressed = true
             }
         }
-        // Pivot in place for sharp turns; otherwise drive at the requested pace.
-        velocity.value = diff.abs() > pivotTurnThreshold ? 0 : speedFactor * velocity.limit
+
+        // Hard rule: don't move into what's directly ahead. Track how long we're
+        // blocked and escape if it persists.
+        if isBlockedAhead(npc: npc, context: context) {
+            velocity.value = 0
+            brain.stuckTimer += deltaTime
+            if brain.stuckTimer > stuckDuration {
+                brain.escapeTimer = escapeDuration
+                brain.stuckTimer = 0
+            }
+        } else {
+            brain.stuckTimer = 0
+            let alignment = Swift.max(0, cos(diff))
+            velocity.value = speedFactor * velocity.limit * (minMoveSpeedFactor + (1 - minMoveSpeedFactor) * alignment)
+        }
     }
 
-    private func aim(npc: Sprite, at point: CGPoint, controller: ControllerComponent) {
+    /// True if a wall or another tank sits within the forward look-ahead. Projectiles
+    /// are ignored. This is the gate that stops NPCs ramming walls and each other.
+    private func isBlockedAhead(npc: Sprite, context: GameSceneContext) -> Bool {
+        let reach = forwardProbeFactor * npc.size.width.max(npc.size.height)
+        let end = pointAhead(from: npc, distance: reach)
+        guard let hit = context.nearestHit(from: npc.position, to: end, excluding: npc) else {
+            return false
+        }
+        return isWall(hit) || isTank(hit)
+    }
+
+    private func aim(npc: Sprite, at point: CGPoint, controller: ControllerComponent, deltaTime: TimeInterval) {
         let diff = npc.zRotation.signedAngleDifference((point - npc.position).atan2())
-        guard diff.abs() > aimTolerance else {
+        // Keep the deadband under the firing tolerance so the tank settles on-target,
+        // but no smaller than a rotation step to avoid overshoot chatter.
+        let deadband = Swift.min(Swift.max(rotationStep(for: npc, deltaTime: deltaTime), 0.02), aimTolerance * 0.8)
+        guard diff.abs() > deadband else {
             return
         }
         if diff > 0 {
@@ -376,31 +431,52 @@ final class NpcSystem: System {
         }
     }
 
-    /// If a wall is within the forward whisker, returns a heading that steers toward
-    /// the clearer side; otherwise `nil` (path is clear).
-    private func avoidanceHeading(for npc: Sprite, context: GameSceneContext) -> CGFloat? {
+    /// Sum of repulsion from NPCs inside the separation radius — stronger the closer
+    /// they are. This is the anti-crowding / anti-collision force.
+    private func separationVector(for npc: Sprite, neighbors: [Sprite]) -> CGPoint {
+        let radius = separationRadiusFactor * npc.size.width.max(npc.size.height)
+        let radiusSq = radius.sqr()
+        var push = CGPoint.zero
+        for other in neighbors where other !== npc {
+            let away = npc.position - other.position
+            let distSq = away.squaredDistance()
+            guard distSq < radiusSq, distSq > 1.0 else {
+                continue
+            }
+            let dist = distSq.sqrt()
+            // Unit away-vector scaled by how deep inside the radius the neighbour is.
+            push = push + away * ((radius - dist) / (radius * dist))
+        }
+        return push
+    }
+
+    /// Soft push away from walls detected by three forward whiskers. Blended with the
+    /// goal direction, it curves the NPC around obstacles instead of snapping heading.
+    private func wallAvoidanceVector(for npc: Sprite, context: GameSceneContext) -> CGPoint {
         let facing = npc.zRotation
         let probe = avoidanceProbeFactor * npc.size.width.max(npc.size.height)
-        func blocked(_ angle: CGFloat) -> Bool {
+        var push = CGPoint.zero
+        for (offset, weight) in [(CGFloat(0), CGFloat(1.6)), (avoidanceSpread, 1.0), (-avoidanceSpread, 1.0)] {
+            let angle = facing + offset
             let end = npc.position + CGPoint.rotated(radians: angle) * probe
-            guard let hit = context.nearestHit(from: npc.position, to: end, excluding: npc) else {
-                return false
+            guard let hit = context.nearestHit(from: npc.position, to: end, excluding: npc), isWall(hit) else {
+                continue
             }
-            return isWall(hit)
+            push = push - CGPoint.rotated(radians: angle) * weight
         }
-        guard blocked(facing) else {
-            return nil
+        return push
+    }
+
+    private func rotationStep(for npc: Sprite, deltaTime: TimeInterval) -> CGFloat {
+        (npc.getComponent(of: RotationSpeedComponent.self)?.value ?? defaultRotationSpeed) * deltaTime
+    }
+
+    private func normalized(_ vector: CGPoint) -> CGPoint {
+        let lengthSq = vector.squaredDistance()
+        guard lengthSq > 1e-6 else {
+            return .zero
         }
-        let leftBlocked = blocked(facing + avoidanceSpread)
-        let rightBlocked = blocked(facing - avoidanceSpread)
-        if rightBlocked && !leftBlocked {
-            return facing + avoidanceSpread * 2
-        }
-        if leftBlocked && !rightBlocked {
-            return facing - avoidanceSpread * 2
-        }
-        // Boxed in (or symmetric): make a hard turn to break away.
-        return facing + .pi * 0.5
+        return vector * (1.0 / lengthSq.sqrt())
     }
 
     // MARK: - Coordination
@@ -448,5 +524,9 @@ final class NpcSystem: System {
 
     private func isWall(_ sprite: Sprite) -> Bool {
         sprite.hasComponent(of: BorderMarker.self) || sprite.hasComponent(of: ObstacleMarker.self)
+    }
+
+    private func isTank(_ sprite: Sprite) -> Bool {
+        sprite.hasComponent(of: NpcMarker.self) || sprite.hasComponent(of: PlayerMarker.self)
     }
 }

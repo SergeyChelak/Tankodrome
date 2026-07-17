@@ -30,6 +30,11 @@ final class AiComponent: Component {
     var pathIndex: Int = 0
     var repathTimer: TimeInterval = 0
 
+    // Wedge detection: how long forward motion has been blocked, and the countdown
+    // of an active escape (back-up-and-turn) maneuver.
+    var stuckTimer: TimeInterval = 0
+    var escapeTimer: TimeInterval = 0
+
     /// Current wander destination while patrolling.
     var wanderGoal: CGPoint?
 
