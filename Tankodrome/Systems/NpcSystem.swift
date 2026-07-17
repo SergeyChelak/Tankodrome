@@ -33,6 +33,7 @@ final class NpcSystem: System {
     private let pivotTurnThreshold: CGFloat = 0.8   // rad — turn sharper than this ⇒ pivot in place
     private let avoidanceProbeFactor: CGFloat = 1.8 // whisker length in tank-sizes
     private let avoidanceSpread: CGFloat = 0.5      // rad — side whisker angle
+    private let cullMargin: CGFloat = 256           // AI stays active this far beyond the view
 
     private var nextFlankSlot = 0
 
@@ -64,11 +65,19 @@ final class NpcSystem: System {
         // Age the shared squad memory once per frame, before any NPC refreshes it.
         squad?.age(by: deltaTime, forgetAfter: memoryDuration)
 
+        // NPCs well outside the camera view are skipped entirely: no perception,
+        // no navigation, no firing. They idle until the player comes near.
+        let activeRegion = activeRegion(context: context)
+
         for npc in context.sprites where npc.hasComponent(of: NpcMarker.self) {
             guard let brain = brain(for: npc) else {
                 continue
             }
             resetControllerState(for: npc)
+            if let activeRegion, !activeRegion.contains(npc.position) {
+                npc.getComponent(of: VelocityComponent.self)?.value = 0
+                continue
+            }
             think(
                 npc: npc,
                 brain: brain,
@@ -79,6 +88,24 @@ final class NpcSystem: System {
                 context: context
             )
         }
+    }
+
+    /// The camera's visible rectangle expanded by a margin. NPCs outside it are
+    /// culled from AI processing. Returns `nil` (no culling) if there's no camera.
+    private func activeRegion(context: GameSceneContext) -> CGRect? {
+        guard let camera = context.camera else {
+            return nil
+        }
+        let scale = camera.xScale
+        let width = context.size.width * scale
+        let height = context.size.height * scale
+        let rect = CGRect(
+            x: camera.position.x - width * 0.5,
+            y: camera.position.y - height * 0.5,
+            width: width,
+            height: height
+        )
+        return rect.insetBy(dx: -cullMargin, dy: -cullMargin)
     }
 
     // MARK: - Brain lifecycle
@@ -233,7 +260,7 @@ final class NpcSystem: System {
         }
         if brain.wanderGoal == nil || reached(brain.wanderGoal!, by: npc) {
             brain.wanderGoal = randomWalkablePoint(near: npc.position, nav: nav)
-            brain.path = []
+            brain.repathTimer = 0 // force a path to the new goal on the next navigate
         }
         guard let wander = brain.wanderGoal else {
             return
@@ -282,12 +309,14 @@ final class NpcSystem: System {
             steerWithAvoidance(npc: npc, toward: goal, speedFactor: speedFactor, context: context)
             return
         }
+        // Pathfinding is strictly time-throttled: recompute at most once per
+        // `repathInterval`. Between recomputes we follow the cached waypoints (and
+        // steer straight at the goal once they run out), which keeps A* off the
+        // per-frame hot path even while chasing a moving target.
         brain.repathTimer -= deltaTime
-        let goalCell = nav.cell(at: goal)
-        if brain.path.isEmpty || brain.repathTimer <= 0 || brain.pathGoalCell != goalCell {
+        if brain.repathTimer <= 0 {
             brain.path = nav.findPath(from: npc.position, to: goal)
             brain.pathIndex = 0
-            brain.pathGoalCell = goalCell
             brain.repathTimer = repathInterval
         }
         let reachSq = (0.6 * Swift.min(nav.tileSize.width, nav.tileSize.height)).sqr()

@@ -28,7 +28,6 @@ final class AiComponent: Component {
     // Navigation (cached A* path being followed).
     var path: [CGPoint] = []
     var pathIndex: Int = 0
-    var pathGoalCell: NavGrid.Cell?
     var repathTimer: TimeInterval = 0
 
     /// Current wander destination while patrolling.

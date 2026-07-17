@@ -7,6 +7,7 @@
 
 import Foundation
 import SpriteKit
+import QuartzCore
 
 class GameScene: SKScene {
     private var previousTime: TimeInterval?
@@ -93,12 +94,52 @@ class GameScene: SKScene {
             return
         }
         sprites = nodes()
+        #if DEBUG
+        if GameScene.profilingEnabled {
+            for system in systems {
+                let start = CACurrentMediaTime()
+                system.onUpdate(context: self)
+                profSystemTimes[String(describing: type(of: system)), default: 0] += (CACurrentMediaTime() - start) * 1000
+            }
+            profileReport(deltaTime: deltaTime)
+        } else {
+            systems.forEach { $0.onUpdate(context: self) }
+        }
+        #else
         systems.forEach {
             $0.onUpdate(context: self)
         }
+        #endif
         self.previousTime = currentTime
         eventListener?.onUpdate()
     }
+
+    #if DEBUG
+    // MARK: - Profiling (DEBUG only)
+    /// Flip to `true` to log a per-second [PERF] breakdown of system times to the console.
+    private static let profilingEnabled = false
+    private var profFrames = 0
+    private var profElapsed: TimeInterval = 0
+    private var profSystemTimes: [String: Double] = [:]
+
+    private func profileReport(deltaTime: TimeInterval) {
+        profFrames += 1
+        profElapsed += deltaTime
+        guard profElapsed >= 1.0 else {
+            return
+        }
+        let fps = Double(profFrames) / profElapsed
+        let npcCount = sprites.filter { $0.hasComponent(of: NpcMarker.self) }.count
+        let breakdown = profSystemTimes
+            .sorted { $0.value > $1.value }
+            .map { "\($0.key)=\(String(format: "%.2f", $0.value / Double(profFrames)))ms" }
+            .joined(separator: " ")
+        print("[PERF] fps=\(String(format: "%.1f", fps)) sprites=\(sprites.count) npc=\(npcCount) | \(breakdown)")
+        profFrames = 0
+        profElapsed = 0
+        profSystemTimes.removeAll()
+    }
+    #endif
     
     override func didSimulatePhysics() {
         super.didSimulatePhysics()

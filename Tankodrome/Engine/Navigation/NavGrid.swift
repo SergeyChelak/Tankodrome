@@ -116,6 +116,10 @@ struct NavGrid {
         var frontier = MinHeap()
         frontier.push(index: startIndex, priority: heuristic(startCell, goalCell))
 
+        // Bound the search so an unreachable goal can't explore the whole grid.
+        var expansions = 0
+        let expansionBudget = min(count, 4000)
+
         while let current = frontier.pop() {
             if current == goalIndex {
                 return reconstruct(cameFrom: cameFrom, goalIndex: goalIndex)
@@ -124,6 +128,11 @@ struct NavGrid {
                 continue
             }
             closed[current] = true
+
+            expansions += 1
+            if expansions > expansionBudget {
+                return []
+            }
 
             let cr = current / cols
             let cc = current % cols
