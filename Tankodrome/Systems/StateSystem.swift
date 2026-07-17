@@ -20,7 +20,6 @@ final class StateSystem: System {
         let stats = gameStats(context: context)
         // fill with default or initial values
         let hudData = HudData(
-            totalEnemies: stats.enemies,
             enemiesLeft: stats.enemies,
             playerHealth: 1.0
         )

@@ -144,7 +144,6 @@ final class NpcSystem: System {
         }
         let brain = AiComponent()
         brain.flankSlot = nextFlankSlot
-        brain.isRegistered = true
         brain.repathTimer = TimeInterval(nextFlankSlot % 8) * 0.05 // desync repaths
         // Stagger the first decision across NPCs so they never all decide on the
         // same frame — this is what decorrelates their mutual reactions.

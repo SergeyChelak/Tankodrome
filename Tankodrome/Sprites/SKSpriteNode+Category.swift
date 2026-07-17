@@ -13,8 +13,7 @@ extension SKSpriteNode {
         case tank = 0
         case border
         case projectile
-        case obstacle
-        
+
         var categoryBitMask: UInt32 {
             1 << self.rawValue
         }

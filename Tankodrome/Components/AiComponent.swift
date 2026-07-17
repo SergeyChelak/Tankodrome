@@ -46,7 +46,6 @@ final class AiComponent: Component {
     /// Stable squad slot used to spread NPCs onto different flank approaches and to
     /// desync their firing so they don't volley in unison.
     var flankSlot: Int = 0
-    var isRegistered = false
 
     /// How long the aim has been continuously on-target; gates firing.
     var aimHoldTime: TimeInterval = 0

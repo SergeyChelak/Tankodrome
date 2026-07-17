@@ -17,6 +17,4 @@ class ViewHolder {
     init(_ anyView: AnyView) {
         self.view = anyView
     }
-    
-    static let empty: ViewHolder = ViewHolder(EmptyView())
 }

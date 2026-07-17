@@ -11,9 +11,7 @@ struct MenuButtonView: View {
     @Environment(\.themeProvider) var themeProvider
     let title: String
     let callback: () -> Void
-    @State
-    private var isHovering = false
-    
+
     var body: some View {
         Text(title)
             .font(.system(size: 35))

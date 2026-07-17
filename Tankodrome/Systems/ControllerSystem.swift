@@ -9,12 +9,6 @@ import GameController
 import Foundation
 
 final class ControllerSystem: System {
-    func onUpdate(context: any GameSceneContext) {
-        /// this function should update sprite parameters according to controller state
-        /// currently the movement system is responsible for that
-        /// but it makes movement system is limited to move controllable sprites only
-    }
-        
     func onPhysicsSimulated(context: any GameSceneContext) {
         context
             .sprites
@@ -67,11 +61,5 @@ fileprivate extension ControllerComponent.State {
     
     mutating func apply(_ data: ControlEvent.GamepadButtonState) {
         isShootPressed = data.button == .b && data.isPressed
-    }
-}
-
-fileprivate extension Bool {
-    static func |= (lhs: inout Bool, rhs: Bool) {
-        lhs = lhs || rhs
     }
 }

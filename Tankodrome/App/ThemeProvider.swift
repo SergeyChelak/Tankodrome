@@ -26,11 +26,7 @@ final class ThemeProvider {
     var menuDivider: Color {
         menuPrimaryColor
     }
-    
-    var menuClickableItem: Color {
-        menuPrimaryColor
-    }
-    
+
     var menuFooterText: Color {
         menuPrimaryColor
     }

@@ -10,7 +10,6 @@ import Foundation
 final class HudDataComponent: ValueWrapper<HudData>, Component { }
 
 struct HudData {
-    let totalEnemies: Int
     var enemiesLeft: Int
     var playerHealth: CGFloat
 }
