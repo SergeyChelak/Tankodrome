@@ -41,6 +41,10 @@ class GameScene: SKScene {
     @MainActor
     func setLevel(_ level: Level) async {
         inputEvents.removeAll()
+        // Drop pending spawn/kill requests of the torn-down level so they are not
+        // applied to the new one on the next didFinishUpdate.
+        spawnList.removeAll()
+        killList.removeAll()
         removeAllChildren()
         self.camera = level.camera
         addChild(level.camera)
@@ -50,6 +54,12 @@ class GameScene: SKScene {
         addChildren(level.contours)
         addChildren(level.sprites)
         addChildren(level.decorations)
+        // Refresh the sprite list before notifying systems: `sprites` is otherwise
+        // only rebuilt in update(), so levelDidSet would observe the previous
+        // level's sprites (camera aligning to the old player, HUD counting the old
+        // level's enemies) — and the stale array would keep the whole previous
+        // level's node graph alive while the game sits in a menu.
+        sprites = nodes()
         systems.forEach {
             $0.levelDidSet(context: self)
         }
