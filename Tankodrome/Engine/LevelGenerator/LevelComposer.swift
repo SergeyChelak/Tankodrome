@@ -36,13 +36,43 @@ final class LevelComposer {
         let contours = createContours(data, levelRect: landscape.levelRect)
         let sprites = createSprites(data, levelRect: landscape.levelRect)
         let decorations = createDecorations(data, levelRect: landscape.levelRect)
+        let navGrid = createNavGrid(data, landscape: landscape)
         return Level(
             landscape: landscape,
             sprites: sprites,
             contours: contours,
-            sceneComponents: [],
+            sceneComponents: [
+                NavGridComponent(value: navGrid),
+                SquadComponent()
+            ],
             camera: createCamera(landscape.levelRect),
             decorations: decorations
+        )
+    }
+
+    private func createNavGrid(_ data: LevelData, landscape: Level.Landscape) -> NavGrid {
+        let levelRect = landscape.levelRect
+        let converter = BlockPositionConverter(
+            levelData: data,
+            levelRect: levelRect,
+            tileSize: tileSize
+        )
+        // World-space wall rectangles — mirror the Y-flip applied to the physics
+        // contours in `createContours` (RectangleContourBuilder, yFlipped == true).
+        let wallRects: [CGRect] = data.contourObjects.map { obj in
+            let bodyRect = converter.absoluteRectangle(obj)
+            var origin = bodyRect.origin
+            origin.y = levelRect.size.height - bodyRect.origin.y - bodyRect.size.height
+            return CGRect(origin: origin, size: bodyRect.size)
+        }
+        // ~half a tile of clearance keeps paths from hugging wall corners.
+        let clearance = 0.5 * Swift.min(landscape.tileSize.width, landscape.tileSize.height)
+        return NavGrid(
+            cols: landscape.cols,
+            rows: landscape.rows,
+            tileSize: landscape.tileSize,
+            wallRects: wallRects,
+            clearance: clearance
         )
     }
     

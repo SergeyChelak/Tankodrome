@@ -13,7 +13,12 @@ protocol GameSceneContext {
     var inputEvents: [ControlEvent] { get }
     var deltaTime: TimeInterval { get }
     var sprites: [Sprite] { get }
+    /// Casts a ray and returns every sprite it crosses, ordered nearest-first.
     func rayCast(from start: CGPoint, rayLength: CGFloat, angle: CGFloat) -> [Sprite]
+    /// Returns the closest sprite (with a physics body) intersected by the segment
+    /// `start`→`end`, ignoring `excluding` (e.g. the querying tank itself).
+    /// Use for line-of-sight and clear-shot checks.
+    func nearestHit(from start: CGPoint, to end: CGPoint, excluding: Sprite?) -> Sprite?
     func spawn(_ sprite: Sprite)
     func kill(_ sprite: Sprite)
     var specialInstruction: SpecialInstruction? { get }
